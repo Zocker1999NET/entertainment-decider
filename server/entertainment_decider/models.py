@@ -70,6 +70,9 @@ class CollectionStats:
 ####
 
 
+## Tag & Selection Score's
+
+
 class Tag(db.Entity):
 
     id: int = orm.PrimaryKey(int, auto=True)
@@ -81,6 +84,9 @@ class Tag(db.Entity):
 
     _collection_list: Iterable[MediaCollection] = orm.Set(lambda: MediaCollection)
     _media_list: Iterable[MediaElement] = orm.Set(lambda: MediaElement)
+
+
+## Element <-> Collection Linking
 
 
 class MediaCollectionLink(db.Entity):
@@ -104,6 +110,9 @@ class MediaCollectionLink(db.Entity):
     def sorted(iterable: Iterable[MediaCollectionLink]) -> List[MediaCollectionLink]:
         return sorted(iterable, key=lambda m: (m.season, m.episode, m.element_release_date, m.element_id))
     natural_order = (season, episode, element_release_date, element_id) # unusuable due to ponyorm, see https://github.com/ponyorm/pony/issues/612
+
+
+## Media Elements
 
 
 class MediaElement(db.Entity):
@@ -205,6 +214,9 @@ class MediaUriMapping(db.Entity):
     id: int = orm.PrimaryKey(int, auto=True)
     uri: str = orm.Required(str, unique=True)
     element: MediaElement = orm.Required(MediaElement)
+
+
+## Media Collections
 
 
 class MediaCollection(db.Entity):
