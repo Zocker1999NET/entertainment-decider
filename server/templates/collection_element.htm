@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    {% set title = collection.title %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        <style>
+            table tr th, table tr td {
+                margin: 0;
+                padding: .2em;
+                border: solid black 1px;
+            }
+        </style>
+    </head>
+    <body>
+        <a href="/collection">&lt;- back to list</a>
+        <h1>{{ title }}</h1>
+        <h2>Properties</h2>
+        <ul>
+            <li>Watch In Order: {{ collection.watch_in_order | tenary("Yes", "no") }} {%- if collection.watch_in_order_auto %} (automatic){% endif %}</li>
+            <li>Keep Updated: {{ collection.keep_updated | tenary("Yes", "no") }}</li>
+            {% if collection.watch_in_order %}
+                <li>
+                    Next Episode:
+                    {% set link = collection.next_episode %}
+                    {% if link %}
+                        <a href="{{ link.element.info_link }}">{{ link.element.title }}</a>
+                        {%- if link.season != 0 -%}
+                        , Season {{ link.season }}
+                        {% endif %}
+                        {%- if link.episode != 0 -%}
+                        , Episode {{ link.episode }}
+                        {% endif %}
+                    {% else %}
+                        no next episode
+                    {% endif %}
+                </li>
+            {% endif %}
+        </ul>
+        <h2>Notes</h2>
+        <pre>{{ collection.notes or "" }}</pre>
+        <h2>Episodes</h2>
+        <ul>
+            {% for link in media_links %}
+                <li>
+                    <a href="{{ link.element.info_link }}">{{ link.element.title }}</a>
+                    {%- if link.season != 0 -%}
+                    , Season {{ link.season }}
+                    {% endif %}
+                    {%- if link.episode != 0 -%}
+                    , Episode {{ link.episode }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        <h2>Links</h2>
+        <ul>
+            {% for link in collection._uris %}
+                <li>{{ link.uri | as_link }} {% if collection.uri == link.uri %}*{% endif %}</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    {% set title = media_list | length | string + " Videos known" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        <style>
+            table tr th, table tr td {
+                margin: 0;
+                padding: .2em;
+                border: solid black 1px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>{{ title }}</h1>
+        <ul>
+            <li>
+                Full length:
+                {{ media_list | map(attribute='length') | sum }}
+                seconds
+            </li>
+        </ul>
+        <table>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Progress</th>
+                <th>Length</th>
+                <th>Consider</th>
+                <th>Link</th>
+            </tr>
+            {% for media in media_list %}
+                <tr>
+                    <td><a href="{{ media.info_link }}">{{ media.title }}</a></td>
+                    <td>{{ media.release_date.strftime("%d.%m.%Y") }}</td>
+                    <td>
+                        {% if media.watched %}
+                            completed
+                        {% elif media.progress <= 0 %}
+                            not started
+                        {% else %}
+                            {{ media.progress }}&nbsp;s
+                        {% endif %}
+                    </td>
+                    <td>{{ media.length }}&nbsp;s</td>
+                    <td>{{ media.can_considered | tenary("Yes", "no") }}</td>
+                    <td><a href="{{ media.uri }}">link</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    {% set title = collection_list | length | string + " Collections known" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        <style>
+            table tr th, table tr td {
+                margin: 0;
+                padding: .2em;
+                border: solid black 1px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>{{ title }}</h1>
+        <table>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Count</th>
+                <th>Watched</th>
+                <th>To Watch</th>
+            </tr>
+            {% for collection in collection_list %}
+                {% set stats = collection.stats %}
+                <tr>
+                    <td><a href="{{ collection.info_link }}">{{ collection.title }}</a></td>
+                    <td>
+                        {% if collection.release_date %}
+                            {{ collection.release_date.strftime("%d.%m.%Y") }}
+                        {% else %}
+                            unknown
+                        {% endif %}
+                    </td>
+                    <td>{{ stats.full_count }}</td>
+                    <td>{{ stats.watched_count }}</td>
+                    <td>{{ stats.to_watch_count }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    {% set title = element.title %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        <style>
+            table tr th, table tr td {
+                margin: 0;
+                padding: .2em;
+                border: solid black 1px;
+            }
+        </style>
+    </head>
+    <body>
+        <a href="/media">&lt;- back to list</a>
+        <h1>{{ title }}</h1>
+        <h2>Notes</h2>
+        <pre>{{ element.notes or "" }}</pre>
+        <h2>Properties</h2>
+        <ul>
+            <li>Can be considered: {{ element.can_considered | tenary("Yes", "no") }}</li>
+        </ul>
+        <h2>Part of Collections</h2>
+        <ul>
+            {% for link in element.collection_links %}
+                <li>
+                    <a href="{{ link.collection.info_link }}">{{ link.collection.title }}</a>
+                    {%- if link.season != 0 -%}
+                    , Season {{ link.season }}
+                    {% endif %}
+                    {%- if link.episode != 0 -%}
+                    , Episode {{ link.episode }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        <h2>Links</h2>
+        <ul>
+            {% for link in element._uris %}
+                <li>{{ link.uri | as_link }} {% if element.uri == link.uri %}*{% endif %}</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>
