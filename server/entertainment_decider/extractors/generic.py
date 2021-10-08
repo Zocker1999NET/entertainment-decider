@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 import logging
 from typing import Dict, Generic, Optional, TypeVar
 
@@ -10,6 +11,21 @@ from ..models import MediaCollection, MediaElement
 
 
 T = TypeVar("T")
+
+
+class SuitableLevel(Enum):
+
+    NO = (False, False)
+    FALLBACK = (True, False)
+    ALWAYS = (True, True)
+
+    @property
+    def can_accept(self):
+        return self.value[0]
+
+    @property
+    def accept_immediately(self):
+        return self.value[1]
 
 
 class ExtractionError(Exception):
@@ -84,8 +100,8 @@ class GeneralExtractor(Generic[E, T]):
 
     # abstract (for specific extractor classes)
 
-    #def uri_suitable(self, uri: str) -> bool:
-    #    raise NotImplementedError()
+    def uri_suitable(self, uri: str) -> SuitableLevel:
+        raise NotImplementedError()
 
     def can_extract_offline(self, uri: str) -> bool:
         return False

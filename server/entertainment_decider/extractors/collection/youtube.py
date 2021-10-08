@@ -9,7 +9,7 @@ from pony import orm # TODO remove
 import youtubesearchpython
 
 from ...models import MediaCollection
-from ..generic import ExtractedData, ExtractionError
+from ..generic import ExtractedData, ExtractionError, SuitableLevel
 from .base import CollectionExtractor
 
 
@@ -44,6 +44,9 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
 
     def __init__(self):
         super().__init__("youtube")
+
+    def uri_suitable(self, uri: str) -> SuitableLevel:
+        return SuitableLevel.ALWAYS if self.__uri_regex.match(uri) else SuitableLevel.NO
 
     def can_extract_offline(self, uri: str) -> bool:
         return True

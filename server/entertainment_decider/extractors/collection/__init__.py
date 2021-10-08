@@ -4,6 +4,7 @@ from typing import Dict
 
 from ...config import app_config
 from ...models import MediaCollection
+from ..helpers import expect_suitable_extractor
 from .base import CollectionExtractor
 from .tt_rss import TtRssCollectionExtractor, TtRssConnectionParameter
 from .youtube import YouTubeCollectionExtractor
@@ -15,9 +16,9 @@ COLLECTION_EXTRACTORS: Dict[str, CollectionExtractor] = {
     "youtube": YouTubeCollectionExtractor(),
 }
 
-def collection_extract_uri(extractor_name: str, uri: str) -> MediaCollection:
+def collection_extract_uri(uri: str) -> MediaCollection:
     elem: MediaCollection = CollectionExtractor.check_uri(uri)
-    ex = COLLECTION_EXTRACTORS[extractor_name]
+    ex = expect_suitable_extractor(COLLECTION_EXTRACTORS, uri)
     if not elem:
         elem = ex.extract_and_store(uri)
     else:

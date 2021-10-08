@@ -10,7 +10,7 @@ from jsoncache import ApplicationCache
 
 from ...common import call
 from ...models import MediaElement
-from ..generic import AuthorExtractedData, ExtractedData, ExtractionError
+from ..generic import AuthorExtractedData, ExtractedData, ExtractionError, SuitableLevel
 from .base import  MediaExtractor
 
 
@@ -53,6 +53,9 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
 
     def __init__(self):
         super().__init__("ytdl")
+
+    def uri_suitable(self, uri: str) -> SuitableLevel:
+        return SuitableLevel.FALLBACK
 
     def _get_author_data(self, data: Dict) -> Optional[AuthorExtractedData]:
         video_extractor_key = data.get("extractor_key") or data["ie_key"]

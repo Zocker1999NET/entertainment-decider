@@ -14,7 +14,7 @@ from tinytinypy import Connection
 from tinytinypy.main import Headline
 
 from ...models import MediaCollection
-from ..generic import ExtractedData, ExtractionError
+from ..generic import ExtractedData, ExtractionError, SuitableLevel
 from .base import CollectionExtractor
 
 
@@ -86,6 +86,11 @@ class TtRssUri:
     options: Dict[str, str]
 
     @classmethod
+    def uri_suitable(cls, uri: str) -> bool:
+        parts = url.urlparse(uri)
+        return parts.scheme == cls.scheme
+
+    @classmethod
     def from_str_uri(cls, uri: str) -> "TtRssUri":
         parts = url.urlparse(uri, scheme=cls.scheme)
         if parts.scheme != cls.scheme:
@@ -123,6 +128,9 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
 
     def __decode_uri(self, uri: str) -> TtRssUri:
         return TtRssUri.from_str_uri(uri)
+
+    def uri_suitable(self, uri: str) -> SuitableLevel:
+        return SuitableLevel.ALWAYS if TtRssUri.uri_suitable(uri) else SuitableLevel.NO
 
     def can_extract_offline(self, uri: str) -> bool:
         return True
