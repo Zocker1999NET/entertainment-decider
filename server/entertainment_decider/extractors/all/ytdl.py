@@ -41,4 +41,8 @@ def get_video_info(uri: str) -> dict:
 
 @cache.cache_json()
 def get_playlist_info(uri: str) -> dict:
-    return ytdl_call(uri)
+    return ytdl_call([
+        "--yes-playlist",
+        "--dump-single-json",
+        uri,
+    ])
