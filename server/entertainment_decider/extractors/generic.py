@@ -40,7 +40,6 @@ class ExtractedDataLight:
 @dataclass
 class ExtractedData(ExtractedDataLight, Generic[T]):
     data: T = dataclasses.field(default=None, repr=False, compare=False)
-    cache: Dict = dataclasses.field(default=None, repr=False, compare=False)
 
     @property
     def has_data(self) -> bool:
@@ -88,16 +87,16 @@ class GeneralExtractor(Generic[E, T]):
     #def uri_suitable(self, uri: str) -> bool:
     #    raise NotImplementedError()
 
-    def can_extract_offline(self, uri: str, cache: Dict = None) -> bool:
+    def can_extract_offline(self, uri: str) -> bool:
         return False
 
     def _cache_expired(self, date: datetime) -> bool:
         return False
 
-    def _extract_offline_only(self, uri: str, cache: Dict = None) -> ExtractedData[T]:
+    def _extract_offline_only(self, uri: str) -> ExtractedData[T]:
         raise NotImplementedError()
 
-    def _extract_online(self, uri: str, cache: Dict = None) -> ExtractedData[T]:
+    def _extract_online(self, uri: str) -> ExtractedData[T]:
         raise NotImplementedError()
 
     def _update_object_raw(self, object: E, data: T):
@@ -108,16 +107,15 @@ class GeneralExtractor(Generic[E, T]):
 
     # defined
 
-    def _extract_offline(self, uri: str, cache: Dict = None) -> ExtractedData[T]:
-        return self._extract_offline_only(uri, cache) if self.can_extract_offline(uri, cache) else self._extract_online(uri, cache)
+    def _extract_offline(self, uri: str) -> ExtractedData[T]:
+        return self._extract_offline_only(uri) if self.can_extract_offline(uri) else self._extract_online(uri)
 
     def _extract_required(self, data: ExtractedData[T]) -> ExtractedData[T]:
         if data.has_data:
             return data
-        return self._extract_online(data.object_uri, data.cache)
+        return self._extract_online(data.object_uri)
 
     def _update_object(self, object: E, data: ExtractedData[T]) -> E:
-        object.extractor_cache = data.cache
         object.uri = data.object_uri
         object.add_uris((data.object_uri,))
         self._update_object_raw(object, data.data)
@@ -127,7 +125,7 @@ class GeneralExtractor(Generic[E, T]):
     def update_object(self, object: E, check_cache_expired: bool = True) -> E:
         if object.last_updated and check_cache_expired and not self._cache_expired(object.last_updated):
             return object
-        data = self._extract_online(object.uri, object.extractor_cache)
+        data = self._extract_online(object.uri)
         logging.debug(f"Updating info for media: {data!r}")
         return self._update_object(object, data)
 

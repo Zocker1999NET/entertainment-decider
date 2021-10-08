@@ -65,16 +65,12 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             author_name = f"{video_extractor_key}: {author_name}" if author_name else None,
         )
 
-    def _extract_online(self, uri: str, cache: Dict) -> ExtractedData[Dict]:
-        if cache:
-            logging.debug(f"Use preloaded cache to get infos of video {uri!r}")
-            vid_data = cache
-        else:
-            logging.info(f"Request info using youtube-dl for {uri!r}")
-            try:
-                vid_data = get_video_info(uri)
-            except YtdlErrorException as e:
-                raise ExtractionError from e
+    def _extract_online(self, uri: str) -> ExtractedData[Dict]:
+        logging.info(f"Request info using youtube-dl for {uri!r}")
+        try:
+            vid_data = get_video_info(uri)
+        except YtdlErrorException as e:
+            raise ExtractionError from e
         if vid_data.get("is_live", False):
             raise ExtractionError("Video is live, so pass extraction")
         ytdl_extractor_key = vid_data.get("extractor_key") or vid_data["ie_key"]
@@ -84,7 +80,6 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             extractor_name=self.name,
             object_key=f"{ytdl_extractor_key}:{ytdl_video_id}",
             data=vid_data,
-            cache=None,
         )
 
     def _update_object_raw(self, object: MediaElement, data: Dict) -> str:

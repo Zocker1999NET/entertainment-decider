@@ -118,7 +118,6 @@ class MediaElement(db.Entity):
     extractor_name: str = orm.Required(str)
     extractor_key: str = orm.Required(str)
     orm.composite_key(extractor_name, extractor_key)
-    _extractor_cache: Dict = orm.Optional(orm.Json, nullable=True)
     last_updated: datetime = orm.Optional(datetime)
 
     watched: bool = orm.Required(bool, default=False)
@@ -129,13 +128,6 @@ class MediaElement(db.Entity):
     tag_list : Iterable[Tag] = orm.Set(lambda: Tag)
     _uris: Iterable[MediaUriMapping] = orm.Set(lambda: MediaUriMapping)
     collection_links: Iterable[MediaCollectionLink] = orm.Set(lambda: MediaCollectionLink)
-
-    def __get_cache(self):
-        return self._extractor_cache
-    def __set_cache(self, cache: Dict):
-        self._extractor_cache = cache
-        self.last_updated = datetime.now()
-    extractor_cache = property(__get_cache, __set_cache)
 
     @property
     def left_length(self) -> int:
@@ -227,7 +219,6 @@ class MediaCollection(db.Entity):
     extractor_name: str = orm.Required(str)
     extractor_key: str = orm.Required(str)
     orm.composite_key(extractor_name, extractor_key)
-    _extractor_cache: Dict = orm.Optional(orm.Json, nullable=True)
     last_updated: datetime = orm.Optional(datetime)
 
     keep_updated: bool = orm.Required(bool, default=False)
@@ -239,13 +230,6 @@ class MediaCollection(db.Entity):
     tag_list: Iterable[Tag] = orm.Set(lambda: Tag)
     _uris: Iterable[CollectionUriMapping] = orm.Set(lambda: CollectionUriMapping)
     media_links: Iterable[MediaCollectionLink] = orm.Set(MediaCollectionLink)
-
-    def __get_cache(self):
-        return self._extractor_cache
-    def __set_cache(self, cache: Dict):
-        self._extractor_cache = cache
-        self.last_updated = datetime.now()
-    extractor_cache = property(__get_cache, __set_cache)
 
     @property
     def next_episode(self) -> Optional[MediaCollectionLink]:

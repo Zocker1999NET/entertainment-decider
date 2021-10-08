@@ -124,21 +124,20 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
     def __decode_uri(self, uri: str) -> TtRssUri:
         return TtRssUri.from_str_uri(uri)
 
-    def can_extract_offline(self, uri: str, cache: Dict = None) -> bool:
+    def can_extract_offline(self, uri: str) -> bool:
         return True
 
     def _cache_expired(self, date: datetime) -> bool:
         return (datetime.now() - date) < timedelta(hours=4)
 
-    def _extract_offline(self, uri: str, cache: Dict = None) -> ExtractedData[HeadlineList]:
+    def _extract_offline(self, uri: str) -> ExtractedData[HeadlineList]:
         return ExtractedData(
             extractor_name=self.name,
             object_key=uri,
             object_uri=uri,
-            cache=cache,
         )
 
-    def _extract_online(self, uri: str, cache: Dict = None) -> ExtractedData[HeadlineList]:
+    def _extract_online(self, uri: str) -> ExtractedData[HeadlineList]:
         rss_uri = self.__decode_uri(uri)
         logging.info(f"Extract collection from tt-rss: {uri!r}")
         data = rss_uri.request(self.__params, order_by="feed_dates", view_mode="unread")

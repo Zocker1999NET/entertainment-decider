@@ -45,22 +45,21 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
     def __init__(self):
         super().__init__("youtube")
 
-    def can_extract_offline(self, uri: str, cache: Dict = None) -> bool:
+    def can_extract_offline(self, uri: str) -> bool:
         return True
 
     def _cache_expired(self, date: datetime) -> bool:
         return (datetime.now() - date) < timedelta(hours=4)
 
-    def _extract_offline(self, uri: str, cache: Dict = None) -> ExtractedData[Dict]:
+    def _extract_offline(self, uri: str) -> ExtractedData[Dict]:
         playlist_id = self.__convert_if_required(self.__get_id(uri))
         return ExtractedData(
             extractor_name=self.name,
             object_key=playlist_id,
             object_uri=uri,
-            cache=cache,
         )
 
-    def _extract_online(self, uri: str, cache: Dict = None) -> ExtractedData[Dict]:
+    def _extract_online(self, uri: str) -> ExtractedData[Dict]:
         playlist_id = self.__convert_if_required(self.__get_id(uri))
         playlist_link = f"https://www.youtube.com/playlist?list={playlist_id}"
         logging.info(f"Request Youtube playlist {playlist_link!r}")
