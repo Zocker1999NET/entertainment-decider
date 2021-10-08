@@ -204,6 +204,12 @@ class MediaElement(db.Entity):
                 raise Exception(f"URI duplicated for two different media's: {uri}") # TODO may replace with merge call
         orm.flush()
 
+    def before_insert(self):
+        self.before_update()
+
+    def before_update(self):
+        self.add_uris((self.uri,))
+
     @property
     def info_link(self):
         return f"/media/{self.id}"
@@ -285,6 +291,12 @@ class MediaCollection(db.Entity):
             if mapping.element != self:
                 raise Exception(f"URI duplicated for two different collections's: {uri}") # TODO may replace with merge call
         orm.flush()
+
+    def before_insert(self):
+        self.before_update()
+
+    def before_update(self):
+        self.add_uris((self.uri,))
 
     @property
     def info_link(self):

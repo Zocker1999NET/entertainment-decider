@@ -43,7 +43,6 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
 
     def _create_author_collection(self, author_data: AuthorExtractedData) -> MediaCollection:
         collection = author_data.create_collection()
-        collection.add_uris((author_data.object_uri,))
         collection.keep_updated = False
         collection.watch_in_order = False
         return collection
