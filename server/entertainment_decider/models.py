@@ -126,7 +126,7 @@ class MediaElement(db.Entity):
     length: int = orm.Optional(int)
 
     tag_list : Iterable[Tag] = orm.Set(lambda: Tag)
-    _uris: Iterable[MediaUriMapping] = orm.Set(lambda: MediaUriMapping)
+    uris: Iterable[MediaUriMapping] = orm.Set(lambda: MediaUriMapping)
     collection_links: Iterable[MediaCollectionLink] = orm.Set(lambda: MediaCollectionLink)
 
     @property
@@ -173,7 +173,7 @@ class MediaElement(db.Entity):
             other.ignored = True
         if self.progress >= 0 and other.progress <= 0:
             other.progress = self.progress
-        for uri_map in self._uris:
+        for uri_map in self.uris:
             uri_map.element = other
         for link in self.collection_links:
             if not MediaCollectionLink.get(collection=link.collection, element=other):
@@ -228,7 +228,7 @@ class MediaCollection(db.Entity):
     watch_in_order: bool = orm.Required(bool, default=True)
 
     tag_list: Iterable[Tag] = orm.Set(lambda: Tag)
-    _uris: Iterable[CollectionUriMapping] = orm.Set(lambda: CollectionUriMapping)
+    uris: Iterable[CollectionUriMapping] = orm.Set(lambda: CollectionUriMapping)
     media_links: Iterable[MediaCollectionLink] = orm.Set(MediaCollectionLink)
 
     @property
