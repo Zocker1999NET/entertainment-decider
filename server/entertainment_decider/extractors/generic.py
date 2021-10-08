@@ -136,6 +136,7 @@ class GeneralExtractor(Generic[E, T]):
         object.add_uris((data.object_uri,))
         self._update_object_raw(object, data.data)
         self._update_hook(object, data)
+        object.last_updated = datetime.now()
         return object
 
     def update_object(self, object: E, check_cache_expired: bool = True) -> E:
