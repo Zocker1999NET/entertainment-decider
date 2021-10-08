@@ -219,7 +219,7 @@ def test():
         "data": first.to_dict(),
     }, 200
 
-# TODO add table for failed attempts so these may be resolved afterwards with increasing delays (add to MediaElement with flag "retrieved" and "extractor_cache_date" as date to resolve last try)
+# TODO add table for failed attempts so these may be resolved afterwards with increasing delays (add to MediaElement with flag "retrieved" and "last_updated" as date to resolve last try)
 
 
 @flask_app.route("/api/media/list")

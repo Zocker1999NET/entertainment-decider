@@ -119,7 +119,7 @@ class MediaElement(db.Entity):
     extractor_key: str = orm.Required(str)
     orm.composite_key(extractor_name, extractor_key)
     _extractor_cache: Dict = orm.Optional(orm.Json, nullable=True)
-    extractor_cache_date: datetime = orm.Optional(datetime)
+    last_updated: datetime = orm.Optional(datetime)
 
     watched: bool = orm.Required(bool, default=False)
     ignored: bool = orm.Required(bool, default=False)
@@ -131,13 +131,13 @@ class MediaElement(db.Entity):
     collection_links: Iterable[MediaCollectionLink] = orm.Set(lambda: MediaCollectionLink)
 
     def extractor_cache_valid(self, max_age: timedelta):
-        return (datetime.now() - self.extractor_cache_date) < max_age
+        return (datetime.now() - self.last_updated) < max_age
 
     def __get_cache(self):
         return self._extractor_cache
     def __set_cache(self, cache: Dict):
         self._extractor_cache = cache
-        self.extractor_cache_date = datetime.now()
+        self.last_updated = datetime.now()
     extractor_cache = property(__get_cache, __set_cache)
 
     @property
@@ -231,7 +231,7 @@ class MediaCollection(db.Entity):
     extractor_key: str = orm.Required(str)
     orm.composite_key(extractor_name, extractor_key)
     _extractor_cache: Dict = orm.Optional(orm.Json, nullable=True)
-    extractor_cache_date: datetime = orm.Optional(datetime)
+    last_updated: datetime = orm.Optional(datetime)
 
     keep_updated: bool = orm.Required(bool, default=False)
     watch_in_order_auto: bool = orm.Required(bool, default=True)
@@ -244,13 +244,13 @@ class MediaCollection(db.Entity):
     media_links: Iterable[MediaCollectionLink] = orm.Set(MediaCollectionLink)
 
     def extractor_cache_valid(self, max_age: timedelta):
-        return (datetime.now() - self.extractor_cache_date) < max_age
+        return (datetime.now() - self.last_updated) < max_age
 
     def __get_cache(self):
         return self._extractor_cache
     def __set_cache(self, cache: Dict):
         self._extractor_cache = cache
-        self.extractor_cache_date = datetime.now()
+        self.last_updated = datetime.now()
     extractor_cache = property(__get_cache, __set_cache)
 
     @property
