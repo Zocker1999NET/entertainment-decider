@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 from typing import Dict, Iterable, List, Optional, Set
 
@@ -130,9 +130,6 @@ class MediaElement(db.Entity):
     _uris: Iterable[MediaUriMapping] = orm.Set(lambda: MediaUriMapping)
     collection_links: Iterable[MediaCollectionLink] = orm.Set(lambda: MediaCollectionLink)
 
-    def extractor_cache_valid(self, max_age: timedelta):
-        return (datetime.now() - self.last_updated) < max_age
-
     def __get_cache(self):
         return self._extractor_cache
     def __set_cache(self, cache: Dict):
@@ -242,9 +239,6 @@ class MediaCollection(db.Entity):
     tag_list: Iterable[Tag] = orm.Set(lambda: Tag)
     _uris: Iterable[CollectionUriMapping] = orm.Set(lambda: CollectionUriMapping)
     media_links: Iterable[MediaCollectionLink] = orm.Set(MediaCollectionLink)
-
-    def extractor_cache_valid(self, max_age: timedelta):
-        return (datetime.now() - self.last_updated) < max_age
 
     def __get_cache(self):
         return self._extractor_cache
