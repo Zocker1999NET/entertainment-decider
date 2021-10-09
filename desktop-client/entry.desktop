@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=$name URI Handler
+Exec=$exec_path exec %u
+Type=Application
+Terminal=false
+MimeType=x-scheme-handler/entertainment-decider;
