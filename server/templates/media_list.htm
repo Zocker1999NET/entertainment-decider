@@ -1,26 +1,11 @@
+{% import "macros.htm" as macros %}
 <!DOCTYPE html>
 <html>
     {% set title = media_list | length | string + " Videos known" %}
     <head>
         <meta charset="utf-8"/>
         <title>{{ title }}</title>
-        <style>
-            table tr th, table tr td {
-                margin: 0;
-                padding: .2em;
-                border: solid black 1px;
-            }
-            a:link { text-decoration: none; }
-            a:visited { text-decoration: none; }
-            a:hover { text-decoration: none; }
-            a:active { text-decoration: none; }
-            .button {
-                padding: .1rem .2rem;
-                margin: 0 .1rem;
-                background-color: lightcoral;
-                border-radius: .3rem;
-            }
-        </style>
+        {{ macros.shared_style() }}
     </head>
     <body>
         <h1>{{ title }}</h1>

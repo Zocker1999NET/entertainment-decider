@@ -1,16 +1,11 @@
+{% import "macros.htm" as macros %}
 <!DOCTYPE html>
 <html>
     {% set title = collection_list | length | string + " Collections known" %}
     <head>
         <meta charset="utf-8"/>
         <title>{{ title }}</title>
-        <style>
-            table tr th, table tr td {
-                margin: 0;
-                padding: .2em;
-                border: solid black 1px;
-            }
-        </style>
+        {{ macros.shared_style() }}
     </head>
     <body>
         <h1>{{ title }}</h1>
