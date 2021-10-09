@@ -204,7 +204,7 @@ def update_collection(collection_id):
 
 @flask_app.route("/media")
 def list_media():
-    media_list: Iterable[MediaElement] = MediaElement.select().order_by(orm.desc(MediaElement.release_date), MediaElement.id)
+    media_list: Iterable[MediaElement] = orm.select(m for m in MediaElement if not (m.ignored or m.watched)).order_by(orm.desc(MediaElement.release_date), MediaElement.id)
     return render_template("media_list.htm", media_list=list(media_list))
 
 @flask_app.route("/media/length")
