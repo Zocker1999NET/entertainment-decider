@@ -10,6 +10,16 @@
                 padding: .2em;
                 border: solid black 1px;
             }
+            a:link { text-decoration: none; }
+            a:visited { text-decoration: none; }
+            a:hover { text-decoration: none; }
+            a:active { text-decoration: none; }
+            .button {
+                padding: .1rem .2rem;
+                margin: 0 .1rem;
+                background-color: lightcoral;
+                border-radius: .3rem;
+            }
         </style>
     </head>
     <body>
@@ -28,7 +38,7 @@
                 <th>Progress</th>
                 <th>Length</th>
                 <th>Consider</th>
-                <th>Link</th>
+                <th>Actions</th>
             </tr>
             {% for media in media_list %}
                 <tr>
@@ -45,7 +55,9 @@
                     </td>
                     <td>{{ media.length }}&nbsp;s</td>
                     <td>{{ media.can_considered | tenary("Yes", "no") }}</td>
-                    <td><a href="{{ media.uri }}">link</a></td>
+                    <td>
+                        {{ media.uri | as_play_link }}
+                    </td>
                 </tr>
             {% endfor %}
         </table>

@@ -19,6 +19,9 @@
         <pre>{{ element.notes or "" }}</pre>
         <h2>Properties</h2>
         <ul>
+            <li>
+                {{ element.uri | as_play_link }}
+            </li>
             <li>Can be considered: {{ element.can_considered | tenary("Yes", "no") }}</li>
         </ul>
         <h2>Part of Collections</h2>

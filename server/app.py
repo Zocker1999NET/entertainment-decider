@@ -7,7 +7,7 @@ from __future__ import annotations
 from functools import partial
 import logging
 import os
-from pathlib import Path
+from urllib.parse import urlencode, quote_plus
 from typing import Any, Callable, Dict, Iterable, Optional, Union
 
 from flask import Flask, jsonify, make_response, request
@@ -136,6 +136,14 @@ Pony(flask_app)
 def as_link(uri: str):
     uri = Markup.escape(uri)
     return Markup(f'<a href="{uri}">{uri}</a>')
+
+@flask_app.template_filter()
+def as_play_link(video_uri: str):
+    opts = {
+        "video_uri": video_uri,
+    }
+    play_uri = "entertainment-decider:///player/play?" + urlencode(opts, quote_via=quote_plus)
+    return Markup(f'<a class=button href="{play_uri}">Play</a>')
 
 @flask_app.template_filter()
 def tenary(b: bool, true_str: str, false_str: str) -> str:
