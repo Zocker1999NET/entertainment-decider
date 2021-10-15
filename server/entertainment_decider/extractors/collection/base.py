@@ -27,11 +27,15 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
             return elem
         return None
 
+    def __configure_collection(self, collection: MediaCollection) -> None:
+        collection.keep_updated = True
+
     def _create_object(self, data: ExtractedData[T]) -> MediaCollection:
         collection = data.create_collection()
         return collection
 
     def _load_object(self, data: ExtractedData[T]) -> MediaCollection:
         collection = data.load_collection()
-        collection.keep_updated = True
+        if collection:
+            self.__configure_collection(collection)
         return collection
