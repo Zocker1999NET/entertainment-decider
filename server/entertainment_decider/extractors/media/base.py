@@ -41,13 +41,13 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
     def _load_object(self, data: ExtractedData[T]) -> MediaElement:
         return data.load_media()
 
-    def _create_author_collection(self, author_data: AuthorExtractedData) -> MediaCollection:
+    def __create_author_collection(self, author_data: AuthorExtractedData) -> MediaCollection:
         collection = author_data.create_collection()
         collection.keep_updated = False
         collection.watch_in_order = False
         return collection
 
-    def _lookup_author_collection(self, author_data: AuthorExtractedData) -> Optional[MediaCollection]:
+    def __lookup_author_collection(self, author_data: AuthorExtractedData) -> Optional[MediaCollection]:
         return CollectionExtractor.check_uri(
             uri=author_data.object_uri,
         ) or MediaCollection.get(
@@ -55,20 +55,20 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
             extractor_key=author_data.object_key,
         )
 
-    def _get_author_collection(self, author_data: AuthorExtractedData) -> MediaCollection:
-        collection = self._lookup_author_collection(author_data)
+    def __get_author_collection(self, author_data: AuthorExtractedData) -> MediaCollection:
+        collection = self.__lookup_author_collection(author_data)
         if collection is None:
-            collection = self._create_author_collection(author_data)
+            collection = self.__create_author_collection(author_data)
         if not collection.title or collection.title.startswith(f"(author:{author_data.extractor_name}) "):
             collection.title = f"(author:{author_data.extractor_name}) {author_data.author_name}"
         return collection
 
-    def _add_to_author_collection(self, element: MediaElement, data: Dict):
+    def __add_to_author_collection(self, element: MediaElement, data: Dict):
         author_data = self._get_author_data(data)
         if author_data is None or not author_data.is_valid:
             return
-        collection = self._get_author_collection(author_data)
+        collection = self.__get_author_collection(author_data)
         collection.add_episode(element)
 
     def _update_hook(self, object: MediaElement, data: ExtractedData[T]):
-        self._add_to_author_collection(object, data.data)
+        self.__add_to_author_collection(object, data.data)
