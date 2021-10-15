@@ -15,7 +15,7 @@
         <h2>Properties</h2>
         <ul>
             <li>
-                {{ element.uri | as_play_link }}
+                {{ macros.media_element_buttons(element) }}
             </li>
             <li>Can be considered: {{ element.can_considered | tenary("Yes", "no") }}</li>
             <li>

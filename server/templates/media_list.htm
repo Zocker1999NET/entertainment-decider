@@ -41,7 +41,7 @@
                     <td>{{ media.length }}&nbsp;s</td>
                     <td>{{ media.can_considered | tenary("Yes", "no") }}</td>
                     <td>
-                        {{ media.uri | as_play_link }}
+                        {{ macros.media_element_buttons(media) }}
                     </td>
                 </tr>
             {% endfor %}

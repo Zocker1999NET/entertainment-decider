@@ -38,3 +38,17 @@
         <button name="{{ key }}" value="{{ val }}">{{ text }}</button>
     </form>
 {% endmacro %}
+
+{% macro media_element_buttons(element) %}
+    {% set api_uri = "/api/media/" + element.id|string %}
+    {% set fragment = "media_element_" + element.id|string %}
+    {{ element.uri | as_play_link }}
+    {% if element.watched %}
+        {{ post_form(api_uri, "watched", "false", "Unmark as Watched", fragment) }}
+    {% elif element.ignored %}
+        {{ post_form(api_uri, "ignored", "false", "Unmark as Ignored", fragment) }}
+    {% else %}
+        {{ post_form(api_uri, "watched", "true", "Watched", fragment) }}
+        {{ post_form(api_uri, "ignored", "true", "Ignore", fragment) }}
+    {% endif %}
+{% endmacro %}
