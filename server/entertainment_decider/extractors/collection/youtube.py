@@ -10,6 +10,7 @@ import youtubesearchpython
 
 from ...models import MediaCollection
 from ..generic import ExtractedData, ExtractionError, SuitableLevel
+from ..media import media_extract_uri
 from .base import CollectionExtractor
 
 
@@ -99,7 +100,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
             ]
             logging.debug(f"[youtube] Add to collection {object.title!r} video {video_url!r} ({index+1} of {len_video_list})")
             try:
-                element = media_extract_uri("ytdl", video_url)
+                element = media_extract_uri(video_url)
                 element.add_uris(other_urls)
                 object.add_episode(element, episode=index+1)
                 orm.commit() # so progress is stored
