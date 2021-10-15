@@ -29,14 +29,7 @@
                     Next Episode:
                     {% set link = collection.next_episode %}
                     {% if link %}
-                        {{ macros.media_element_buttons(link.element) }}
-                        <a href="{{ link.element.info_link }}">{{ link.element.title }}</a>
-                        {%- if link.season != 0 -%}
-                        , Season {{ link.season }}
-                        {% endif %}
-                        {%- if link.episode != 0 -%}
-                        , Episode {{ link.episode }}
-                        {% endif %}
+                        {{ macros.link_entry_content(link) }}
                     {% else %}
                         no next episode
                     {% endif %}
@@ -48,17 +41,7 @@
         <h2>Episodes</h2>
         <ul>
             {% for link in media_links %}
-                <li id="media_element_{{ link.element.id }}">
-                    {{ macros.media_element_buttons(link.element) }}
-                    {{ link.element.release_date.strftime("%d.%m.%Y") }}
-                    <a href="{{ link.element.info_link }}">{{ link.element.title }}</a>
-                    {%- if link.season != 0 -%}
-                    , Season {{ link.season }}
-                    {% endif %}
-                    {%- if link.episode != 0 -%}
-                    , Episode {{ link.episode }}
-                    {% endif %}
-                </li>
+                {{ macros.link_entry(link) }}
             {% endfor %}
         </ul>
         <h2>Links</h2>

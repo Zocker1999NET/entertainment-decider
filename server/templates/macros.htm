@@ -52,3 +52,31 @@
         {{ post_form(api_uri, "ignored", "true", "Ignore", fragment) }}
     {% endif %}
 {% endmacro %}
+
+{% macro media_entry_content(element) %}
+    {{ media_element_buttons(element) }}
+    {{ element.release_date.strftime("%d.%m.%Y") }}
+    <a href="{{ element.info_link }}">{{ element.title }}</a>
+{%- endmacro %}
+
+{% macro link_entry_content(link) %}
+    {{ media_entry_content(link.element) -}}
+    {%- if link.season != 0 -%}
+    , Season {{ link.season }}
+    {%- endif -%}
+    {%- if link.episode != 0 -%}
+    , Episode {{ link.episode }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro media_entry(element) %}
+    <li id="media_element_{{ element.id }}">
+        {{ media_entry_content(element) }}
+    </li>
+{%- endmacro %}
+
+{% macro link_entry(link) %}
+    <li id="media_element_{{ link.element.id }}">
+        {{ link_entry_content(link) }}
+    </li>
+{%- endmacro %}
