@@ -18,7 +18,7 @@ COLLECTION_EXTRACTORS: Dict[str, CollectionExtractor] = {
 
 def collection_extract_uri(uri: str) -> MediaCollection:
     elem: MediaCollection = CollectionExtractor.check_uri(uri)
-    ex = expect_suitable_extractor(COLLECTION_EXTRACTORS, uri)
+    ex = expect_suitable_extractor(COLLECTION_EXTRACTORS.values(), uri)
     if not elem:
         elem = ex.extract_and_store(uri)
     else:

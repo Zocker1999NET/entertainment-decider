@@ -15,5 +15,5 @@ MEDIA_EXTRACTORS: Dict[str, MediaExtractor] = {
 def media_extract_uri(uri: str) -> MediaElement:
     elem: MediaElement = MediaExtractor.check_uri(uri)
     if not elem:
-        elem = expect_suitable_extractor(MEDIA_EXTRACTORS, uri).extract_and_store(uri)
+        elem = expect_suitable_extractor(MEDIA_EXTRACTORS.values(), uri).extract_and_store(uri)
     return elem
