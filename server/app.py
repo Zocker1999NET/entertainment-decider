@@ -10,7 +10,7 @@ import os
 from urllib.parse import urlencode, quote_plus
 from typing import Any, Callable, Dict, Iterable, Optional, Union
 
-from flask import Flask, jsonify, make_response, request
+from flask import Flask, jsonify, make_response, request, redirect
 from flask.templating import render_template
 from markupsafe import Markup
 from pony.flask import Pony
@@ -230,6 +230,84 @@ def test():
 # TODO add table for failed attempts so these may be resolved afterwards with increasing delays (add to MediaElement with flag "retrieved" and "last_updated" as date to resolve last try)
 
 
+def redirect_back_or_okay():
+    if "redirect" not in request.form:
+        return {
+            "status": True,
+        }, 200
+    uri = request.form.get("redirect", type=str)
+    if not uri.startswith("/"):
+        return "400 Bad Request : Invalid Redirect Specified", 400
+    return redirect(uri)
+
+@flask_app.route("/api/collection/list")
+def api_collection_list():
+    collection_list: Iterable[MediaCollection] = MediaCollection.select()
+    return {
+        "status": True,
+        "data": [{
+            "id": collection.id,
+            "title": collection.title,
+            "release_date": collection.release_date,
+            "length": collection.length,
+            "progress": collection.progress,
+        } for collection in collection_list],
+    }, 200
+
+@flask_app.route("/api/collection/<int:collection_id>", methods=["GET", "POST"])
+def api_collection_element(collection_id: int):
+    collection: MediaCollection = MediaCollection.get(id=collection_id)
+    if collection is None:
+        return {
+            "status": False,
+            "error": f"Object not found",
+        }, 404
+    if request.method == "GET":
+        return {
+            "status": True,
+            "data": {
+                "id": collection.id,
+                "title": collection.title,
+                "notes": collection.notes,
+                "release_date": collection.release_date,
+                "ignored": collection.ignored,
+                "media_links": [{
+                    "media": {
+                        "id": link.element.id,
+                        "title": link.element.title,
+                    },
+                    "season": link.season,
+                    "episode": link.episode,
+                } for link in collection.media_links]
+            }
+        }, 200
+    elif request.method == "POST":
+        data = request.form.to_dict()
+        if "redirect" in data:
+            del data["redirect"]
+        KEY_CONVERTER = {
+            "title": str,
+            "notes": str,
+            "ignored": environ_bool,
+            "keep_updated": environ_bool,
+            "watch_in_order": environ_bool,
+        }
+        for key in data:
+            if key not in KEY_CONVERTER:
+                return {
+                    "status": False,
+                    "error": f"Cannot set key {key!r} on MediaCollection",
+                }, 400
+        if "watch_in_order" in data: # TODO move to property
+            collection.watch_in_order_auto = False
+        collection.set(**{key: KEY_CONVERTER[key](val) for key, val in data.items()})
+        return redirect_back_or_okay()
+    else:
+        return {
+            "status": False,
+            "error": "405 Method Not Allowed",
+        }, 405
+
 @flask_app.route("/api/media/list")
 def api_media_list():
     media_list: Iterable[MediaElement] = MediaElement.select()
@@ -243,3 +321,59 @@ def api_media_list():
             "progress": media.progress,
         } for media in media_list],
     }, 200
+
+@flask_app.route("/api/media/<int:media_id>", methods=["GET", "POST"])
+def api_media_element(media_id: int):
+    element: MediaElement = MediaElement.get(id=media_id)
+    if element is None:
+        return {
+            "status": False,
+            "error": f"Object not found",
+        }, 404
+    if request.method == "GET":
+        return {
+            "status": True,
+            "data": {
+                "id": element.id,
+                "title": element.title,
+                "notes": element.notes,
+                "release_date": element.release_date,
+                "length": element.length,
+                "progress": element.progress,
+                "ignored": element.ignored,
+                "watched": element.watched,
+                "can_considered": element.can_considered,
+                "collection_links": [{
+                    "collection": {
+                        "id": link.collection.id,
+                        "title": link.collection.title,
+                    },
+                    "season": link.season,
+                    "episode": link.episode,
+                } for link in element.collection_links]
+            }
+        }, 200
+    elif request.method == "POST":
+        data = request.form.to_dict()
+        if "redirect" in data:
+            del data["redirect"]
+        KEY_CONVERTER = {
+            "title": str,
+            "notes": str,
+            "progress": int,
+            "ignored": environ_bool,
+            "watched": environ_bool,
+        }
+        for key in data:
+            if key not in KEY_CONVERTER:
+                return {
+                    "status": False,
+                    "error": f"Cannot set key {key!r} on MediaElement",
+                }, 400
+        element.set(**{key: KEY_CONVERTER[key](val) for key, val in data.items()})
+        return redirect_back_or_okay()
+    else:
+        return {
+            "status": False,
+            "error": "405 Method Not Allowed",
+        }, 405
