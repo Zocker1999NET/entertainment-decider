@@ -18,16 +18,15 @@
         </ul>
         <table>
             <tr>
-                <th>Title</th>
                 <th>Date</th>
                 <th>Progress</th>
                 <th>Length</th>
                 <th>Consider</th>
                 <th>Actions</th>
+                <th>Title</th>
             </tr>
             {% for media in media_list %}
                 <tr>
-                    <td><a href="{{ media.info_link }}">{{ media.title }}</a></td>
                     <td>{{ media.release_date.strftime("%d.%m.%Y") }}</td>
                     <td>
                         {% if media.watched %}
@@ -43,6 +42,7 @@
                     <td>
                         {{ macros.media_element_buttons(media) }}
                     </td>
+                    <td><a href="{{ media.info_link }}">{{ media.title }}</a></td>
                 </tr>
             {% endfor %}
         </table>
