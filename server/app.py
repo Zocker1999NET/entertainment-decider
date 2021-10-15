@@ -4,11 +4,12 @@
 
 from __future__ import annotations
 
+import datetime
 from functools import partial
 import logging
 import os
 from urllib.parse import urlencode, quote_plus
-from typing import Any, Callable, Dict, Iterable, Optional, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
 from flask import Flask, jsonify, make_response, request, redirect
 from flask.templating import render_template
@@ -149,6 +150,10 @@ def as_play_link(video_uri: str):
 def tenary(b: bool, true_str: str, false_str: str) -> str:
     return true_str if b else false_str
 
+@flask_app.template_filter()
+def timedelta(seconds: int) -> str:
+    return repr(datetime.timedelta(seconds=seconds))
+
 
 ####
 ## Routes
@@ -218,6 +223,21 @@ def show_media(media_id):
     if element is None:
         return make_response(f"Not found", 404)
     return render_template("media_element.htm", element=element)
+
+@flask_app.route("/stats")
+def show_stats():
+    elements: List[MediaElement] = MediaElement.select()
+    return render_template(
+        "stats.htm",
+        stats={
+            "media": {
+                "known": orm.count(elements),
+                "known_seconds": orm.sum(m.length for m in elements),
+                "watched": orm.count(m for m in elements if m.watched),
+                "watched_seconds": orm.sum(m.length for m in elements if m.watched) + orm.sum(m.progress for m in elements if not m.watched),
+            }
+        }
+    )
 
 
 @flask_app.route("/debug/test")

@@ -1,0 +1,21 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = "Statistics" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        <h1>{{ title }}</h1>
+        <ul>
+            <li>
+                Known videos: {{ stats.media.known }} ({{ stats.media.known_seconds | timedelta }})
+            </li>
+            <li>
+                Watched videos: {{ stats.media.watched }} ({{ stats.media.watched_seconds | timedelta }})
+            </li>
+        </ul>
+    </body>
+</html>
