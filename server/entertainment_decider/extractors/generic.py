@@ -61,10 +61,10 @@ class ExtractedData(ExtractedDataLight, Generic[T]):
     def has_data(self) -> bool:
         return self.data is not None
 
-    def load_media(self) -> MediaElement:
+    def load_media(self) -> Optional[MediaElement]:
         return MediaElement.get(extractor_name=self.extractor_name, extractor_key=self.object_key)
 
-    def load_collection(self) -> MediaCollection:
+    def load_collection(self) -> Optional[MediaCollection]:
         return MediaCollection.get(extractor_name=self.extractor_name, extractor_key=self.object_key)
 
 
