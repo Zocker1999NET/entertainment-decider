@@ -27,7 +27,7 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             object_uri = data.get("channel_url") or data.get("uploader_url"),
             extractor_name = self.name,
             object_key = f"author:{video_extractor_key}:{author_key}" if author_key else None,
-            author_name = f"{video_extractor_key}: {author_name}" if author_name else None,
+            author_name = f"[{video_extractor_key.lower()}] {author_name}" if author_name else None,
         )
 
     def _extract_online(self, uri: str) -> ExtractedData[Dict]:

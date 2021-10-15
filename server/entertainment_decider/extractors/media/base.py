@@ -59,8 +59,8 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
         collection = self.__lookup_author_collection(author_data)
         if collection is None:
             collection = self.__create_author_collection(author_data)
-        if not collection.title or collection.title.startswith(f"(author:{author_data.extractor_name}) "):
-            collection.title = f"(author:{author_data.extractor_name}) {author_data.author_name}"
+        if not collection.title or collection.title.startswith("[author] "):
+            collection.title = f"[author] [{author_data.extractor_name}] {author_data.author_name}"
         return collection
 
     def __add_to_author_collection(self, element: MediaElement, data: Dict):
