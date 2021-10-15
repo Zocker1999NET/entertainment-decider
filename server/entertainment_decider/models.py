@@ -124,9 +124,9 @@ class MediaElement(db.Entity):
     notes: str = orm.Optional(str)
     release_date: datetime = orm.Optional(datetime)
 
-    extractor_name: str = orm.Required(str)
-    extractor_key: str = orm.Required(str)
-    orm.composite_key(extractor_name, extractor_key)
+    extractor_name: str = orm.Optional(str)
+    extractor_key: str = orm.Optional(str)
+    orm.composite_index(extractor_name, extractor_key)
     last_updated: datetime = orm.Optional(datetime)
 
     watched: bool = orm.Required(bool, default=False)
@@ -137,6 +137,10 @@ class MediaElement(db.Entity):
     tag_list : Iterable[Tag] = orm.Set(lambda: Tag)
     uris: Iterable[MediaUriMapping] = orm.Set(lambda: MediaUriMapping)
     collection_links: Iterable[MediaCollectionLink] = orm.Set(lambda: MediaCollectionLink)
+
+    @property
+    def was_extracted(self) -> bool:
+        return self.last_updated is not None
 
     @property
     def left_length(self) -> int:
@@ -234,9 +238,9 @@ class MediaCollection(db.Entity):
     notes: str = orm.Optional(str)
     release_date: datetime = orm.Optional(datetime)
 
-    extractor_name: str = orm.Required(str)
-    extractor_key: str = orm.Required(str)
-    orm.composite_key(extractor_name, extractor_key)
+    extractor_name: str = orm.Optional(str)
+    extractor_key: str = orm.Optional(str)
+    orm.composite_index(extractor_name, extractor_key)
     last_updated: datetime = orm.Optional(datetime)
 
     keep_updated: bool = orm.Required(bool, default=False)
@@ -248,6 +252,10 @@ class MediaCollection(db.Entity):
     tag_list: Iterable[Tag] = orm.Set(lambda: Tag)
     uris: Iterable[CollectionUriMapping] = orm.Set(lambda: CollectionUriMapping)
     media_links: Iterable[MediaCollectionLink] = orm.Set(MediaCollectionLink)
+
+    @property
+    def was_extracted(self) -> bool:
+        return self.last_updated is not None
 
     @property
     def next_episode(self) -> Optional[MediaCollectionLink]:
