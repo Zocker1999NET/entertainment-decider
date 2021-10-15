@@ -19,6 +19,10 @@
         a:active {
             text-decoration: none;
         }
+        form.form-single-button {
+            display: inline-block;
+        }
+        form.form-single-button button,
         .button {
             padding: .1rem .2rem;
             margin: 0 .1rem;
@@ -26,4 +30,11 @@
             border-radius: .3rem;
         }
     </style>
+{% endmacro %}
+
+{% macro post_form(uri, key, val, text, fragment="") %}
+    <form class="form-single-button" method="POST" action="{{ uri }}">
+        <input type="hidden" name="redirect" value="{{ url_for(request.endpoint, **request.view_args) }}{{ ('#' + fragment) if fragment else '' }}"/>
+        <button name="{{ key }}" value="{{ val }}">{{ text }}</button>
+    </form>
 {% endmacro %}
