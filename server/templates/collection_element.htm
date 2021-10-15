@@ -12,8 +12,15 @@
         <h1>{{ title }}</h1>
         <h2>Properties</h2>
         <ul>
-            <li>Watch In Order: {{ collection.watch_in_order | tenary("Yes", "no") }} {%- if collection.watch_in_order_auto %} (automatic){% endif %}</li>
-            <li>Keep Updated: {{ collection.keep_updated | tenary("Yes", "no") }}</li>
+            <li>
+                Watch In Order:
+                {{ collection.watch_in_order | tenary("Yes", "no") }}
+                {%- if collection.watch_in_order_auto %} (automatic){% endif %}
+            </li>
+            <li>
+                Keep Updated:
+                {{ collection.keep_updated | tenary("Yes", "no") }}
+            </li>
             {% if collection.watch_in_order %}
                 <li>
                     Next Episode:
