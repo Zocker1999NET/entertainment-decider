@@ -44,7 +44,7 @@
         <h2>Episodes</h2>
         <ul>
             {% for link in media_links %}
-                <li>
+                <li id="media_element_{{ link.element.id }}">
                     <a href="{{ link.element.info_link }}">{{ link.element.title }}</a>
                     {%- if link.season != 0 -%}
                     , Season {{ link.season }}
