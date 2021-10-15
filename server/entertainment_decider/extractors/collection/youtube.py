@@ -83,10 +83,10 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
 
     def _update_object_raw(self, object: MediaCollection, data: Dict):
         info = data["info"]
-        object.title = f"{info['title']} ({info['channel']['name']})"
+        is_channel = self.__is_channel_id(info["id"])
+        object.title = f"Channel: {info['channel']['name']} (YouTube)" if is_channel else f"{info['title']} ({info['channel']['name']})"
         object.add_uris((info["link"],))
         video_list = data["videos"]
-        is_channel = self.__is_channel_id(info["id"])
         if object.watch_in_order_auto:
             object.watch_in_order = not is_channel
         len_video_list = len(video_list)
