@@ -18,6 +18,10 @@
                 {{ element.uri | as_play_link }}
             </li>
             <li>Can be considered: {{ element.can_considered | tenary("Yes", "no") }}</li>
+            <li>
+                Date:
+                {{ element.release_date }}
+            </li>
         </ul>
         <h2>Part of Collections</h2>
         <ul>
