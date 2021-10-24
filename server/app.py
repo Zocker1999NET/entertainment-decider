@@ -240,7 +240,11 @@ def show_stats():
                 "known": orm.count(elements),
                 "known_seconds": orm.sum(m.length for m in elements),
                 "watched": orm.count(m for m in elements if m.watched),
-                "watched_seconds": orm.sum(m.length for m in elements if m.watched) + orm.sum(m.progress for m in elements if not m.watched),
+                "watched_seconds": orm.sum((m.length if m.watched else m.progress) for m in elements if m.watched),
+                "ignored": orm.count(m for m in elements if m.ignored),
+                "ignored_seconds": orm.sum(m.length - m.progress for m in elements if m.ignored),
+                "to_watch": orm.count(m for m in elements if not m.ignored and not m.watched),
+                "to_watch_seconds": orm.sum(m.length - m.progress for m in elements if not m.ignored and not m.watched)
             }
         }
     )
