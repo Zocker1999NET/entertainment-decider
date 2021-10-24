@@ -22,6 +22,13 @@ def collection_expect_extractor(uri: str) -> CollectionExtractor:
         uri = uri,
     )
 
+def collection_update(collection: MediaCollection, check_cache_expired: bool = True):
+    ex = collection_expect_extractor(collection.uri)
+    ex.update_object(
+        object = collection,
+        check_cache_expired = check_cache_expired,
+    )
+
 def collection_extract_uri(uri: str) -> MediaCollection:
     elem: MediaCollection = CollectionExtractor.check_uri(uri)
     ex = collection_expect_extractor(uri)

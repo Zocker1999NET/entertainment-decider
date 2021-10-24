@@ -18,6 +18,13 @@ def media_expect_extractor(uri: str) -> MediaExtractor:
         uri = uri,
     )
 
+def media_update(element: MediaElement, check_cache_expired: bool = True):
+    ex = media_expect_extractor(element.uri)
+    ex.update_object(
+        object = element,
+        check_cache_expired = check_cache_expired,
+    )
+
 def media_extract_uri(uri: str) -> MediaElement:
     elem: MediaElement = MediaExtractor.check_uri(uri)
     if not elem:
