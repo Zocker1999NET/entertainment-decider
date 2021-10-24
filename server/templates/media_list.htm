@@ -9,13 +9,6 @@
     </head>
     <body>
         <h1>{{ title }}</h1>
-        <ul>
-            <li>
-                Full length:
-                {{ media_list | map(attribute='length') | sum }}
-                seconds
-            </li>
-        </ul>
         <table>
             <tr>
                 <th>Date</th>
