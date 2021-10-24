@@ -11,16 +11,15 @@
         <h1>{{ title }}</h1>
         <table>
             <tr>
-                <th>Title</th>
                 <th>Date</th>
                 <th>Count</th>
                 <th>Watched</th>
                 <th>To Watch</th>
+                <th>Title</th>
             </tr>
             {% for collection in collection_list %}
                 {% set stats = collection.stats %}
                 <tr>
-                    <td><a href="{{ collection.info_link }}">{{ collection.title }}</a></td>
                     <td>
                         {% if collection.release_date %}
                             {{ collection.release_date.strftime("%d.%m.%Y") }}
@@ -31,6 +30,7 @@
                     <td>{{ stats.full_count }}</td>
                     <td>{{ stats.watched_count }}</td>
                     <td>{{ stats.to_watch_count }}</td>
+                    <td><a href="{{ collection.info_link }}">{{ collection.title }}</a></td>
                 </tr>
             {% endfor %}
         </table>
