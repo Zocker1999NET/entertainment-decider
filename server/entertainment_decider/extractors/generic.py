@@ -140,6 +140,7 @@ class GeneralExtractor(Generic[E, T]):
 
     def update_object(self, object: E, check_cache_expired: bool = True) -> E:
         if object.was_extracted and check_cache_expired and not self._cache_expired(object.last_updated):
+            logging.debug(f"Skip info for element as already extracted and cache valid: {object.title!r}")
             return object
         data = self._extract_online(object.uri)
         logging.debug(f"Updating info for media: {data!r}")
