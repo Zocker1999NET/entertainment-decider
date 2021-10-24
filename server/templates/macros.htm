@@ -63,6 +63,7 @@
 {% macro media_entry_content(element) %}
     {{ media_element_buttons(element) }}
     {{ element.release_date.strftime("%d.%m.%Y") }}
+    {{ element.length | timedelta }}
     <a href="{{ element.info_link }}">{{ element.title }}</a>
 {%- endmacro %}
 
