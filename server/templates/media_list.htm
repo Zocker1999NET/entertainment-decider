@@ -29,7 +29,9 @@
                             {{ media.progress }}&nbsp;s
                         {% endif %}
                     </td>
-                    <td>{{ media.length }}&nbsp;s</td>
+                    <td>
+                        {{ media.length | timedelta }}
+                    </td>
                     <td>
                         {{ macros.media_element_buttons(media) }}
                     </td>
