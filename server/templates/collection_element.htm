@@ -24,6 +24,15 @@
                 {{ collection.keep_updated | tenary("Yes", "no") }}
                 {{ macros.post_form(api_uri, "keep_updated", collection.keep_updated | tenary("false", "true"), "umschalten") }}
             </li>
+            {% set stats = collection.stats %}
+            <li>
+                Length:
+                {{ stats.full_seconds | timedelta }}
+            </li>
+            <li>
+                To Watch:
+                {{ stats.to_watch_seconds | timedelta }}
+            </li>
             {% if collection.watch_in_order %}
                 <li>
                     Next Episode:
