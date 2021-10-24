@@ -14,7 +14,6 @@
                 <th>Date</th>
                 <th>Progress</th>
                 <th>Length</th>
-                <th>Consider</th>
                 <th>Actions</th>
                 <th>Title</th>
             </tr>
@@ -31,7 +30,6 @@
                         {% endif %}
                     </td>
                     <td>{{ media.length }}&nbsp;s</td>
-                    <td>{{ media.can_considered | tenary("Yes", "no") }}</td>
                     <td>
                         {{ macros.media_element_buttons(media) }}
                     </td>
