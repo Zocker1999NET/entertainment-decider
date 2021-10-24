@@ -1,0 +1,21 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = mode_name + " Recommendations" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        <h1>{{ title }}</h1>
+        <ul>
+            <li>Persistent Value: {{ random_val }}</li>
+        </ul>
+        <ul>
+            {% for element in media_list %}
+                {{ macros.media_entry(element) }}
+            {% endfor %}
+        </ul>
+    </body>
+</html>

@@ -9,6 +9,7 @@ from functools import partial
 import itertools
 import logging
 import os
+import random
 from urllib.parse import urlencode, quote_plus
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
@@ -19,7 +20,7 @@ from pony.flask import Pony
 from pony import orm
 
 from entertainment_decider import common
-from entertainment_decider.models import db, MediaCollection, MediaCollectionLink, MediaElement
+from entertainment_decider.models import PreferenceScore, Tag, db, MediaCollection, MediaCollectionLink, MediaElement, generate_preference_list
 from entertainment_decider.extractors.collection import collection_extract_uri, collection_update
 from entertainment_decider.extractors.media import media_extract_uri
 
@@ -229,6 +230,45 @@ def show_media(media_id):
     if element is None:
         return make_response(f"Not found", 404)
     return render_template("media_element.htm", element=element)
+
+
+@flask_app.route("/recommendations/simple/binge")
+@flask_app.route("/recommendations/simple/binge/<int:random_val>")
+def recommend_binge(random_val: int = None):
+    if random_val is None:
+        random_val = (datetime.datetime.now() - datetime.timedelta(hours=4)).toordinal()
+    def gen_list():
+        l = [m for m in orm.select(m for m in MediaElement if not (m.watched or m.ignored)) if m.can_considered]
+        r = random.Random(random_val)
+        r.shuffle(l)
+        return l
+    return render_template(
+        "recommendations_simple.htm",
+        mode_name="Binge Watch",
+        random_val=random_val,
+        media_list=generate_preference_list(
+            base=PreferenceScore(),
+            object_gen=gen_list,
+            score_adapt=-1,
+            limit=5,
+        )
+    )
+
+@flask_app.route("/recommendations/simple/variety")
+def recommend_variety():
+    def gen_list():
+        l = [m for m in orm.select(m for m in MediaElement if not (m.watched or m.ignored)).order_by(MediaElement.release_date) if m.can_considered]
+        return l
+    return render_template(
+        "recommendations_simple.htm",
+        mode_name="Variety",
+        media_list=generate_preference_list(
+            base=PreferenceScore(),
+            object_gen=gen_list,
+            score_adapt=1,
+            limit=5,
+        )
+    )
 
 
 @flask_app.route("/api/refresh/collections")
