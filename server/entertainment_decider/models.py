@@ -22,7 +22,7 @@ class TagRootElement:
     base: Tagable
     children: List[TagTreeElement] = dataclasses.field(default_factory=lambda: [])
 
-    def share_score(self, points: int) -> PreferenceScoreAppender:
+    def share_score(self, points: float) -> PreferenceScoreAppender:
         if len(self.children) <= 0:
             return PreferenceScoreAppender()
         single_share = points / len(self.children)
@@ -35,7 +35,7 @@ class TagTreeElement:
     base: Tag
     children: List[TagTreeElement] = dataclasses.field(default_factory=lambda: [])
 
-    def share_score(self, points: int) -> PreferenceScoreAppender:
+    def share_score(self, points: float) -> PreferenceScoreAppender:
         if len(self.children) <= 0:
             return PreferenceScoreAppender(PreferenceScore({self.base: points}))
         children_fraction = len(self.children)
