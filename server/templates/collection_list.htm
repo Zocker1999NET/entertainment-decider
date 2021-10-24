@@ -16,6 +16,7 @@
                 <th>Watched</th>
                 <th>Ignored</th>
                 <th>To Watch</th>
+                <th>Id</th>
                 <th>Title</th>
             </tr>
             {% for collection in collection_list %}
@@ -32,6 +33,9 @@
                     <td>{{ stats.watched_count }}</td>
                     <td>{{ stats.ignored_count }}</td>
                     <td>{{ stats.to_watch_count }}</td>
+                    <td>
+                        {{ collection.id }}
+                    </td>
                     <td><a href="{{ collection.info_link }}">{{ collection.title }}</a></td>
                 </tr>
             {% endfor %}
