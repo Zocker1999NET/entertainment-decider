@@ -20,7 +20,7 @@ from pony import orm
 
 from entertainment_decider import common
 from entertainment_decider.models import db, MediaCollection, MediaCollectionLink, MediaElement
-from entertainment_decider.extractors.collection import collection_extract_uri
+from entertainment_decider.extractors.collection import collection_extract_uri, collection_update
 from entertainment_decider.extractors.media import media_extract_uri
 
 
@@ -229,6 +229,23 @@ def show_media(media_id):
     if element is None:
         return make_response(f"Not found", 404)
     return render_template("media_element.htm", element=element)
+
+
+@flask_app.route("/api/refresh/collections")
+def refresh_collections():
+    collections: List[MediaCollection] = orm.select(c for c in MediaCollection if c.keep_updated)
+    for coll in collections:
+        collection_update(coll)
+    return redirect_back_or_okay()
+
+@flask_app.route("/api/refresh/collection/<int:collection_id>")
+def force_refresh_collection(collection_id: int):
+    coll: MediaCollection = MediaCollection.get(id=collection_id)
+    if coll is None:
+        return "404 Not Found", 404
+    collection_update(coll)
+    return redirect_back_or_okay()
+
 
 @flask_app.route("/stats")
 def show_stats():
