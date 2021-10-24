@@ -30,6 +30,11 @@
                     {{ element.progress | timedelta }}
                 {% endif %}
             </li>
+            {% if element.all_tags %}
+                <li>
+                    Tags: {{ element.all_tags | map(attribute="title") | join(" | ") }}
+                </li>
+            {% endif %}
         </ul>
         <h2>Part of Collections</h2>
         <ul>
