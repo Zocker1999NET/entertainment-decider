@@ -10,12 +10,15 @@
     <body>
         <h1>{{ title }}</h1>
         <ul>
-            <li>
-                Known videos: {{ stats.media.known }} ({{ stats.media.known_seconds | timedelta }})
-            </li>
-            <li>
-                Watched videos: {{ stats.media.watched }} ({{ stats.media.watched_seconds | timedelta }})
-            </li>
+            {% set cats = (
+                ("Known", stats.media.known),
+                ("Watched", stats.media.watched),
+            ) %}
+            {% for c in cats %}
+                <li>
+                    {{ c[0] }} videos: {{ c[1] }} ({{ c[2] | timedelta }})
+                </li>
+            {% endfor %}
         </ul>
     </body>
 </html>
