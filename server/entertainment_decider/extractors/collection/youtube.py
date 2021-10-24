@@ -85,7 +85,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
         info = data["info"]
         is_channel = self.__is_channel_id(info["id"])
         object.title = f"[channel] [{self.name}] {info['channel']['name']}" if is_channel else f"[playlist] {info['channel']['name']}: {info['title']}"
-        object.add_uris((info["link"],))
+        object.add_single_uri(info["link"])
         video_list = data["videos"]
         if object.watch_in_order_auto:
             object.watch_in_order = not is_channel

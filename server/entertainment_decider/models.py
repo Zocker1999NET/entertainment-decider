@@ -394,25 +394,27 @@ class MediaElement(db.Entity, Tagable):
         self.delete() # will also delete still existing uri mappings and collection links
         orm.flush()
 
-    def add_uris(self, uri_list: Iterable[str]):
-        for uri in set(uri_list):
-            mapping: MediaUriMapping = MediaUriMapping.get(uri=uri)
-            if not mapping:
-                logging.debug(f"Add URI mapping {uri!r} to media {self.id!r}")
-                MediaUriMapping(
-                    uri=uri,
-                    element=self,
-                )
-                continue
-            if mapping.element != self:
-                raise Exception(f"URI duplicated for two different media's: {uri}") # TODO may replace with merge call
-        orm.flush()
+    def add_single_uri(self, uri: str) -> bool:
+        mapping: MediaUriMapping = MediaUriMapping.get(uri=uri)
+        if not mapping:
+            logging.debug(f"Add URI mapping {uri!r} to media {self.id!r}")
+            MediaUriMapping(
+                uri=uri,
+                element=self,
+            )
+            return True
+        if mapping.element != self:
+            raise Exception(f"URI duplicated for two different media's: {uri}") # TODO may replace with merge call
+        return False
+
+    def add_uris(self, uri_list: Iterable[str]) -> bool:
+        return all(self.add_single_uri(uri) for uri in set(uri_list))
 
     def before_insert(self):
         self.before_update()
 
     def before_update(self):
-        self.add_uris((self.uri,))
+        self.add_single_uri(self.uri)
 
     @property
     def info_link(self):
@@ -486,25 +488,27 @@ class MediaCollection(db.Entity, Tagable):
         orm.flush()
         return link
 
-    def add_uris(self, uri_list: Iterable[str]):
-        for uri in set(uri_list):
-            mapping: CollectionUriMapping = CollectionUriMapping.get(uri=uri)
-            if not mapping:
-                logging.debug(f"Add URI mapping {uri!r} to collection {self.id!r}")
-                CollectionUriMapping(
-                    uri=uri,
-                    element=self,
-                )
-                continue
-            if mapping.element != self:
-                raise Exception(f"URI duplicated for two different collections's: {uri}") # TODO may replace with merge call
-        orm.flush()
+    def add_single_uri(self, uri: str) -> bool:
+        mapping: CollectionUriMapping = CollectionUriMapping.get(uri=uri)
+        if not mapping:
+            logging.debug(f"Add URI mapping {uri!r} to collection {self.id!r}")
+            CollectionUriMapping(
+                uri=uri,
+                element=self,
+            )
+            return True
+        if mapping.element != self:
+            raise Exception(f"URI duplicated for two different collections's: {uri}") # TODO may replace with merge call
+        return False
+
+    def add_uris(self, uri_list: Iterable[str]) -> bool:
+        return all(self.add_single_uri(uri) for uri in set(uri_list))
 
     def before_insert(self):
         self.before_update()
 
     def before_update(self):
-        self.add_uris((self.uri,))
+        self.add_single_uri(self.uri)
 
     @property
     def info_link(self):

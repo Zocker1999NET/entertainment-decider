@@ -31,7 +31,7 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
                 f"Add missing URI mapping entry for uri {uri!r}, " +
                 "this should not happen at this point and is considered a bug"
             )
-            elem.add_uris((uri,))
+            elem.add_single_uri(uri)
             return elem
         return None
 
