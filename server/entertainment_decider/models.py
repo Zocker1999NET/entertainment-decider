@@ -95,7 +95,7 @@ class Tagable:
             for tag in cur.base.super_tags:
                 if tag not in used:
                     elem = TagTreeElement(tag)
-                    cur.children.append(tag)
+                    cur.children.append(elem)
                     stack.append(elem)
                     used.add(tag)
         return root, used
