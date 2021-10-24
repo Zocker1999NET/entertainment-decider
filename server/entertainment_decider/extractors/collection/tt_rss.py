@@ -53,7 +53,6 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
         logging.info(f"Extract collection from tt-rss: {uri!r}")
         data = rss_uri.request(self.__params, order_by="feed_dates", view_mode="unread")
         if self.__label_filter is not None:
-            print([headline.labels for headline in data])
             data = [
                 headline for headline in data
                 if self.__label_filter in (label_marker[0] for label_marker in headline.labels)
