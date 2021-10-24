@@ -197,31 +197,6 @@ def show_collection(collection_id):
         media_links=MediaCollectionLink.sorted(MediaCollectionLink.select(lambda l: l.collection == collection)),
     )
 
-@flask_app.route("/collection/<int:collection_id>", methods = ["POST"])
-def update_collection(collection_id):
-    collection: MediaCollection = MediaCollection.get(id=collection_id)
-    if collection is None:
-        return f"Not found", 404
-    data: Optional[Dict] = request.get_json()
-    if data is None:
-        return f"JSON data missing", 400
-    for key in data.keys():
-        if key not in ["watch_in_order"]:
-            return {
-                "successful": False,
-                "error": {
-                    "message": f"Failed to update key {key!r} as this is not allowed to update on a collection",
-                },
-            }, 400
-    for key, value in data.items():
-        if key == "watch_in_order":
-            collection.watch_in_order = common.update_bool_value(collection.watch_in_order, value)
-            collection.watch_in_order_auto = False
-    return {
-        "successful": True,
-        "error": None,
-    }, 200
-
 
 @flask_app.route("/media")
 def list_media():
