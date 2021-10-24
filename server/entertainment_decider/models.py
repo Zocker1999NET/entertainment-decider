@@ -280,6 +280,10 @@ class Tag(db.Entity, Tagable):
     def assigned_tags(self) -> Set[Tag]:
         return {self}
 
+    @property
+    def super_tags(self) -> Set[Tag]:
+        return set(self.super_tag_list)
+
 
 ## Element <-> Collection Linking
 
