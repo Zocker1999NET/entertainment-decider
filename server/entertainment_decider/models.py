@@ -343,7 +343,7 @@ class MediaElement(db.Entity, Tagable):
 
     @property
     def left_length(self) -> int:
-        return self.length - self.progress
+        return 0 if self.watched else self.length - self.progress
 
     @property
     def ignored_recursive(self) -> bool:
