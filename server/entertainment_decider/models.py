@@ -347,8 +347,7 @@ class MediaElement(db.Entity, Tagable):
 
     @property
     def ignored_recursive(self) -> bool:
-        links = orm.select(link for link in MediaCollectionLink if link.episode == self and link.collection.ignored == True)
-        return len(links) > 0
+        return orm.count(link for link in MediaCollectionLink if link.episode == self and link.collection.ignored == True) > 0
 
     @property
     def ignored_any(self) -> bool:
