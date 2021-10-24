@@ -14,6 +14,7 @@
                 <th>Date</th>
                 <th>Count</th>
                 <th>Watched</th>
+                <th>Ignored</th>
                 <th>To Watch</th>
                 <th>Title</th>
             </tr>
@@ -29,6 +30,7 @@
                     </td>
                     <td>{{ stats.full_count }}</td>
                     <td>{{ stats.watched_count }}</td>
+                    <td>{{ stats.ignored_count }}</td>
                     <td>{{ stats.to_watch_count }}</td>
                     <td><a href="{{ collection.info_link }}">{{ collection.title }}</a></td>
                 </tr>
