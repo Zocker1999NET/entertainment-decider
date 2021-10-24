@@ -1,0 +1,41 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = tag_list | length | string + " Tags known" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        <h1>{{ title }}</h1>
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Use for Pref.</th>
+                <th>Super Tags</th>
+                <th>Sub Tags</th>
+            </tr>
+            {% for tag in tag_list %}
+                <tr>
+                    <td>
+                        {{ tag.id }}
+                    </td>
+                    <td>
+                        {{ tag.title }}
+                    </td>
+                    <td>
+                        {{ tag.use_for_preferences | tenary("Yes", "no") }}
+                    </td>
+                    <td>
+                        {{ tag.super_tag_list | map(attribute="id") | join(",") }}
+                    </td>
+                    <td>
+                        {{ tag.sub_tag_list | map(attribute="id") | join(",") }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

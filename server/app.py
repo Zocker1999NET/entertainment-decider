@@ -249,6 +249,14 @@ def show_stats():
         }
     )
 
+@flask_app.route("/tag")
+def show_tag():
+    tag_list: List[Tag] = Tag.select()
+    return render_template(
+        "tag_list.htm",
+        tag_list=tag_list,
+    )
+
 
 @flask_app.route("/debug/test")
 def test():
