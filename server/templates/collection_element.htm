@@ -22,7 +22,7 @@
             <li>
                 Keep Updated:
                 {{ collection.keep_updated | tenary("Yes", "no") }}
-                {{ macros.post_form(api_uri, "keep_updated", collection.watch_in_order | tenary("false", "true"), "umschalten") }}
+                {{ macros.post_form(api_uri, "keep_updated", collection.keep_updated | tenary("false", "true"), "umschalten") }}
             </li>
             {% if collection.watch_in_order %}
                 <li>
