@@ -58,7 +58,7 @@ class Tagable:
         """
         Tags which are directly assigned to this object by the user or automatic actions.
         """
-        return NotImplementedError("")
+        raise NotImplementedError("")
 
     @property
     def inherited_tags(self) -> Set[Tag]:
