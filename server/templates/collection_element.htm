@@ -33,6 +33,11 @@
                 To Watch:
                 {{ stats.to_watch_seconds | timedelta }}
             </li>
+            {% if collection.all_tags %}
+                <li>
+                    Tags: {{ collection.all_tags | map(attribute="title") | sort | join(" | ") }}
+                </li>
+            {% endif %}
             {% if collection.watch_in_order %}
                 <li>
                     Next Episode:
