@@ -16,9 +16,15 @@ COLLECTION_EXTRACTORS: Dict[str, CollectionExtractor] = {
     "youtube": YouTubeCollectionExtractor(),
 }
 
+def collection_expect_extractor(uri: str) -> CollectionExtractor:
+    return expect_suitable_extractor(
+        extractor_list = COLLECTION_EXTRACTORS.values(),
+        uri = uri,
+    )
+
 def collection_extract_uri(uri: str) -> MediaCollection:
     elem: MediaCollection = CollectionExtractor.check_uri(uri)
-    ex = expect_suitable_extractor(COLLECTION_EXTRACTORS.values(), uri)
+    ex = collection_expect_extractor(uri)
     if not elem:
         elem = ex.extract_and_store(uri)
     else:
