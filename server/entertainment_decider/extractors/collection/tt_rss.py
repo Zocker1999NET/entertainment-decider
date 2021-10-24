@@ -39,7 +39,7 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
         return True
 
     def _cache_expired(self, date: datetime) -> bool:
-        return (datetime.now() - date) > timedelta(hours=4)
+        return (datetime.now() - date) > timedelta(minutes=10)
 
     def _extract_offline(self, uri: str) -> ExtractedData[HeadlineList]:
         return ExtractedData(
