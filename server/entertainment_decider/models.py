@@ -362,8 +362,10 @@ class MediaElement(db.Entity, Tagable):
         if self.skip_over:
             return False
         for link in self.collection_links:
-            if link.collection.watch_in_order and self != link.collection.next_episode.element:
-                return False
+            if link.collection.watch_in_order:
+                next = link.collection.next_episode
+                if next is not None and self != next.episode:
+                    return False
         return True
 
     @property
