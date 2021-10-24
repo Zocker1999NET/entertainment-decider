@@ -13,6 +13,8 @@
             {% set cats = (
                 ("Known", stats.media.known, stats.media.known_seconds),
                 ("Watched", stats.media.watched, stats.media.watched_seconds),
+                ("Ignored", stats.media.ignored, stats.media.ignored_seconds),
+                ("To Watch", stats.media.to_watch, stats.media.to_watch_seconds),
             ) %}
             {% for c in cats %}
                 <li>
