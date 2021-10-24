@@ -22,6 +22,14 @@
                 Date:
                 {{ element.release_date }}
             </li>
+            <li>
+                Length:
+                {{ element.length | timedelta }}
+                {%- if element.progress > 0 -%}
+                    , Progress:
+                    {{ element.progress | timedelta }}
+                {% endif %}
+            </li>
         </ul>
         <h2>Part of Collections</h2>
         <ul>
