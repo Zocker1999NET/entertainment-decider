@@ -150,9 +150,24 @@ def as_play_link(video_uri: str):
 def tenary(b: bool, true_str: str, false_str: str) -> str:
     return true_str if b else false_str
 
+TIMEDELTA_FORMAT = (
+    datetime.timedelta(hours=1),
+    datetime.timedelta(minutes=1),
+)
 @flask_app.template_filter()
 def timedelta(seconds: int) -> str:
-    return repr(datetime.timedelta(seconds=seconds))
+    delta = datetime.timedelta(seconds=seconds)
+    ret = ""
+    for unit in TIMEDELTA_FORMAT:
+        if ret or unit <= delta:
+            unit_size = delta // unit
+            delta -= unit * unit_size
+            if ret:
+                ret += f"{unit_size:02}:"
+            else:
+                ret += f"{unit_size}:"
+    ret += f"{delta.seconds:02}"
+    return ret
 
 
 ####
