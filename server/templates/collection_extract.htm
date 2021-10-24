@@ -1,0 +1,24 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = "Extract Collection" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        <a href="/collection">&lt;- back to list</a>
+        <h1>{{ title }}</h1>
+        <form method="post" action="/api/collection/extract">
+            {{ macros.hidden_redirect_back() }}
+            <input type="text" name="uri" style="width: 40em;" />
+            <button type="submit" name="redirect_to_object" value="true">
+                extract
+            </button>
+            <button type="submit" name="redirect_to_object" value="false">
+                extract & more
+            </button>
+        </form>
+    </body>
+</html>

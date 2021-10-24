@@ -186,6 +186,10 @@ def list_collection():
     collection_list: Iterable[MediaCollection] = MediaCollection.select().order_by(orm.desc(MediaCollection.release_date), MediaCollection.title, MediaCollection.id)
     return render_template("collection_list.htm", collection_list=collection_list)
 
+@flask_app.route("/collection/extract")
+def extract_collection():
+    return render_template("collection_extract.htm")
+
 @flask_app.route("/collection/<int:collection_id>")
 def show_collection(collection_id):
     collection: MediaCollection = MediaCollection.get(id=collection_id)
@@ -275,6 +279,20 @@ def api_collection_list():
             "progress": collection.progress,
         } for collection in collection_list],
     }, 200
+
+@flask_app.route("/api/collection/extract", methods=["POST"])
+def api_collection_extract():
+    data = request.form.to_dict()
+    if "uri" not in data:
+        return {
+            "status": False,
+            "error": f"Missing uri value to extract",
+        }
+    m = collection_extract_uri(data["uri"])
+    orm.flush()
+    if m and environ_bool(data.get("redirect_to_object", False)):
+        return redirect(m.info_link)
+    return redirect_back_or_okay()
 
 @flask_app.route("/api/collection/<int:collection_id>", methods=["GET", "POST"])
 def api_collection_element(collection_id: int):
