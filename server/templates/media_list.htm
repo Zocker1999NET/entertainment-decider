@@ -1,7 +1,7 @@
 {% import "macros.htm" as macros %}
 <!DOCTYPE html>
 <html>
-    {% set title = media_list | length | string + " Videos known" %}
+    {% set title = "Last " + media_list | length | string + " Videos to watch" %}
     <head>
         <meta charset="utf-8"/>
         <title>{{ title }}</title>
