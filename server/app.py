@@ -235,6 +235,10 @@ def list_media():
         media_list=list(itertools.islice(get_considerable(), 100))
     )
 
+@flask_app.route("/media/extract")
+def extract_media():
+    return render_template("media_extract.htm")
+
 @flask_app.route("/media/length")
 def get_media_length():
     c = len(MediaElement.select())
@@ -364,6 +368,20 @@ def api_media_list():
             "progress": media.progress,
         } for media in media_list],
     }, 200
+
+@flask_app.route("/api/media/extract", methods=["POST"])
+def api_media_extract():
+    data = request.form.to_dict()
+    if "uri" not in data:
+        return {
+            "status": False,
+            "error": f"Missing uri value to extract",
+        }
+    m = media_extract_uri(data["uri"])
+    orm.flush()
+    if m and environ_bool(data.get("redirect_to_object", False)):
+        return redirect(m.info_link)
+    return redirect_back_or_okay()
 
 @flask_app.route("/api/media/<int:media_id>", methods=["GET", "POST"])
 def api_media_element(media_id: int):
