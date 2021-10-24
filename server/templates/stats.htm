@@ -11,12 +11,12 @@
         <h1>{{ title }}</h1>
         <ul>
             {% set cats = (
-                ("Known", stats.media.known),
-                ("Watched", stats.media.watched),
+                ("Known", stats.media.known, stats.media.known_seconds),
+                ("Watched", stats.media.watched, stats.media.watched_seconds),
             ) %}
             {% for c in cats %}
                 <li>
-                    {{ c[0] }} videos: {{ c[1] }} ({{ c[2] | timedelta }})
+                    {{ c[0] }} videos: {{ c[1] }} ({{ c[2] | timedelta }}) (Average: {{ (c[2] / c[1]) | timedelta }})
                 </li>
             {% endfor %}
         </ul>
