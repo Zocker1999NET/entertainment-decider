@@ -364,7 +364,7 @@ class MediaElement(db.Entity, Tagable):
         for link in self.collection_links:
             if link.collection.watch_in_order:
                 next = link.collection.next_episode
-                if next is not None and self != next.episode:
+                if next is not None and self != next.element:
                     return False
         return True
 
