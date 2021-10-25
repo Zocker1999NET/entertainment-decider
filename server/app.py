@@ -262,14 +262,14 @@ def recommend_variety():
     )
 
 
-@flask_app.route("/api/refresh/collections")
+@flask_app.route("/api/refresh/collections", methods=["POST"])
 def refresh_collections():
     collections: List[MediaCollection] = orm.select(c for c in MediaCollection if c.keep_updated)
     for coll in collections:
         collection_update(coll)
     return redirect_back_or_okay()
 
-@flask_app.route("/api/refresh/collection/<int:collection_id>")
+@flask_app.route("/api/refresh/collection/<int:collection_id>", methods=["POST"])
 def force_refresh_collection(collection_id: int):
     coll: MediaCollection = MediaCollection.get(id=collection_id)
     if coll is None:
