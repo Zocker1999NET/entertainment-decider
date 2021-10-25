@@ -11,7 +11,7 @@ import logging
 import os
 import random
 from urllib.parse import urlencode, quote_plus
-from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Union
 
 from flask import Flask, jsonify, make_response, request, redirect
 from flask.templating import render_template
@@ -174,8 +174,33 @@ def timedelta(seconds: int) -> str:
 
 
 @flask_app.route("/")
-def hello_world():
-    return '<a href=/collection>Collections</a> & <a href=/media>Media</a>'
+def dashboard():
+    # config
+    pinned_limit = 10
+    media_limit = 10
+    # for links from pinned collections
+    pinned_collections: Iterable[MediaCollection] = orm.select(m for m in MediaCollection if m.pinned and not m.ignored).order_by(MediaCollection.release_date, MediaCollection.title, MediaCollection.id)
+    links_from_pinned_collections: List[MediaCollectionLink] = list()
+    episodes_from_pinned_collections: Set[MediaElement] = set()
+    for coll in pinned_collections:
+        next_link = coll.next_episode
+        if next_link is not None and next_link.element not in episodes_from_pinned_collections and next_link.element.can_considered:
+            links_from_pinned_collections.append(next_link)
+            episodes_from_pinned_collections.add(next_link.element)
+            if len(links_from_pinned_collections) >= pinned_limit:
+                break
+    # for media
+    media_list: Iterable[MediaElement] = orm.select(m for m in MediaElement if not (m.ignored or m.watched)).order_by(orm.desc(MediaElement.release_date), MediaElement.id)
+    def get_considerable():
+        for element in media_list:
+            if element not in episodes_from_pinned_collections and element.can_considered:
+                yield element
+    # render
+    return render_template(
+        "dashboard.htm",
+        links_from_pinned_collections = links_from_pinned_collections,
+        media_list = common.limit_iter(get_considerable(), media_limit),
+    )
 
 
 @flask_app.route("/collection")

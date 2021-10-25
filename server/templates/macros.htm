@@ -155,3 +155,35 @@
         {% endfor %}
     </table>
 {%- endmacro %}
+
+{% macro link_differ_table(link_list) %}
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>To Watch</th>
+            <th>Actions</th>
+            <th>Title</th>
+            <th>From Collection</th>
+        </tr>
+        {% for link in link_list %}
+            <tr>
+                <td>
+                    {{ link.element.release_date.strftime("%d.%m.%Y") }}
+                </td>
+                <td>
+                    {{ link.element.left_length | timedelta }}
+                </td>
+                <td>
+                    {{ media_element_buttons(link.element) }}
+                </td>
+                <td>
+                    <a href="{{ link.element.info_link }}">{{ link.element.title }}</a>
+                </td>
+                <td>
+                    <a href="{{ link.collection.info_link }}">{{ link.collection.id }}</a>
+                    {{- link_position_marker(link, prefix=true) -}}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{%- endmacro %}

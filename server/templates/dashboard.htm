@@ -1,0 +1,23 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = "Dashboard" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        {{ macros.body_header() }}
+        <h1>{{ title }}</h1>
+        <h2>From Pinned Collections</h2>
+        {% if links_from_pinned_collections %}
+            {{ macros.link_differ_table(links_from_pinned_collections) }}
+        {% else %}
+            <i>No pinned collections with episodes to watch found!</i>
+        {% endif %}
+        <a href="/collection/pinned"></a>
+        <h2>Other Latest Videos</h2>
+        {{ macros.media_table(media_list) }}
+    </body>
+</html>
