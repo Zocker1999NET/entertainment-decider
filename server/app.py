@@ -215,11 +215,6 @@ def list_media():
 def extract_media():
     return render_template("media_extract.htm")
 
-@flask_app.route("/media/length")
-def get_media_length():
-    c = len(MediaElement.select())
-    return f"{c}"
-
 @flask_app.route("/media/<int:media_id>")
 def show_media(media_id):
     element: MediaElement = MediaElement.get(id=media_id)
