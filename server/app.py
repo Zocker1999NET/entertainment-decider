@@ -187,6 +187,11 @@ def list_collection():
 def extract_collection():
     return render_template("collection_extract.htm")
 
+@flask_app.route("/collection/pinned")
+def list_pinned_collection():
+    collection_list: Iterable[MediaCollection] = orm.select(c for c in MediaCollection if c.pinned).order_by(orm.desc(MediaCollection.release_date), MediaCollection.title, MediaCollection.id)
+    return render_template("collection_list.htm", collection_list=collection_list)
+
 @flask_app.route("/collection/<int:collection_id>")
 def show_collection(collection_id):
     collection: MediaCollection = MediaCollection.get(id=collection_id)
