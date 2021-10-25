@@ -31,6 +31,8 @@ URI_COMMANDS = {
 def execute_uri_command(uri: str):
     parts = url.urlparse(uri, scheme=URI_SCHEME, allow_fragments=False)
     if parts.scheme != URI_SCHEME:
+        if parts.scheme in {"http", "https"}:
+            return cmd_player_play(uri)
         raise Exception(f"Cannot parse URI's with scheme {parts.scheme!r}")
     path = parts.path.strip("/").split("/")
     options = dict(url.parse_qsl(parts.query))
