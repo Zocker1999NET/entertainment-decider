@@ -136,17 +136,13 @@ Pony(flask_app)
 
 
 @flask_app.template_filter()
+def encode_options(opts: dict[str, Any]):
+    return urlencode({k: str(v) for k, v in opts.items()}, quote_via=quote_plus)
+
+@flask_app.template_filter()
 def as_link(uri: str):
     uri = Markup.escape(uri)
     return Markup(f'<a href="{uri}">{uri}</a>')
-
-@flask_app.template_filter()
-def as_play_link(video_uri: str):
-    opts = {
-        "video_uri": video_uri,
-    }
-    play_uri = "entertainment-decider:///player/play?" + urlencode(opts, quote_via=quote_plus)
-    return Markup(f'<a class=button href="{play_uri}">Play</a>')
 
 @flask_app.template_filter()
 def tenary(b: bool, true_str: str, false_str: str) -> str:

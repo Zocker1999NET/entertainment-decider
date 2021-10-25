@@ -46,10 +46,17 @@
     </form>
 {% endmacro %}
 
+{% macro as_play_link(element) -%}
+    {%- set opts = {
+        "video_uri": element.uri,
+    } -%}
+    <a class="button" href="entertainment-decider:///player/play?{{ opts | encode_options }}">Play</a>
+{%- endmacro -%}
+
 {% macro media_element_buttons(element) %}
     {% set api_uri = "/api/media/" + element.id|string %}
     {% set fragment = "media_element_" + element.id|string %}
-    {{ element.uri | as_play_link }}
+    {{ as_play_link(element) }}
     {% if element.watched %}
         {{ post_form(api_uri, "watched", "false", "Unmark as Watched", fragment) }}
     {% elif element.ignored %}
