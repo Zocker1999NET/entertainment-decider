@@ -4,15 +4,22 @@ import argparse
 from pathlib import Path
 from string import Template
 import subprocess
-from typing import Callable, Dict
+from typing import Callable, Dict, Optional
 import urllib.parse as url
 
 
-def cmd_player_play(video_uri: str):
+def cmd_player_play(video_uri: str, start: Optional[str] = None):
     print(f"Play video {video_uri}")
-    subprocess.Popen([
-        str(Path("~/bin/mpvadd").expanduser()), video_uri,
-    ], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.Popen(
+        args = [e for e in [
+            str(Path("~/bin/mpvadd").expanduser()),
+            video_uri,
+            f"start={start}" if start is not None else None,
+        ] if e is not None],
+        stdin = subprocess.DEVNULL,
+        stdout = subprocess.DEVNULL,
+        stderr = subprocess.DEVNULL,
+    )
 
 URI_SCHEME = "entertainment-decider"
 URI_COMMANDS = {
