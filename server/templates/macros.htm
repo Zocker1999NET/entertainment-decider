@@ -68,6 +68,17 @@
     {% endif %}
 {% endmacro %}
 
+{% macro link_position_marker(link, prefix=false) -%}
+    {{- prefix and (link.season != 0 or link.episode != 0) | tenary(", ", "") -}}
+    {%- if link.season != 0 -%}
+        Season {{ link.season }}
+        {{- link.episode != 0 | tenary(", ", "") -}}
+    {%- endif -%}
+    {%- if link.episode != 0 -%}
+        Episode {{ link.episode }}
+    {%- endif -%}
+{%- endmacro %}
+
 {% macro media_entry_content(element) %}
     {{ media_element_buttons(element) }}
     {{ element.release_date.strftime("%d.%m.%Y") }}
@@ -77,12 +88,7 @@
 
 {% macro link_entry_content(link) %}
     {{ media_entry_content(link.element) -}}
-    {%- if link.season != 0 -%}
-    , Season {{ link.season }}
-    {%- endif -%}
-    {%- if link.episode != 0 -%}
-    , Episode {{ link.episode }}
-    {%- endif -%}
+    {{- link_position_marker(link, prefix=true) -}}
 {%- endmacro %}
 
 {% macro media_entry(element) %}
