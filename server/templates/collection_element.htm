@@ -14,6 +14,11 @@
         <ul>
             {% set api_uri = "/api/collection/" + collection.id|string %}
             <li>
+                Pinned:
+                {{ collection.pinned | tenary("Yes", "no") }}
+                {{ macros.post_form(api_uri, "pinned", collection.pinned | tenary("false", "true"), "toggle") }}
+            </li>
+            <li>
                 Watch In Order:
                 {{ collection.watch_in_order | tenary("Yes", "no") }}
                 {%- if collection.watch_in_order_auto %} (automatic){% endif %}
