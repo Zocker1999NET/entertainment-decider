@@ -388,6 +388,7 @@ def api_collection_element(collection_id: int):
         KEY_CONVERTER = {
             "title": str,
             "notes": str,
+            "pinned": environ_bool,
             "ignored": environ_bool,
             "keep_updated": environ_bool,
             "watch_in_order": environ_bool,
