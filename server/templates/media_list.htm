@@ -9,25 +9,6 @@
     </head>
     <body>
         <h1>{{ title }}</h1>
-        <table>
-            <tr>
-                <th>Date</th>
-                <th>To Watch</th>
-                <th>Actions</th>
-                <th>Title</th>
-            </tr>
-            {% for media in media_list %}
-                <tr>
-                    <td>{{ media.release_date.strftime("%d.%m.%Y") }}</td>
-                    <td>
-                        {{ media.left_length | timedelta }}
-                    </td>
-                    <td>
-                        {{ macros.media_element_buttons(media) }}
-                    </td>
-                    <td><a href="{{ media.info_link }}">{{ media.title }}</a></td>
-                </tr>
-            {% endfor %}
-        </table>
+        {{ macros.media_table(media_list) }}
     </body>
 </html>
