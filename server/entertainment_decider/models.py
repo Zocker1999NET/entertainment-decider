@@ -448,6 +448,7 @@ class MediaCollection(db.Entity, Tagable):
     keep_updated: bool = orm.Required(bool, default=False)
     watch_in_order_auto: bool = orm.Required(bool, default=True)
 
+    pinned: bool = orm.Required(bool, default=False)
     ignored: bool = orm.Required(bool, default=False)
     watch_in_order: bool = orm.Required(bool, default=True)
 
