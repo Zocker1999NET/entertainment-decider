@@ -39,6 +39,13 @@
     <input type="hidden" name="redirect" value="{{ url_for(request.endpoint, **request.view_args) }}{{ ('#' + fragment) if fragment else '' }}"/>
 {% endmacro %}
 
+{% macro no_input_post_form(uri, text, fragment="") -%}
+    <form class="form-single-button" method="POST" action="{{ uri }}">
+        {{ hidden_redirect_back(fragment=fragment) }}
+        <button>{{ text }}</button>
+    </form>
+{%- endmacro %}
+
 {% macro post_form(uri, key, val, text, fragment="") %}
     <form class="form-single-button" method="POST" action="{{ uri }}">
         {{ hidden_redirect_back(fragment=fragment) }}
@@ -53,6 +60,29 @@
     } -%}
     <a class="button" href="entertainment-decider:///player/play?{{ opts | encode_options }}">Play</a>
 {%- endmacro -%}
+
+{% macro _navigation() %}
+    {% set links = {
+        "Home": "/",
+        "Latest Media": "/media",
+        "All Collections": "/collection",
+        "Pinned Collections": "/collection/pinned",
+        "Show Old Variety": "/recommendations/simple/variety",
+        "BINGE": "/recommendations/simple/binge",
+        "Stats": "/stats",
+        "Tags": "/tag",
+        "Add Media": "/media/extract",
+        "Add Collection": "/collection/extract",
+    } %}
+    {% for name, uri in links.items() %}
+        <a class="button" href="{{ uri }}">{{ name }}</a>
+    {% endfor %}
+    {{ no_input_post_form("/api/refresh/collections", "Refresh Collections") }}
+{%- endmacro %}
+
+{% macro body_header() %}
+    {{ _navigation() }}
+{%- endmacro %}
 
 {% macro media_element_buttons(element) %}
     {% set api_uri = "/api/media/" + element.id|string %}
