@@ -35,13 +35,13 @@
     </style>
 {% endmacro %}
 
-{% macro hidden_redirect_back() %}
+{% macro hidden_redirect_back(fragment="") %}
     <input type="hidden" name="redirect" value="{{ url_for(request.endpoint, **request.view_args) }}{{ ('#' + fragment) if fragment else '' }}"/>
 {% endmacro %}
 
 {% macro post_form(uri, key, val, text, fragment="") %}
     <form class="form-single-button" method="POST" action="{{ uri }}">
-        {{ hidden_redirect_back() }}
+        {{ hidden_redirect_back(fragment=fragment) }}
         <button name="{{ key }}" value="{{ val }}">{{ text }}</button>
     </form>
 {% endmacro %}
