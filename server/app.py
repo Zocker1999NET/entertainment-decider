@@ -251,6 +251,19 @@ def list_media():
         media_list=list(itertools.islice(get_considerable(), 100))
     )
 
+@flask_app.route("/media/short")
+@flask_app.route("/media/short/<int:seconds>")
+def list_short_media(seconds: int = 10*60):
+    media_list: Iterable[MediaElement] = orm.select(m for m in MediaElement).order_by(orm.desc(MediaElement.release_date), MediaElement.id)
+    def get_considerable():
+        for element in media_list:
+            if element.left_length <= seconds and element.can_considered:
+                yield element
+    return render_template(
+        "media_list.htm",
+        media_list=list(itertools.islice(get_considerable(), 100))
+    )
+
 @flask_app.route("/media/extract")
 def extract_media():
     return render_template("media_extract.htm")
