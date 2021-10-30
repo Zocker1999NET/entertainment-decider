@@ -264,6 +264,14 @@ def list_short_media(seconds: int = 10*60):
         media_list=list(itertools.islice(get_considerable(), 100))
     )
 
+@flask_app.route("/media/unsorted")
+def list_unsorted_media():
+    media_list: Iterable[MediaElement] = orm.select(m for m in MediaElement if len(m.collection_links) == 0).order_by(orm.desc(MediaElement.release_date), MediaElement.id)
+    return render_template(
+        "media_list.htm",
+        media_list=media_list,
+    )
+
 @flask_app.route("/media/extract")
 def extract_media():
     return render_template("media_extract.htm")
