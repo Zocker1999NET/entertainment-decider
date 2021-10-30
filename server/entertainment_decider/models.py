@@ -460,18 +460,22 @@ class MediaCollection(db.Entity, Tagable):
     def was_extracted(self) -> bool:
         return self.last_updated is not None
 
+    def __to_watch_episodes(self) -> Iterable[MediaCollectionLink]:
+        return orm.select(link for link in self.media_links if not link.element.watched and not link.element.ignored)
+
     @property
     def next_episode(self) -> Optional[MediaCollectionLink]:
         #return orm \
         #    .select(link for link in self.media_links if not link.element.watched) \
         #    .order_by(*MediaCollectionLink.natural_order) \
         #    .first()
-        episodes = MediaCollectionLink.sorted(orm.select(link for link in self.media_links if not link.element.watched and not link.element.ignored))
+        episodes = MediaCollectionLink.sorted(self.__to_watch_episodes())
         return episodes[0] if len(episodes) > 0 else None
 
     @property
     def completed(self) -> bool:
-        return self.next_episode is None
+        l = list(self.__to_watch_episodes())
+        return len(l) <= 0
 
     @property
     def assigned_tags(self) -> Set[Tag]:
