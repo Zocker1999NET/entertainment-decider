@@ -218,6 +218,10 @@ def list_collection():
 def extract_collection():
     return render_template("collection_extract.htm")
 
+@flask_app.route("/collection/to_watch")
+def list_collections_with_unwatched():
+    return _list_collections(lambda collection: not collection.ignored and not collection.completed)
+
 @flask_app.route("/collection/pinned")
 def list_pinned_collection():
     collection_list: Iterable[MediaCollection] = orm.select(c for c in MediaCollection if c.pinned).order_by(orm.desc(MediaCollection.release_date), MediaCollection.title, MediaCollection.id)
