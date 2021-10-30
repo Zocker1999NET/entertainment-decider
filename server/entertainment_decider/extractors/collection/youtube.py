@@ -9,8 +9,7 @@ from pony import orm # TODO remove
 import youtubesearchpython
 
 from ...models import MediaCollection
-from ..generic import ExtractedData, ExtractionError, SuitableLevel
-from ..media import media_extract_uri
+from ..generic import ExtractedData, SuitableLevel
 from .base import CollectionExtractor
 
 
@@ -89,7 +88,6 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
         video_list = data["videos"]
         if object.watch_in_order_auto:
             object.watch_in_order = not is_channel
-        len_video_list = len(video_list)
         if is_channel:
             video_list = reversed(video_list)
         for index, video in enumerate(video_list):
@@ -98,11 +96,11 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
                 f"https://youtube.com/watch?v={video['id']}",
                 f"https://youtu.be/{video['id']}",
             ]
-            logging.debug(f"[youtube] Add to collection {object.title!r} video {video_url!r} ({index+1} of {len_video_list})")
-            try:
-                element = media_extract_uri(video_url)
+            element = self._add_episode(
+                collection = object,
+                uri = video_url,
+                episode = index + 1,
+            )
+            if element:
                 element.add_uris(other_urls)
-                object.add_episode(element, episode=index+1)
                 orm.commit() # so progress is stored
-            except ExtractionError:
-                logging.warning(f"Failed while extracting media {video_url!r}", exc_info=True)

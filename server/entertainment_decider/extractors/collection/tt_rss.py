@@ -8,8 +8,7 @@ from pony import orm # TODO remove
 
 from ...models import MediaCollection
 from ..all.tt_rss import HeadlineList, TtRssConnectionParameter, TtRssUri
-from ..generic import ExtractedData, ExtractionError, SuitableLevel
-from ..media import media_extract_uri
+from ..generic import ExtractedData, SuitableLevel
 from .base import CollectionExtractor
 
 
@@ -76,11 +75,10 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
             object.title = object.uri
         logging.debug(f"Got {len(data)} headlines")
         for headline in data:
-            logging.debug(f"Add to collection {headline.url!r}")
-            try:
-                object.add_episode(media_extract_uri(headline.url))
-                orm.commit()
-            except ExtractionError:
-                logging.warning(f"Failed while extracting media {headline.url!r}", exc_info=True)
+            self._add_episode(
+                collection = object,
+                uri = headline.url
+            )
+            orm.commit()
         if object.watch_in_order_auto:
             object.watch_in_order = False # no order available

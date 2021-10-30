@@ -3,8 +3,9 @@ from __future__ import annotations
 import logging
 from typing import Optional, TypeVar
 
-from ...models import CollectionUriMapping, MediaCollection
-from ..generic import ExtractedData, GeneralExtractor
+from ...models import CollectionUriMapping, MediaCollection, MediaElement
+from ..generic import ExtractedData, ExtractionError, GeneralExtractor
+from ..media import media_extract_uri
 
 
 T = TypeVar("T")
@@ -40,3 +41,17 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
         if collection:
             self.__configure_collection(collection)
         return collection
+
+    def _add_episode(self, collection: MediaCollection, uri: str, season: int = 0, episode: int = 0) -> Optional[MediaElement]:
+        logging.debug(f"Add to collection {collection.title!r} media {uri!r} (Season {season}, Episode {episode})")
+        try:
+            element = media_extract_uri(uri)
+        except ExtractionError:
+            logging.warning(f"Failed while extracting media {uri!r}", exc_info=True)
+            return None
+        collection.add_episode(
+            media = element,
+            season = season,
+            episode = episode,
+        )
+        return element
