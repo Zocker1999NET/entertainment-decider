@@ -329,7 +329,7 @@ class MediaElement(db.Entity, Tagable):
     last_updated: datetime = orm.Optional(datetime)
 
     watched: bool = orm.Required(bool, default=False)
-    ignored: bool = orm.Required(bool, default=False)
+    ignored: bool = orm.Required(bool, column="ignored", default=False)
     progress: int = orm.Required(int, default=0)
     length: int = orm.Optional(int)
 
