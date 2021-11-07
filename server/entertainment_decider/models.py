@@ -512,12 +512,10 @@ class MediaCollection(db.Entity, Tagable):
 
     @property
     def next_episode(self) -> Optional[MediaCollectionLink]:
-        #return orm \
-        #    .select(link for link in self.media_links if not link.element.watched) \
-        #    .order_by(*MediaCollectionLink.natural_order) \
-        #    .first()
-        episodes = MediaCollectionLink.sorted(self.__to_watch_episodes())
-        return episodes[0] if len(episodes) > 0 else None
+        return orm \
+            .select(link for link in self.media_links if not link.element.skip_over) \
+            .order_by(MediaCollectionLink.sort_key) \
+            .first()
 
     @property
     def completed(self) -> bool:
