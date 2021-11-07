@@ -306,9 +306,17 @@ class MediaCollectionLink(db.Entity):
         return self.element.release_date
 
     @staticmethod
+    def sort_key(link: MediaCollectionLink) -> Tuple:
+        return (
+            link.season,
+            link.episode,
+            link.element.release_date,
+            link.element.id,
+        )
+
+    @staticmethod
     def sorted(iterable: Iterable[MediaCollectionLink]) -> List[MediaCollectionLink]:
-        return sorted(iterable, key=lambda m: (m.season, m.episode, m.element_release_date, m.element_id))
-    natural_order = (season, episode, element_release_date, element_id) # unusuable due to ponyorm, see https://github.com/ponyorm/pony/issues/612
+        return sorted(iterable, key=MediaCollectionLink.sort_key)
 
 
 ## Media Elements
