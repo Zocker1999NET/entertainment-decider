@@ -27,6 +27,18 @@ class SuitableLevel(Enum):
     def accept_immediately(self):
         return self.value[1]
 
+    @staticmethod
+    def always_or_no(value: bool) -> SuitableLevel:
+        return SuitableLevel.ALWAYS if value else SuitableLevel.NO
+
+    @staticmethod
+    def always_or_fallback(value: bool) -> SuitableLevel:
+        return SuitableLevel.ALWAYS if value else SuitableLevel.FALLBACK
+
+    @staticmethod
+    def fallback_or_no(value: bool) -> SuitableLevel:
+        return SuitableLevel.FALLBACK if value else SuitableLevel.NO
+
 
 class ExtractionError(Exception):
     pass
