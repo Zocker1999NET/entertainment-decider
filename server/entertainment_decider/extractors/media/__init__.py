@@ -2,13 +2,16 @@ from __future__ import annotations
 
 from typing import Dict
 
+
 from ...models import MediaElement
 from ..helpers import expect_suitable_extractor
 from .base import MediaExtractor
+from .youtube import YoutubeMediaExtractor
 from .ytdl import YtdlMediaExtractor
 
 
 MEDIA_EXTRACTORS: Dict[str, MediaExtractor] = {
+    "youtube": YoutubeMediaExtractor(),
     "ytdl": YtdlMediaExtractor(),
 }
 

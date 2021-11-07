@@ -3,7 +3,7 @@ pony>=0.7.14
 pyyaml>=5.4.1
 rss-parser>=0.2.3
 youtube-dl>=2021.6.6
-youtube-search-python>=1.4.9
+youtube-search-python>=1.5.1
 
 # custom, local requirements; TODO remove or change to persistent dependency
 /home/zocker/Repositories/python-jsoncache
