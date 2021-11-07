@@ -141,6 +141,9 @@ class PreferenceScore:
     def order_by_score(self, objects: Iterable[T]) -> List[T]:
         return sorted(objects, key=lambda o: self.calculate_score(o))
 
+    def get_first_by_score(self, objects: Iterable[T]) -> List[T]:
+        return min(objects, key=lambda o: self.calculate_score(o))
+
     @classmethod
     def from_json(cls, data: str) -> PreferenceScore:
         dicts: Dict = json.loads(data)
@@ -228,7 +231,7 @@ def generate_preference_list(
     while True:
         if len(element_list) <= 0:
             break
-        first_element = base.order_by_score(element_list)[0]
+        first_element = base.get_first_by_score(element_list)
         res_ids.append(first_element.id)
         if limit is not None and limit <= len(res_ids):
             break
