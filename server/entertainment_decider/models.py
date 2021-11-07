@@ -519,8 +519,7 @@ class MediaCollection(db.Entity, Tagable):
 
     @property
     def completed(self) -> bool:
-        l = list(self.__to_watch_episodes())
-        return len(l) <= 0
+        return self.__to_watch_episodes().count() <= 0
 
     @property
     def assigned_tags(self) -> Set[Tag]:
