@@ -8,6 +8,7 @@ import logging
 from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple, TypeVar, Union
 
 from pony import orm
+from pony.orm.core import Query
 
 db = orm.Database()
 
@@ -468,7 +469,7 @@ class MediaCollection(db.Entity, Tagable):
     def was_extracted(self) -> bool:
         return self.last_updated is not None
 
-    def __to_watch_episodes(self) -> Iterable[MediaCollectionLink]:
+    def __to_watch_episodes(self) -> Query | Iterable[MediaCollectionLink]:
         return orm.select(link for link in self.media_links if not link.element.watched and not link.element.ignored)
 
     @property
