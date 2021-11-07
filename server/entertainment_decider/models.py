@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import base64
 import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
+import gzip
+import json
 import math
 import logging
 from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple, TypeVar, Union
@@ -137,6 +140,38 @@ class PreferenceScore:
 
     def order_by_score(self, objects: Iterable[T]) -> List[T]:
         return sorted(objects, key=lambda o: self.calculate_score(o))
+
+    @classmethod
+    def from_json(cls, data: str) -> PreferenceScore:
+        dicts: Dict = json.loads(data)
+        return cls(
+            {Tag[id]: score for id, score in dicts.items()}
+        )
+
+    @classmethod
+    def from_base64(cls, in_data: str, encoding: str = "utf-8") -> PreferenceScore:
+        data = in_data.encode(encoding)
+        data = base64.decodebytes(data)
+        data = gzip.decompress(data)
+        data = data.decode(encoding)
+        data = PreferenceScore.from_json(data)
+        return data
+
+    def to_json(self) -> str:
+        return json.dumps(
+            {tag.id: score for tag, score in self.points.items()}
+        )
+
+    def to_base64(self, encoding: str = "utf-8") -> str:
+        data = self.to_json()
+        data = data.encode(encoding)
+        data = gzip.compress(
+            data=data,
+            compresslevel=9,
+        )
+        data = base64.encodebytes(data)
+        data = data.decode(encoding)
+        return data
 
 
 class PreferenceScoreAppender:
