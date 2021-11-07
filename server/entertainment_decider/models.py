@@ -508,7 +508,7 @@ class MediaCollection(db.Entity, Tagable):
         return self.last_updated is not None
 
     def __to_watch_episodes(self) -> Query | Iterable[MediaCollectionLink]:
-        return orm.select(link for link in self.media_links if not link.element.watched and not link.element.ignored)
+        return orm.select(link for link in self.media_links if not link.element.skip_over)
 
     @property
     def next_episode(self) -> Optional[MediaCollectionLink]:
