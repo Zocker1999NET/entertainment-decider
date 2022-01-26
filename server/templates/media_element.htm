@@ -52,7 +52,7 @@
         </ul>
         <h2>Links</h2>
         <ul>
-            {% for link in element.uris %}
+            {% for link in element.uris|sort(attribute="uri") %}
                 <li>{{ link.uri | as_link }} {% if element.uri == link.uri %}*{% endif %}</li>
             {% endfor %}
         </ul>

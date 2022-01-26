@@ -65,7 +65,7 @@
         </ul>
         <h2>Links</h2>
         <ul>
-            {% for link in collection.uris %}
+            {% for link in collection.uris|sort(attribute="uri") %}
                 <li>{{ link.uri | as_link }} {% if collection.uri == link.uri %}*{% endif %}</li>
             {% endfor %}
         </ul>
