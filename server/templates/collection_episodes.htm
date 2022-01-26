@@ -1,0 +1,21 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = collection.title %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        {{ macros.body_header() }}
+        <h1>{{ title }}</h1>
+        <a href="{{ collection.info_link }}">back to collection info</a>
+        <h2>Episodes</h2>
+        <ul>
+            {% for link in media_links %}
+                {{ macros.link_entry(link) }}
+            {% endfor %}
+        </ul>
+    </body>
+</html>

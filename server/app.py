@@ -235,6 +235,17 @@ def show_collection(collection_id):
     return render_template(
         "collection_element.htm",
         collection=collection,
+        media_links=MediaCollectionLink.sorted(MediaCollectionLink.select(lambda l: l.collection == collection)) if orm.count(collection.media_links) <= 100 else None,
+    )
+
+@flask_app.route("/collection/<int:collection_id>/episodes")
+def show_collection_episodes(collection_id):
+    collection: MediaCollection = MediaCollection.get(id=collection_id)
+    if collection is None:
+        return make_response(f"Not found", 404)
+    return render_template(
+        "collection_episodes.htm",
+        collection=collection,
         media_links=MediaCollectionLink.sorted(MediaCollectionLink.select(lambda l: l.collection == collection)),
     )
 

@@ -63,11 +63,17 @@
                 <li>{{ link.uri | as_link }} {% if collection.uri == link.uri %}*{% endif %}</li>
             {% endfor %}
         </ul>
-        <h2>Episodes</h2>
-        <ul>
-            {% for link in media_links %}
-                {{ macros.link_entry(link) }}
-            {% endfor %}
-        </ul>
+        {% if not media_links %}
+            <p>
+                <a href="{{ collection.info_link }}/episodes">List episodes</a>
+            </p>
+        {% else %}
+            <h2>Episodes</h2>
+            <ul>
+                {% for link in media_links %}
+                    {{ macros.link_entry(link) }}
+                {% endfor %}
+            </ul>
+        {% endif %}
     </body>
 </html>
