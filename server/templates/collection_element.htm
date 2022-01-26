@@ -57,16 +57,16 @@
         </ul>
         <h2>Notes</h2>
         <pre>{{ collection.notes or "" }}</pre>
-        <h2>Episodes</h2>
-        <ul>
-            {% for link in media_links %}
-                {{ macros.link_entry(link) }}
-            {% endfor %}
-        </ul>
         <h2>Links</h2>
         <ul>
             {% for link in collection.uris|sort(attribute="uri") %}
                 <li>{{ link.uri | as_link }} {% if collection.uri == link.uri %}*{% endif %}</li>
+            {% endfor %}
+        </ul>
+        <h2>Episodes</h2>
+        <ul>
+            {% for link in media_links %}
+                {{ macros.link_entry(link) }}
             {% endfor %}
         </ul>
     </body>
