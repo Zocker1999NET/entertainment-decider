@@ -405,9 +405,11 @@ def force_refresh_collection(collection_id: int):
 @flask_app.route("/stats")
 def show_stats():
     elements: List[MediaElement] = MediaElement.select()
+    collections: List[MediaCollection] = MediaCollection.select()
     return render_template(
         "stats.htm",
         stats={
+            "last_updated": orm.max(c.last_updated for c in collections),
             "media": {
                 "known": orm.count(elements),
                 "known_seconds": orm.sum(m.length for m in elements),
