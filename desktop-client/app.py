@@ -12,7 +12,8 @@ def cmd_player_play(video_uri: str, start: Optional[str] = None):
     print(f"Play video {video_uri}")
     subprocess.Popen(
         args = [e for e in [
-            str(Path("~/bin/mpvadd").expanduser()),
+            str(Path("~/bin/mpvctl").expanduser()),
+            "add",
             video_uri,
             f"start={start}" if start is not None else None,
         ] if e is not None],
