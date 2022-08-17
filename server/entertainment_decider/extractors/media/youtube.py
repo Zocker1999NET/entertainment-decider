@@ -48,7 +48,14 @@ class YoutubeVideoData(TypedDict):
 
 class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
 
-    __uri_regex = re.compile(r"^https?://((www\.)?youtube\.com/watch\?v=|youtu\.be/)(?P<id>[^/&?]+)")
+    __uri_regex = re.compile(r"""^
+        https?://(
+            (www\.)?youtube\.com/(
+                watch\?v=
+            )|
+            youtu\.be/
+        )(?P<id>[^/&?]+)
+    $""", re.VERBOSE)
 
     def __init__(self):
         super().__init__("ytdl")
