@@ -8,14 +8,14 @@ from typing import Callable, Dict, Optional
 import urllib.parse as url
 
 
-def cmd_player_play(video_uri: str, start: Optional[str] = None):
+def cmd_player_play(video_uri: str, start: Optional[str] = None, speed: Optional[str] = None):
     print(f"Play video {video_uri}")
     subprocess.Popen(
         args = [e for e in [
             str(Path("~/bin/mpvctl").expanduser()),
             "add",
             video_uri,
-            f"start={start}" if start is not None else None,
+            f"start={start}" if start is not None else None + "," + f"speed={speed}" if speed is not None else None,
         ] if e is not None],
         stdin = subprocess.DEVNULL,
         stdout = subprocess.DEVNULL,
