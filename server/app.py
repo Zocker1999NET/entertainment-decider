@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import datetime
 from functools import partial
+import io
 import itertools
 import logging
 import os
@@ -28,6 +29,7 @@ from flask import (
     make_response,
     redirect,
     request,
+    send_file,
 )
 from flask.templating import render_template
 from markupsafe import Markup
@@ -350,6 +352,26 @@ def show_media(media_id):
     if element is None:
         return make_response(f"Not found", 404)
     return render_template("media_element.htm", element=element)
+
+
+@flask_app.route("/media/<int:media_id>/thumbnail")
+def show_media_thumb(media_id: int):
+    element: MediaElement = MediaElement.get(id=media_id)
+    if element is None:
+        # TODO add default thumbnail if not found
+        return make_response(f"Not found", 404)
+    if element.thumbnail is None:
+        return redirect("/static/thumbnail_missing.webp")
+    thumb = element.thumbnail
+    # TODO do not load data from database until send_file requires that
+    return send_file(
+        io.BytesIO(thumb.receive_data()),
+        mimetype=thumb.mime_type,
+        etag=True,
+        as_attachment=False,
+        last_modified=thumb.last_downloaded,
+        cache_timeout=24 * 60 * 60,
+    )
 
 
 @flask_app.route("/recommendations/simple/binge")
