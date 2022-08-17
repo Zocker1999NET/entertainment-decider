@@ -22,7 +22,13 @@ from typing import (
     Union,
 )
 
-from flask import Flask, jsonify, make_response, request, redirect
+from flask import (
+    Flask,
+    jsonify,
+    make_response,
+    redirect,
+    request,
+)
 from flask.templating import render_template
 from markupsafe import Markup
 from pony.flask import Pony
