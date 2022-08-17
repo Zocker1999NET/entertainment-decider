@@ -521,10 +521,10 @@ def api_collection_extract():
             "status": False,
             "error": f"Missing uri value to extract",
         }
-    m = collection_extract_uri(data["uri"])
+    c = collection_extract_uri(data["uri"])
     orm.flush()
-    if m and environ_bool(data.get("redirect_to_object", False)):
-        return redirect(m.info_link)
+    if c and environ_bool(data.get("redirect_to_object", False)):
+        return redirect(c.info_link)
     return redirect_back_or_okay()
 
 @flask_app.route("/api/collection/<int:collection_id>", methods=["GET", "POST"])
