@@ -3,4 +3,5 @@ Name=$name URI Handler
 Exec=$exec_path exec %u
 Type=Application
 Terminal=false
+NoDisplay=true
 MimeType=x-scheme-handler/entertainment-decider;
