@@ -15,7 +15,7 @@ def cmd_player_play(video_uri: str, start: Optional[str] = None, speed: Optional
             str(Path("~/bin/mpvctl").expanduser()),
             "add",
             video_uri,
-            f"start={start}" if start is not None else None + "," + f"speed={speed}" if speed is not None else None,
+            #f"start={start}" if start is not None else None + "," + f"speed={speed}" if speed is not None else None,
         ] if e is not None],
         stdin = subprocess.DEVNULL,
         stdout = subprocess.DEVNULL,
