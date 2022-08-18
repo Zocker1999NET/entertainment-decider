@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import logging
+import re
 from typing import Dict, Optional
 
 
@@ -14,11 +15,19 @@ from .base import MediaExtractor
 
 
 class YtdlMediaExtractor(MediaExtractor[Dict]):
+
+    SUPPORTED_PATTERN = re.compile(
+        r"""^
+        https?://
+    """,
+        re.VERBOSE,
+    )
+
     def __init__(self):
         super().__init__("ytdl")
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
-        return SuitableLevel.FALLBACK
+        return SuitableLevel.fallback_or_no(bool(self.SUPPORTED_PATTERN.search(uri)))
 
     def _get_author_data(self, data: Dict) -> Optional[AuthorExtractedData]:
         video_extractor_key = data.get("extractor_key") or data["ie_key"]
