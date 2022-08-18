@@ -240,11 +240,9 @@ def dashboard():
             and next_link.element.can_considered
         ):
             links_from_pinned_collections.add(next_link)
-            if len(links_from_pinned_collections) >= pinned_limit:
-                break
     links_from_pinned_collections = sorted(
         links_from_pinned_collections, key=lambda l: l.element.release_date
-    )
+    )[:pinned_limit]
     already_listed.update(link.element for link in links_from_pinned_collections)
     # for media
     media_list: Iterable[MediaElement] = orm.select(m for m in MediaElement if not (m.ignored or m.watched)).order_by(orm.desc(MediaElement.release_date), MediaElement.id)
