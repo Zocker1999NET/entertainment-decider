@@ -374,23 +374,6 @@ def show_media_thumb(media_id: int):
     )
 
 
-@flask_app.route("/recommendations/simple/variety")
-def recommend_variety():
-    def gen_list():
-        l = [m for m in orm.select(m for m in MediaElement if not (m.watched or m.ignored)).order_by(MediaElement.release_date) if m.can_considered]
-        return l
-    return render_template(
-        "recommendations_simple.htm",
-        mode_name="Variety",
-        media_list=generate_preference_list(
-            base=PreferenceScore(),
-            object_gen=gen_list,
-            score_adapt=1,
-            limit=5,
-        )
-    )
-
-
 @flask_app.route("/api/refresh/collections", methods=["POST"])
 def refresh_collections():
     collections: List[MediaCollection] = orm.select(c for c in MediaCollection if c.keep_updated)
