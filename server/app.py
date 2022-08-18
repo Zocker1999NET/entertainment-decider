@@ -233,7 +233,11 @@ def dashboard():
     episodes_from_pinned_collections: Set[MediaElement] = set()
     for coll in pinned_collections:
         next_link = coll.next_episode
-        if next_link is not None and next_link.element not in episodes_from_pinned_collections and next_link.element.can_considered:
+        if (
+            next_link is not None
+            and next_link.element not in episodes_from_pinned_collections
+            and next_link.element.can_considered
+        ):
             links_from_pinned_collections.append(next_link)
             episodes_from_pinned_collections.add(next_link.element)
             if len(links_from_pinned_collections) >= pinned_limit:
