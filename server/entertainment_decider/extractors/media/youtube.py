@@ -88,6 +88,9 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
 
     def _extract_online(self, uri: str) -> ExtractedData[YoutubeVideoData]:
         logging.info(f"Request info using youtube_search_python for {uri!r}")
+        uri_match = self.__uri_regex.match(uri)
+        if not uri_match:
+            raise Exception(f"URI not suitable: {uri!r}")
         vid_data: YoutubeVideoData = Video.getInfo(
             videoLink=uri,
             mode=ResultMode.dict,
