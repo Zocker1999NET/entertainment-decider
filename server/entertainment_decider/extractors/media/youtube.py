@@ -9,6 +9,8 @@ from youtubesearchpython import ResultMode, Video
 
 from ...models import (
     MediaElement,
+    MediaThumbnail,
+    thumbnail_sort_key,
 )
 from ..generic import (
     AuthorExtractedData,
@@ -99,6 +101,12 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
 
     def _update_object_raw(self, object: MediaElement, data: YoutubeVideoData):
         object.title = f"{data['title']} - {data['channel']['name']}"
+        if data.get("thumbnails"):
+            best_thumb = min(
+                data["thumbnails"],
+                key=lambda thumb: thumbnail_sort_key(thumb["width"], thumb["height"]),
+            )
+            object.thumbnail = MediaThumbnail.from_uri(best_thumb["url"])
         object.release_date = datetime.strptime(
             data.get("uploadDate") or data["publishDate"], "%Y-%m-%d"
         )
