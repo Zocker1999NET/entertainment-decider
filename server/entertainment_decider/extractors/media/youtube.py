@@ -97,10 +97,13 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
         if not uri_match:
             raise Exception(f"URI not suitable: {uri!r}")
         id = uri_match.group("id")
-        vid_data: YoutubeVideoData = Video.getInfo(
-            videoLink=f"https://www.youtube.com/watch?v={id}",
-            mode=ResultMode.dict,
-        )
+        try:
+            vid_data: YoutubeVideoData = Video.getInfo(
+                videoLink=f"https://www.youtube.com/watch?v={id}",
+                mode=ResultMode.dict,
+            )
+        except Exception as e:
+            raise ExtractionError() from e
         if vid_data["isLiveNow"]:
             raise ExtractionError("Video is live, so pass extraction")
         return ExtractedData[YoutubeVideoData](
