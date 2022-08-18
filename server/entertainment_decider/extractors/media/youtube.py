@@ -65,6 +65,10 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
         https?://(
             (www\.)?youtube(-nocookie)?\.com/(
                 watch\?v=
+                |
+                embed/
+                |
+                shorts/
             )|
             youtu\.be/
         )(?P<id>[^/&?]+)
