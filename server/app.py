@@ -223,9 +223,16 @@ def timedelta(seconds: int) -> str:
 @flask_app.route("/")
 def dashboard():
     # config
+    began_limit = 8
     pinned_limit = 16
     media_limit = 24
     already_listed = set[MediaElement]()
+    # for began videos
+    began_videos: Iterable[MediaElement] = orm.select(
+        m for m in MediaElement if m.started
+    ).order_by(MediaElement.release_date, MediaElement.title, MediaElement.id)
+    began_videos = list(common.limit_iter(began_videos, began_limit))
+    already_listed.update(began_videos)
     # for links from pinned collections
     pinned_collections: Iterable[MediaCollection] = orm.select(
         m for m in MediaCollection if m.pinned and not m.ignored

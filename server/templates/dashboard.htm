@@ -10,6 +10,10 @@
     <body>
         {{ macros.body_header() }}
         <h1>{{ title }}</h1>
+        {% if began_videos %}
+            <h2>Began Videos</h2>
+            {{ macros.media_table(began_videos) }}
+        {% endif %}
         <h2>From Pinned Collections</h2>
         {% if links_from_pinned_collections %}
             {{ macros.link_differ_table(links_from_pinned_collections) }}
