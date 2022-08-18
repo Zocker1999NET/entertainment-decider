@@ -23,9 +23,13 @@ from typing import (
 import magic
 import requests
 from pony import orm
-from pony.orm.core import Query
+from pony.orm.core import Query as PonyQuery
 
 db = orm.Database()
+
+
+T = TypeVar("T")
+Query = Union[List[T], PonyQuery]
 
 
 THUMBNAIL_ALLOWED_TYPES = [
