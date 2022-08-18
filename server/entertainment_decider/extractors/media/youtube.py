@@ -91,8 +91,9 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
         uri_match = self.__uri_regex.match(uri)
         if not uri_match:
             raise Exception(f"URI not suitable: {uri!r}")
+        id = uri_match.group("id")
         vid_data: YoutubeVideoData = Video.getInfo(
-            videoLink=uri,
+            videoLink=f"https://www.youtube.com/watch?v={id}",
             mode=ResultMode.dict,
         )
         return ExtractedData[YoutubeVideoData](
