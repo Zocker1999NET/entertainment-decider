@@ -223,8 +223,8 @@ def timedelta(seconds: int) -> str:
 @flask_app.route("/")
 def dashboard():
     # config
-    pinned_limit = 10
-    media_limit = 10
+    pinned_limit = 16
+    media_limit = 24
     # for links from pinned collections
     pinned_collections: Iterable[MediaCollection] = orm.select(
         m for m in MediaCollection if m.pinned and not m.ignored
