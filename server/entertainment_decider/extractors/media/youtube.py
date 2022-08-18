@@ -77,7 +77,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
     )
 
     def __init__(self):
-        super().__init__("ytdl")
+        super().__init__("youtube")
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
         return SuitableLevel.always_or_no(self.__uri_regex.match(uri))
