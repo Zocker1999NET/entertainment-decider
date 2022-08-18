@@ -15,7 +15,7 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
 
     # abstract
 
-    def _get_author_data(self, data: Dict) -> Optional[AuthorExtractedData]:
+    def _get_author_data(self, data: T) -> Optional[AuthorExtractedData]:
         return None
 
     # defined
