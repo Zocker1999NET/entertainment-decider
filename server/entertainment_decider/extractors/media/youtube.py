@@ -15,6 +15,7 @@ from ...models import (
 from ..generic import (
     AuthorExtractedData,
     ExtractedData,
+    ExtractionError,
     SuitableLevel,
 )
 from .base import MediaExtractor
@@ -100,6 +101,8 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             videoLink=f"https://www.youtube.com/watch?v={id}",
             mode=ResultMode.dict,
         )
+        if vid_data["isLiveNow"]:
+            raise ExtractionError("Video is live, so pass extraction")
         return ExtractedData[YoutubeVideoData](
             object_uri=uri,
             extractor_name=self.name,
