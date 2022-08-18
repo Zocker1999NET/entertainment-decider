@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-import datetime
+from datetime import datetime, timedelta
 from functools import partial
 import io
 import itertools
@@ -191,14 +191,14 @@ def tenary(b: bool, true_str: str, false_str: str) -> str:
 
 
 TIMEDELTA_FORMAT = (
-    datetime.timedelta(hours=1),
-    datetime.timedelta(minutes=1),
+    timedelta(hours=1),
+    timedelta(minutes=1),
 )
 
 
 @flask_app.template_filter()
 def timedelta(seconds: int) -> str:
-    delta = datetime.timedelta(seconds=seconds)
+    delta = timedelta(seconds=seconds)
     ret = ""
     for unit in TIMEDELTA_FORMAT:
         if ret or unit <= delta:
@@ -378,7 +378,7 @@ def show_media_thumb(media_id: int):
 @flask_app.route("/recommendations/simple/binge/<int:random_val>")
 def recommend_binge(random_val: int = None):
     if random_val is None:
-        random_val = (datetime.datetime.now() - datetime.timedelta(hours=4)).toordinal()
+        random_val = (datetime.now() - timedelta(hours=4)).toordinal()
     def gen_list():
         l = [m for m in orm.select(m for m in MediaElement if not (m.watched or m.ignored)) if m.can_considered]
         r = random.Random(random_val)
