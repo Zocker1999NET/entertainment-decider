@@ -112,3 +112,10 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             data.get("uploadDate") or data["publishDate"], "%Y-%m-%d"
         )
         object.length = int(data["duration"]["secondsText"])
+        object.uri = f"https://www.youtube.com/watch?v={data['id']}"
+        object.add_uris(
+            (
+                f"https://youtu.be/{data['id']}",
+                f"https://youtube.com/watch?v={data['id']}",
+            )
+        )

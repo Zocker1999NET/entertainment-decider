@@ -100,15 +100,10 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
             video_list = reversed(video_list)
         for index, video in enumerate(video_list):
             video_url = f"https://www.youtube.com/watch?v={video['id']}"
-            other_urls = [
-                f"https://youtube.com/watch?v={video['id']}",
-                f"https://youtu.be/{video['id']}",
-            ]
             element = self._add_episode(
                 collection=object,
                 uri=video_url,
                 episode=index + 1,
             )
             if element:
-                element.add_uris(other_urls)
                 orm.commit()  # so progress is stored
