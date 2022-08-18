@@ -581,6 +581,7 @@ class MediaCollection(db.Entity, Tagable):
     title: str = orm.Optional(str)
     notes: str = orm.Optional(str)
     release_date: datetime = orm.Optional(datetime)
+    creator: MediaCollection = orm.Optional(lambda: MediaCollection, nullable=True)
 
     extractor_name: str = orm.Optional(str)
     extractor_key: str = orm.Optional(str)
@@ -597,6 +598,19 @@ class MediaCollection(db.Entity, Tagable):
     tag_list: Iterable[Tag] = orm.Set(lambda: Tag)
     uris: Iterable[CollectionUriMapping] = orm.Set(lambda: CollectionUriMapping)
     media_links: Iterable[MediaCollectionLink] = orm.Set(MediaCollectionLink)
+    created_collections: Set[MediaCollection] = orm.Set(lambda: MediaCollection)
+
+    @property
+    def is_creator(self) -> bool:
+        return self == self.creator
+
+    @property
+    def has_creator(self) -> bool:
+        return self.creator is not None
+
+    @property
+    def is_root_collection(self) -> bool:
+        return self.is_creator or not self.has_creator
 
     @property
     def was_extracted(self) -> bool:
