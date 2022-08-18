@@ -10,10 +10,32 @@ import math
 import logging
 from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple, TypeVar, Union
 
+import magic
+import requests
 from pony import orm
 from pony.orm.core import Query
 
 db = orm.Database()
+
+
+THUMBNAIL_ALLOWED_TYPES = [
+    "image/avif",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+]
+THUMBNAIL_HEADERS = {
+    "Accept": ",".join(THUMBNAIL_ALLOWED_TYPES) + ",*/*;q=0.9",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
+}
+THUMBNAIL_TARGET = 16 / 9
+
+
+def thumbnail_sort_key(width: int, height: int) -> Tuple:
+    return (
+        abs((width / height) - THUMBNAIL_TARGET),
+        width * height,
+    )
 
 
 ####
@@ -367,6 +389,7 @@ class MediaElement(db.Entity, Tagable):
     uri: str = orm.Required(str, unique=True)
 
     title: str = orm.Optional(str)
+    thumbnail: MediaThumbnail = orm.Optional(lambda: MediaThumbnail)
     notes: str = orm.Optional(str)
     release_date: datetime = orm.Optional(datetime)
 
@@ -466,6 +489,48 @@ class MediaElement(db.Entity, Tagable):
     @property
     def info_link(self):
         return f"/media/{self.id}"
+
+
+class MediaThumbnail(db.Entity):
+
+    id: int = orm.PrimaryKey(int, auto=True)
+    uri: str = orm.Required(str, unique=True)
+    last_downloaded: datetime = orm.Optional(datetime, default=None, nullable=True)
+    last_accessed: datetime = orm.Optional(datetime, default=None, nullable=True)
+    mime_type: str = orm.Optional(str, default="")
+    data: bytes = orm.Optional(bytes, default=None, nullable=True, lazy=True)
+
+    elements: Set[MediaElement] = orm.Set(lambda: MediaElement)
+
+    @classmethod
+    def from_uri(cls, uri: str) -> MediaThumbnail:
+        return cls.get(uri=uri) or MediaThumbnail(uri=uri)
+
+    def access(self):
+        self.last_accessed = datetime.now()
+
+    def download(self) -> bool:
+        res = requests.get(url=self.uri, headers=THUMBNAIL_HEADERS)
+        mime = magic.from_buffer(res.content, mime=True)
+        if mime not in THUMBNAIL_ALLOWED_TYPES:
+            return False
+        self.mime_type = mime
+        self.data = res.content
+        self.last_downloaded = datetime.now()
+        return True
+
+    def prepare(self) -> bool:
+        if self.last_downloaded is not None:
+            return True
+        return self.download()
+
+    def access_data(self):
+        self.prepare()
+        self.access()
+
+    def receive_data(self) -> bytes:
+        self.access_data()
+        return self.data
 
 
 class MediaUriMapping(db.Entity):
