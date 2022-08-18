@@ -230,7 +230,7 @@ def dashboard():
     pinned_collections: Iterable[MediaCollection] = orm.select(
         m for m in MediaCollection if m.pinned and not m.ignored
     ).order_by(MediaCollection.release_date, MediaCollection.title, MediaCollection.id)
-    links_from_pinned_collections: List[MediaCollectionLink] = list()
+    links_from_pinned_collections = set[MediaCollectionLink]()
     for coll in pinned_collections:
         next_link = coll.next_episode
         if (
@@ -238,7 +238,7 @@ def dashboard():
             and next_link.element not in already_listed
             and next_link.element.can_considered
         ):
-            links_from_pinned_collections.append(next_link)
+            links_from_pinned_collections.add(next_link)
             already_listed.add(next_link.element)
             if len(links_from_pinned_collections) >= pinned_limit:
                 break
