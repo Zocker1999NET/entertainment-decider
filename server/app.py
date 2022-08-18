@@ -575,9 +575,9 @@ def api_collection_element(collection_id: int):
                     "status": False,
                     "error": f"Cannot set key {key!r} on MediaCollection",
                 }, 400
+        collection.set(**{key: KEY_CONVERTER[key](val) for key, val in data.items()})
         if "watch_in_order" in data: # TODO move to property
             collection.watch_in_order_auto = False
-        collection.set(**{key: KEY_CONVERTER[key](val) for key, val in data.items()})
         return redirect_back_or_okay()
     else:
         return {
