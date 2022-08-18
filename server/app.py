@@ -235,13 +235,14 @@ def dashboard():
         next_link = coll.next_episode
         if (
             next_link is not None
+            and next_link not in links_from_pinned_collections
             and next_link.element not in already_listed
             and next_link.element.can_considered
         ):
             links_from_pinned_collections.add(next_link)
-            already_listed.add(next_link.element)
             if len(links_from_pinned_collections) >= pinned_limit:
                 break
+    already_listed.update(link.element for link in links_from_pinned_collections)
     # for media
     media_list: Iterable[MediaElement] = orm.select(m for m in MediaElement if not (m.ignored or m.watched)).order_by(orm.desc(MediaElement.release_date), MediaElement.id)
     def get_considerable():
