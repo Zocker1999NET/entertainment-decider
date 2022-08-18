@@ -28,8 +28,8 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
         elem: MediaElement = MediaElement.get(uri=uri)
         if elem:
             logging.warning(
-                f"Add missing URI mapping entry for uri {uri!r}, " +
-                "this should not happen at this point and is considered a bug"
+                f"Add missing URI mapping entry for uri {uri!r}, "
+                + "this should not happen at this point and is considered a bug"
             )
             elem.add_single_uri(uri)
             return elem
@@ -41,13 +41,17 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
     def _load_object(self, data: ExtractedData[T]) -> MediaElement:
         return data.load_media()
 
-    def __create_author_collection(self, author_data: AuthorExtractedData) -> MediaCollection:
+    def __create_author_collection(
+        self, author_data: AuthorExtractedData
+    ) -> MediaCollection:
         collection = author_data.create_collection()
         collection.keep_updated = False
         collection.watch_in_order = False
         return collection
 
-    def __lookup_author_collection(self, author_data: AuthorExtractedData) -> Optional[MediaCollection]:
+    def __lookup_author_collection(
+        self, author_data: AuthorExtractedData
+    ) -> Optional[MediaCollection]:
         return CollectionExtractor.check_uri(
             uri=author_data.object_uri,
         ) or MediaCollection.get(
@@ -55,12 +59,16 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
             extractor_key=author_data.object_key,
         )
 
-    def __get_author_collection(self, author_data: AuthorExtractedData) -> MediaCollection:
+    def __get_author_collection(
+        self, author_data: AuthorExtractedData
+    ) -> MediaCollection:
         collection = self.__lookup_author_collection(author_data)
         if collection is None:
             collection = self.__create_author_collection(author_data)
         if not collection.title or collection.title.startswith("[author] "):
-            collection.title = f"[author] [{author_data.extractor_name}] {author_data.author_name}"
+            collection.title = (
+                f"[author] [{author_data.extractor_name}] {author_data.author_name}"
+            )
         return collection
 
     def __add_to_author_collection(self, element: MediaElement, data: Dict):

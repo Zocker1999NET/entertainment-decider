@@ -15,18 +15,21 @@ MEDIA_EXTRACTORS: Dict[str, MediaExtractor] = {
     "ytdl": YtdlMediaExtractor(),
 }
 
+
 def media_expect_extractor(uri: str) -> MediaExtractor:
     return expect_suitable_extractor(
-        extractor_list = MEDIA_EXTRACTORS.values(),
-        uri = uri,
+        extractor_list=MEDIA_EXTRACTORS.values(),
+        uri=uri,
     )
+
 
 def media_update(element: MediaElement, check_cache_expired: bool = True):
     ex = media_expect_extractor(element.uri)
     ex.update_object(
-        object = element,
-        check_cache_expired = check_cache_expired,
+        object=element,
+        check_cache_expired=check_cache_expired,
     )
+
 
 def media_extract_uri(uri: str) -> MediaElement:
     elem: MediaElement = MediaExtractor.check_uri(uri)

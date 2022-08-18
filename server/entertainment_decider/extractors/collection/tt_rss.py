@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import logging
 from typing import Optional
 
-from pony import orm # TODO remove
+from pony import orm  # TODO remove
 
 from ...models import MediaCollection
 from ..all.tt_rss import HeadlineList, TtRssConnectionParameter, TtRssUri
@@ -18,7 +18,8 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
     __label_filter: Optional[int]
     __mark_as_read: bool
 
-    def __init__(self,
+    def __init__(
+        self,
         params: TtRssConnectionParameter,
         mark_as_read: bool = False,
         label_filter: Optional[int] = None,
@@ -53,16 +54,20 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
         data = rss_uri.request(self.__params, order_by="feed_dates", view_mode="unread")
         if self.__label_filter is not None:
             data = [
-                headline for headline in data
-                if self.__label_filter in (label_marker[0] for label_marker in headline.labels)
+                headline
+                for headline in data
+                if self.__label_filter
+                in (label_marker[0] for label_marker in headline.labels)
             ]
         if self.__mark_as_read:
             parameters = {
                 "article_ids": ",".join(str(headline.feedId) for headline in data),
-                "field": "2", # unread
-                "mode": "0", # false
+                "field": "2",  # unread
+                "mode": "0",  # false
             }
-            raise NotImplementedError("Cannot set articles as read with tinytinypy for now") # TODO
+            raise NotImplementedError(
+                "Cannot set articles as read with tinytinypy for now"
+            )  # TODO
         return ExtractedData(
             extractor_name=self.name,
             object_key=uri,
@@ -75,10 +80,7 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
             object.title = object.uri
         logging.debug(f"Got {len(data)} headlines")
         for headline in data:
-            self._add_episode(
-                collection = object,
-                uri = headline.url
-            )
+            self._add_episode(collection=object, uri=headline.url)
             orm.commit()
         if object.watch_in_order_auto:
-            object.watch_in_order = False # no order available
+            object.watch_in_order = False  # no order available

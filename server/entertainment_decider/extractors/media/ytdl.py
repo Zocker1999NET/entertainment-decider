@@ -5,14 +5,15 @@ import logging
 from typing import Dict, Optional
 
 
-from ...models import MediaElement
+from ...models import (
+    MediaElement,
+)
 from ..all.ytdl import get_video_info, YtdlErrorException
 from ..generic import AuthorExtractedData, ExtractedData, ExtractionError, SuitableLevel
-from .base import  MediaExtractor
+from .base import MediaExtractor
 
 
 class YtdlMediaExtractor(MediaExtractor[Dict]):
-
     def __init__(self):
         super().__init__("ytdl")
 
@@ -22,12 +23,18 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
     def _get_author_data(self, data: Dict) -> Optional[AuthorExtractedData]:
         video_extractor_key = data.get("extractor_key") or data["ie_key"]
         author_key = data.get("channel_id") or data.get("uploader_id")
-        author_name = data.get("channel") or data.get("uploader") or data.get("uploader_id")
+        author_name = (
+            data.get("channel") or data.get("uploader") or data.get("uploader_id")
+        )
         return AuthorExtractedData(
-            object_uri = data.get("channel_url") or data.get("uploader_url"),
-            extractor_name = self.name,
-            object_key = f"author:{video_extractor_key}:{author_key}" if author_key else None,
-            author_name = f"[{video_extractor_key.lower()}] {author_name}" if author_name else None,
+            object_uri=data.get("channel_url") or data.get("uploader_url"),
+            extractor_name=self.name,
+            object_key=f"author:{video_extractor_key}:{author_key}"
+            if author_key
+            else None,
+            author_name=f"[{video_extractor_key.lower()}] {author_name}"
+            if author_name
+            else None,
         )
 
     def _extract_online(self, uri: str) -> ExtractedData[Dict]:
@@ -48,6 +55,10 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
         )
 
     def _update_object_raw(self, object: MediaElement, data: Dict) -> str:
-        object.title = f"{data['title']} - {data['uploader']}" if "uploader" in data else data["title"]
+        object.title = (
+            f"{data['title']} - {data['uploader']}"
+            if "uploader" in data
+            else data["title"]
+        )
         object.release_date = datetime.strptime(data["upload_date"], "%Y%m%d")
         object.length = int(data["duration"])

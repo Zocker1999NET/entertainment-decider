@@ -28,13 +28,17 @@ TT_RSS_CONNECTION: Connection = None
 
 HeadlineList = List[Headline]
 
+
 def _build_connection(params: TtRssConnectionParameter) -> Connection:
     global TT_RSS_CONNECTION
     if TT_RSS_CONNECTION is None:
-        TT_RSS_CONNECTION = Connection(proto=params.proto, host=params.host, endpoint=params.endpoint)
+        TT_RSS_CONNECTION = Connection(
+            proto=params.proto, host=params.host, endpoint=params.endpoint
+        )
     if not TT_RSS_CONNECTION.isLoggedIn():
         TT_RSS_CONNECTION.login(username=params.username, password=params.password)
     return TT_RSS_CONNECTION
+
 
 def get_headlines(params: TtRssConnectionParameter, **kwargs) -> HeadlineList:
     conn = _build_connection(params)
@@ -71,9 +75,11 @@ class TtRssUriKind(Enum):
 @dataclass
 class TtRssUri:
 
-    supported_kinds = '|'.join(re.escape(n.path_name.lower()) for n in TtRssUriKind)
+    supported_kinds = "|".join(re.escape(n.path_name.lower()) for n in TtRssUriKind)
     scheme = "tt-rss"
-    path_re = re.compile(fr"^/((?P<all>all)|(?P<kind>{supported_kinds})/(?P<id>-?\d+))/?$")
+    path_re = re.compile(
+        rf"^/((?P<all>all)|(?P<kind>{supported_kinds})/(?P<id>-?\d+))/?$"
+    )
 
     kind: TtRssUriKind
     id: Optional[str]
@@ -95,9 +101,16 @@ class TtRssUri:
         if m is None:
             raise Exception(f"Could not parse path of tt-rss uri: {parts.path!r}")
         return TtRssUri(
-            kind = TtRssUriKind.ALL if m.group("all") else TtRssUriKind.from_path_name(m.group("kind")),
-            id = m.group("id"),
-            options = {single[0]: single[1] for single in (single.split("=") for single in parts.query.split("&"))} if parts.query else {},
+            kind=TtRssUriKind.ALL
+            if m.group("all")
+            else TtRssUriKind.from_path_name(m.group("kind")),
+            id=m.group("id"),
+            options={
+                single[0]: single[1]
+                for single in (single.split("=") for single in parts.query.split("&"))
+            }
+            if parts.query
+            else {},
         )
 
     def request(self, params: TtRssConnectionParameter, **kwargs) -> HeadlineList:

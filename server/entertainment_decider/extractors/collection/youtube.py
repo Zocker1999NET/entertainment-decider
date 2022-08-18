@@ -5,7 +5,7 @@ import logging
 import re
 from typing import Dict
 
-from pony import orm # TODO remove
+from pony import orm  # TODO remove
 import youtubesearchpython
 
 from ...models import MediaCollection
@@ -15,7 +15,9 @@ from .base import CollectionExtractor
 
 class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
 
-    __uri_regex = re.compile(r"^https?://(www\.)?youtube\.com/(channel/|playlist\?list=)(?P<id>[^/&?]+)")
+    __uri_regex = re.compile(
+        r"^https?://(www\.)?youtube\.com/(channel/|playlist\?list=)(?P<id>[^/&?]+)"
+    )
 
     @classmethod
     def __get_id(cls, uri: str) -> str:
@@ -69,7 +71,9 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
         playlist = youtubesearchpython.Playlist(playlist_link)
         while playlist.hasMoreVideos:
             playlist.getNextVideos()
-        logging.debug(f"Retrieved {len(playlist.videos)} videos from playlist {playlist_link!r}")
+        logging.debug(
+            f"Retrieved {len(playlist.videos)} videos from playlist {playlist_link!r}"
+        )
         return ExtractedData(
             extractor_name=self.name,
             object_key=playlist_id,
@@ -83,7 +87,11 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
     def _update_object_raw(self, object: MediaCollection, data: Dict):
         info = data["info"]
         is_channel = self.__is_channel_id(info["id"])
-        object.title = f"[channel] [{self.name}] {info['channel']['name']}" if is_channel else f"[playlist] {info['channel']['name']}: {info['title']}"
+        object.title = (
+            f"[channel] [{self.name}] {info['channel']['name']}"
+            if is_channel
+            else f"[playlist] {info['channel']['name']}: {info['title']}"
+        )
         object.add_single_uri(info["link"])
         video_list = data["videos"]
         if object.watch_in_order_auto:
@@ -97,10 +105,10 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
                 f"https://youtu.be/{video['id']}",
             ]
             element = self._add_episode(
-                collection = object,
-                uri = video_url,
-                episode = index + 1,
+                collection=object,
+                uri=video_url,
+                episode=index + 1,
             )
             if element:
                 element.add_uris(other_urls)
-                orm.commit() # so progress is stored
+                orm.commit()  # so progress is stored

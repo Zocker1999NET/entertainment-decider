@@ -52,16 +52,16 @@ class ExtractedDataLight:
 
     def create_media(self) -> MediaElement:
         return MediaElement(
-            uri = self.object_uri,
-            extractor_name = self.extractor_name,
-            extractor_key = self.object_key,
+            uri=self.object_uri,
+            extractor_name=self.extractor_name,
+            extractor_key=self.object_key,
         )
 
     def create_collection(self) -> MediaCollection:
         return MediaCollection(
-            uri = self.object_uri,
-            extractor_name = self.extractor_name,
-            extractor_key = self.object_key
+            uri=self.object_uri,
+            extractor_name=self.extractor_name,
+            extractor_key=self.object_key,
         )
 
 
@@ -74,10 +74,14 @@ class ExtractedData(ExtractedDataLight, Generic[T]):
         return self.data is not None
 
     def load_media(self) -> Optional[MediaElement]:
-        return MediaElement.get(extractor_name=self.extractor_name, extractor_key=self.object_key)
+        return MediaElement.get(
+            extractor_name=self.extractor_name, extractor_key=self.object_key
+        )
 
     def load_collection(self) -> Optional[MediaCollection]:
-        return MediaCollection.get(extractor_name=self.extractor_name, extractor_key=self.object_key)
+        return MediaCollection.get(
+            extractor_name=self.extractor_name, extractor_key=self.object_key
+        )
 
 
 @dataclass
@@ -90,6 +94,7 @@ class AuthorExtractedData(ExtractedDataLight):
 
 
 E = TypeVar("E", MediaElement, MediaCollection)
+
 
 class GeneralExtractor(Generic[E, T]):
 
@@ -136,7 +141,11 @@ class GeneralExtractor(Generic[E, T]):
     # defined
 
     def _extract_offline(self, uri: str) -> ExtractedData[T]:
-        return self._extract_offline_only(uri) if self.can_extract_offline(uri) else self._extract_online(uri)
+        return (
+            self._extract_offline_only(uri)
+            if self.can_extract_offline(uri)
+            else self._extract_online(uri)
+        )
 
     def _extract_required(self, data: ExtractedData[T]) -> ExtractedData[T]:
         if data.has_data:
@@ -151,8 +160,14 @@ class GeneralExtractor(Generic[E, T]):
         return object
 
     def update_object(self, object: E, check_cache_expired: bool = True) -> E:
-        if object.was_extracted and check_cache_expired and not self._cache_expired(object.last_updated):
-            logging.debug(f"Skip info for element as already extracted and cache valid: {object.title!r}")
+        if (
+            object.was_extracted
+            and check_cache_expired
+            and not self._cache_expired(object.last_updated)
+        ):
+            logging.debug(
+                f"Skip info for element as already extracted and cache valid: {object.title!r}"
+            )
             return object
         data = self._extract_online(object.uri)
         logging.debug(f"Updating info for media: {data!r}")

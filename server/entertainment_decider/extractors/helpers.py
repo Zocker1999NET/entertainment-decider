@@ -18,6 +18,7 @@ def search_suitable_extractor(extractor_list: Iterable[T], uri: str) -> Optional
             best_bet = extractor
     return best_bet
 
+
 def expect_suitable_extractor(extractor_list: Iterable[T], uri: str) -> T:
     extractor = search_suitable_extractor(extractor_list, uri)
     if extractor is None:
