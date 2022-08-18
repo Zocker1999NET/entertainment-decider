@@ -16,6 +16,7 @@
         <ul>
             <li>
                 {{ macros.media_element_buttons(element) }}
+                {{ macros.no_input_post_form("/api/refresh/media/" + element.id|string, "refresh") }}
             </li>
             <li>Can be considered: {{ element.can_considered | tenary("Yes", "no") }}</li>
             <li>

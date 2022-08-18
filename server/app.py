@@ -50,7 +50,10 @@ from entertainment_decider.extractors.collection import (
     collection_extract_uri,
     collection_update,
 )
-from entertainment_decider.extractors.media import media_extract_uri
+from entertainment_decider.extractors.media import (
+    media_extract_uri,
+    media_update,
+)
 
 
 ####
@@ -421,6 +424,16 @@ def force_refresh_collection(collection_id: int):
     if coll is None:
         return "404 Not Found", 404
     collection_update(coll, check_cache_expired=False)
+    update_element_lookup_cache([coll.id])
+    return redirect_back_or_okay()
+
+
+@flask_app.route("/api/refresh/media/<int:media_id>", methods=["POST"])
+def force_refresh_media(media_id: int):
+    elem: MediaElement = MediaElement.get(id=media_id)
+    if elem is None:
+        return "404 Not Found", 404
+    media_update(elem, check_cache_expired=False)
     return redirect_back_or_okay()
 
 
