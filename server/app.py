@@ -420,7 +420,7 @@ def force_refresh_collection(collection_id: int):
     coll: MediaCollection = MediaCollection.get(id=collection_id)
     if coll is None:
         return "404 Not Found", 404
-    collection_update(coll)
+    collection_update(coll, check_cache_expired=False)
     return redirect_back_or_okay()
 
 
