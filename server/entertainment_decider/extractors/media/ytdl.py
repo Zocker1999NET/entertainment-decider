@@ -71,6 +71,7 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             if "uploader" in data
             else data["title"]
         )
+        object.description = data.get("description")
         thumb_list = (
             [
                 thumb
