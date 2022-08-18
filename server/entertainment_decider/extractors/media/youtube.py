@@ -101,6 +101,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
 
     def _update_object_raw(self, object: MediaElement, data: YoutubeVideoData):
         object.title = f"{data['title']} - {data['channel']['name']}"
+        object.description = data.get("description")
         if data.get("thumbnails"):
             best_thumb = min(
                 data["thumbnails"],
