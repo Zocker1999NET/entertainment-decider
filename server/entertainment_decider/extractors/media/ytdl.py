@@ -8,6 +8,8 @@ from typing import Dict, Optional
 
 from ...models import (
     MediaElement,
+    MediaThumbnail,
+    thumbnail_sort_key,
 )
 from ..all.ytdl import get_video_info, YtdlErrorException
 from ..generic import AuthorExtractedData, ExtractedData, ExtractionError, SuitableLevel
@@ -69,5 +71,22 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             if "uploader" in data
             else data["title"]
         )
+        thumb_list = (
+            [
+                thumb
+                for thumb in data["thumbnails"]
+                if "width" in thumb and "height" in thumb
+            ]
+            if "thumbnails" in data
+            else None
+        )
+        if thumb_list:
+            best_thumb = min(
+                thumb_list,
+                key=lambda thumb: thumbnail_sort_key(thumb["width"], thumb["height"]),
+            )
+            object.thumbnail = MediaThumbnail.from_uri(best_thumb["url"])
+        elif data.get("thumbnail"):
+            object.thumbnail = MediaThumbnail.from_uri(data["thumbnail"])
         object.release_date = datetime.strptime(data["upload_date"], "%Y%m%d")
         object.length = int(data["duration"])
