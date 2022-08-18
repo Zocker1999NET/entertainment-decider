@@ -374,28 +374,6 @@ def show_media_thumb(media_id: int):
     )
 
 
-@flask_app.route("/recommendations/simple/binge")
-@flask_app.route("/recommendations/simple/binge/<int:random_val>")
-def recommend_binge(random_val: int = None):
-    if random_val is None:
-        random_val = (datetime.now() - timedelta(hours=4)).toordinal()
-    def gen_list():
-        l = [m for m in orm.select(m for m in MediaElement if not (m.watched or m.ignored)) if m.can_considered]
-        r = random.Random(random_val)
-        r.shuffle(l)
-        return l
-    return render_template(
-        "recommendations_simple.htm",
-        mode_name="Binge Watch",
-        random_val=random_val,
-        media_list=generate_preference_list(
-            base=PreferenceScore(),
-            object_gen=gen_list,
-            score_adapt=-1,
-            limit=5,
-        )
-    )
-
 @flask_app.route("/recommendations/simple/variety")
 def recommend_variety():
     def gen_list():
