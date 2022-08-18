@@ -376,9 +376,42 @@ def show_media_thumb(media_id: int):
 
 @flask_app.route("/api/refresh/collections", methods=["POST"])
 def refresh_collections():
-    collections: List[MediaCollection] = orm.select(c for c in MediaCollection if c.keep_updated)
-    for coll in collections:
-        collection_update(coll)
+    collection_ids = set[int](
+        orm.select(c.id for c in MediaCollection if c.keep_updated)
+    )
+    errors = []
+    for coll_id in collection_ids:
+        try:
+            coll = MediaCollection[coll_id]
+            collection_update(coll)
+            orm.commit()
+        # TODO make Exception more specific
+        except Exception as e:
+            orm.rollback()
+            coll = MediaCollection[coll_id]
+            errors.append(
+                {
+                    "collection": {
+                        "id": coll.id,
+                        "title": coll.title,
+                        "uri": coll.uri,
+                    },
+                    "error": {
+                        "args": repr(e.args),
+                    },
+                },
+            )
+    if errors:
+        return (
+            {
+                "status": False,
+                "error": {
+                    "msg": "Failed to update all collections successfully",
+                    "data": errors,
+                },
+            },
+            501,
+        )
     return redirect_back_or_okay()
 
 
