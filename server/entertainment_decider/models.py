@@ -403,6 +403,7 @@ class MediaElement(db.Entity, Tagable):
     uri: str = orm.Required(str, unique=True)
 
     title: str = orm.Optional(str)
+    description: str = orm.Optional(orm.LongStr, nullable=True)
     thumbnail: MediaThumbnail = orm.Optional(lambda: MediaThumbnail)
     notes: str = orm.Optional(str)
     release_date: datetime = orm.Optional(datetime)
