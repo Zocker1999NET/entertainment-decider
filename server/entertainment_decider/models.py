@@ -473,6 +473,8 @@ class MediaElement(db.Entity, Tagable):
     def can_considered(self) -> bool:
         if self.skip_over:
             return False
+        if self.release_date > datetime.now():
+            return False
         for link in self.collection_links:
             if link.collection.watch_in_order:
                 next = link.collection.next_episode
