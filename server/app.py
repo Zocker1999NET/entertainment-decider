@@ -68,6 +68,8 @@ logging.basicConfig(format="%(asctime)s === %(message)s", level=logging.DEBUG)
 ####
 
 
+DEBUG_DATABASE = False
+
 flask_app = Flask(__name__)
 flask_app.config.update(
     dict(
@@ -78,6 +80,8 @@ flask_app.config.update(
             filename="./db.sqlite",
             create_db=True,
         )
+        if DEBUG_DATABASE
+        else dict()
     )
 )
 
