@@ -87,6 +87,13 @@ def environ_bool(value: Union[str, bool]) -> bool:
         return value
     return value.strip()[0].lower() in ["1", "t", "y"]
 
+
+def environ_int(value: Union[str, int]) -> int:
+    if type(value) == int:
+        return value
+    return int(value)
+
+
 ConfigKeySetter: Callable[[str, Any], Any]
 ConfigSingleTranslator = Callable[[Any], Any]
 ConfigTranslatorIterable = Iterable[ConfigSingleTranslator]
@@ -142,6 +149,10 @@ CONFIG_TRANSLATE_TABLE: Dict[
         partial(pony_config_setter, "create_db"),
     ),
     "PONY_HOST": pony_config_same,
+    "PONY_PORT": (
+        environ_int,
+        partial(pony_config_setter, "port"),
+    ),
     "PONY_DATABASE": pony_config_same,
     "PONY_DB": pony_config_same,
     "PONY_USER": pony_config_same,
