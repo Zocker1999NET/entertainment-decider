@@ -488,6 +488,9 @@ class MediaElement(db.Entity, Tagable):
 
     @property
     def can_considered(self) -> bool:
+        DIRECT_SQL = True
+        if DIRECT_SQL:
+            return is_considered(self.id)
         if self.skip_over:
             return False
         if self.release_date > datetime.now():
@@ -733,6 +736,101 @@ SQL_WHITESPACE_PATTERN = re.compile(r"(\s|\n)+")
 
 def sql_cleanup(sql: str) -> str:
     return SQL_WHITESPACE_PATTERN.sub(" ", sql).strip()
+
+
+def sql_where_in(id: str, id_list: Iterable[str | int]) -> str:
+    return f"{id} IN ({','.join(str(i) for i in id_list)})"
+
+
+# TODO reducing cache table to only contain videos not watched/ignored (not huge speedup)
+# TODO add bool for (not)? blocking to direct dependencies (similar to above) (not huge speedup)
+def sql_is_considered(elem_id: str, use_cache: bool = True) -> str:
+    # NOT EXISTS seems worlds better then making a OUTER JOIN
+    return sql_cleanup(
+        f"""
+            NOT EXISTS (
+        """
+        + (
+            f"""
+                SELECT c.element2
+                FROM element_lookup_cache c
+                        INNER JOIN mediaelement m2 ON c.element1 = m2.id
+                WHERE c.element2 = {elem_id} AND NOT (m2.watched OR m2.ignored)
+            """
+            if use_cache
+            else f"""
+                SELECT *
+                FROM mediaelement look_elem
+                        INNER JOIN mediacollectionlink link ON link.element = look_elem.id
+                        INNER JOIN mediacollection coll ON coll.id = link.collection
+                        INNER JOIN mediacollectionlink coll_link ON coll_link.collection = coll.id
+                        INNER JOIN mediaelement coll_elem ON coll_elem.id = coll_link.element
+                WHERE look_elem.id = {elem_id}
+                    AND coll.watch_in_order
+                    AND NOT (coll_elem.watched OR coll_elem.ignored)
+                    AND (coll_link.season, coll_link.episode, coll_elem.release_date, coll_elem.id) < (link.season, link.episode, look_elem.release_date, look_elem.id)
+            """
+        )
+        + f"""
+            ) AND NOT EXISTS (
+                SELECT *
+                FROM mediaelement_mediaelement m_m
+                        INNER JOIN mediaelement m ON m_m.mediaelement = m.id
+                WHERE m_m.mediaelement_2 = {elem_id} AND NOT (m.watched OR m.ignored)
+            )
+        """
+    )
+
+
+def is_considered(elem_id: int) -> bool:
+    return db.exists(
+        sql_cleanup(
+            f"""
+        SELECT elem.id
+        FROM mediaelement elem
+        WHERE elem.id = {elem_id}
+            AND NOT (elem.watched OR elem.ignored)
+            AND elem.release_date <= NOW()
+            AND ({sql_is_considered('elem.id')})
+    """
+        )
+    )
+
+
+def are_multiple_considered(elem_ids: Iterable[int]) -> Mapping[int, bool]:
+    res = {
+        r[0]
+        for r in db.execute(
+            sql_cleanup(
+                f"""
+        SELECT elem.id
+        FROM mediaelement elem
+        WHERE NOT (elem.watched OR elem.ignored)
+            AND elem.release_date <= NOW()
+            AND ({sql_is_considered("elem.id")})
+    """
+            )
+        )
+    }
+    return {elem_id: elem_id in res for elem_id in elem_ids}
+
+
+def get_all_considered(
+    order_by: str = "NULL", filter_by: str = "true"
+) -> List[MediaElement]:
+    return MediaElement.select_by_sql(
+        sql_cleanup(
+            f"""
+        SELECT elem.*
+        FROM mediaelement elem
+        WHERE NOT (elem.watched OR elem.ignored)
+            AND elem.release_date <= NOW()
+            AND {filter_by}
+            AND ({sql_is_considered("elem.id")})
+        ORDER BY {order_by}
+    """
+        )
+    )
 
 
 def update_element_lookup_cache(collection_ids: List[int] = []):

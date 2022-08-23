@@ -45,6 +45,7 @@ from entertainment_decider.models import (
     MediaCollectionLink,
     MediaElement,
     generate_preference_list,
+    get_all_considered,
     setup_custom_tables,
     update_element_lookup_cache,
 )
@@ -273,17 +274,16 @@ def dashboard():
     )[:pinned_limit]
     already_listed.update(link.element for link in links_from_pinned_collections)
     # for media
-    media_list: Iterable[MediaElement] = orm.select(m for m in MediaElement if not (m.ignored or m.watched)).order_by(orm.desc(MediaElement.release_date), MediaElement.id)
-    def get_considerable():
-        for element in media_list:
-            if element not in episodes_from_pinned_collections and element.can_considered:
-                yield element
+    media_list: Iterable[MediaElement] = get_all_considered(
+        order_by="elem.release_date DESC, elem.id",
+    )
+    limited_media = common.limit_iter(media_list, media_limit)
     # render
     return render_template(
         "dashboard.htm",
         began_videos=began_videos,
         links_from_pinned_collections = links_from_pinned_collections,
-        media_list = common.limit_iter(get_considerable(), media_limit),
+        media_list=limited_media,
     )
 
 
@@ -344,28 +344,25 @@ def show_collection_episodes(collection_id):
 
 @flask_app.route("/media")
 def list_media():
-    media_list: Iterable[MediaElement] = orm.select(m for m in MediaElement if not (m.ignored or m.watched)).order_by(orm.desc(MediaElement.release_date), MediaElement.id)
-    def get_considerable():
-        for element in media_list:
-            if element.can_considered:
-                yield element
+    media_list: Iterable[MediaElement] = get_all_considered(
+        "elem.release_date DESC, elem.id"
+    )
     return render_template(
         "media_list.htm",
-        media_list=list(itertools.islice(get_considerable(), 100))
+        media_list=common.limit_iter(media_list, 100),
     )
 
 
 @flask_app.route("/media/short")
 @flask_app.route("/media/short/<int:seconds>")
 def list_short_media(seconds: int = 10 * 60):
-    media_list: Iterable[MediaElement] = orm.select(m for m in MediaElement).order_by(orm.desc(MediaElement.release_date), MediaElement.id)
-    def get_considerable():
-        for element in media_list:
-            if element.left_length <= seconds and element.can_considered:
-                yield element
+    media_list: Iterable[MediaElement] = get_all_considered(
+        filter_by=f"(length - progress) <= {seconds}",
+        order_by="elem.release_date DESC, elem.id",
+    )
     return render_template(
         "media_list.htm",
-        media_list=list(itertools.islice(get_considerable(), 100))
+        media_list=list(itertools.islice(media_list, 100)),
     )
 
 @flask_app.route("/media/unsorted")
