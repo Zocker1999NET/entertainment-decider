@@ -452,6 +452,9 @@ class MediaElement(db.Entity, Tagable):
         lambda: MediaCollectionLink
     )
 
+    blocked_by: Set[MediaElement] = orm.Set(lambda: MediaElement, reverse="is_blocking")
+    is_blocking: Set[MediaElement] = orm.Set(lambda: MediaElement, reverse="blocked_by")
+
     @property
     def was_extracted(self) -> bool:
         return self.last_updated is not None
@@ -488,6 +491,8 @@ class MediaElement(db.Entity, Tagable):
         if self.skip_over:
             return False
         if self.release_date > datetime.now():
+            return False
+        if orm.exists(e for e in self.blocked_by if not e.skip_over):
             return False
         ordered_collections: Query[MediaCollection] = orm.select(
             l.collection
