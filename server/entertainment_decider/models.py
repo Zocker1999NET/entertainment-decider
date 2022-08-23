@@ -485,11 +485,15 @@ class MediaElement(db.Entity, Tagable):
             return False
         if self.release_date > datetime.now():
             return False
-        for link in self.collection_links:
-            if link.collection.watch_in_order:
-                next = link.collection.next_episode
-                if next is not None and self != next.element:
-                    return False
+        ordered_collections: Query[MediaCollection] = orm.select(
+            l.collection
+            for l in self.collection_links
+            if l.collection.watch_in_order
+        )
+        for collection in ordered_collections:
+            next = collection.next_episode
+            if next is not None and self != next.element:
+                return False
         return True
 
     @property
