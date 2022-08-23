@@ -70,7 +70,9 @@ logging.basicConfig(format="%(asctime)s === %(message)s", level=logging.DEBUG)
 
 DEBUG_DATABASE = False
 
-flask_app = Flask(__name__)
+flask_app = Flask(
+    __name__,
+)
 flask_app.config.update(
     dict(
         CELERY=dict(),
