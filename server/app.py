@@ -46,6 +46,7 @@ from entertainment_decider.models import (
     MediaElement,
     generate_preference_list,
     setup_custom_tables,
+    update_element_lookup_cache,
 )
 from entertainment_decider.extractors.collection import (
     collection_extract_uri,
@@ -417,6 +418,7 @@ def refresh_collections():
         orm.select(c.id for c in MediaCollection if c.keep_updated)
     )
     errors = []
+    failed_colls = set[int]()
     for coll_id in collection_ids:
         try:
             coll = MediaCollection[coll_id]
@@ -425,6 +427,7 @@ def refresh_collections():
         # TODO make Exception more specific
         except Exception as e:
             orm.rollback()
+            failed_colls.add(coll_id)
             coll = MediaCollection[coll_id]
             errors.append(
                 {
@@ -438,6 +441,9 @@ def refresh_collections():
                     },
                 },
             )
+    # TODO detect changed collections properly to speed up cache rebuild
+    # meaning check if collection really changed
+    update_element_lookup_cache(collection_ids - failed_colls)
     if errors:
         return (
             {
@@ -563,6 +569,8 @@ def api_collection_extract():
         }
     c = collection_extract_uri(data["uri"])
     orm.flush()
+    if c:
+        update_element_lookup_cache([c.id])
     if c and environ_bool(data.get("redirect_to_object", False)):
         return redirect(c.info_link)
     return redirect_back_or_okay()
@@ -618,6 +626,7 @@ def api_collection_element(collection_id: int):
         collection.set(**{key: KEY_CONVERTER[key](val) for key, val in data.items()})
         if "watch_in_order" in data:  # TODO move both to property inside class
             collection.watch_in_order_auto = False
+            update_element_lookup_cache([collection.id])
         return redirect_back_or_okay()
     else:
         return {

@@ -8,6 +8,7 @@ import gzip
 import json
 import math
 import logging
+import re
 from typing import (
     Callable,
     Dict,
@@ -702,6 +703,65 @@ class CollectionUriMapping(db.Entity):
     element: MediaCollection = orm.Required(MediaCollection)
 
 
+SQL_WHITESPACE_PATTERN = re.compile(r"(\s|\n)+")
+
+
+def sql_cleanup(sql: str) -> str:
+    return SQL_WHITESPACE_PATTERN.sub(" ", sql).strip()
+
+
+def update_element_lookup_cache(collection_ids: List[int] = []):
+    logging.info(
+        f"Rebuild element_lookup_cache for {len(collection_ids) if collection_ids else 'all'} collections …"
+    )
+
+    def filter_clause(c_id: str):
+        return sql_where_in(c_id, collection_ids) if collection_ids else "true"
+
+    orm.flush()
+    sql = [
+        f"""
+            DELETE QUICK FROM element_lookup_cache
+            WHERE {filter_clause("collection")};
+        """,
+        f"""
+            INSERT INTO element_lookup_cache (collection, element1, element2) SELECT
+                c.id AS collection,
+                l1.element AS element1,
+                l2.element AS element2
+            FROM
+                mediacollection c
+            INNER JOIN mediacollectionlink l1 ON
+                c.id = l1.collection
+            INNER JOIN mediacollectionlink l2 ON
+                c.id = l2.collection
+            INNER JOIN mediaelement e1 ON
+                l1.element = e1.id
+            INNER JOIN mediaelement e2 ON
+                l2.element = e2.id
+            WHERE
+                (
+                    l1.season,
+                    l1.episode,
+                    e1.release_date,
+                    e1.id
+                ) <(
+                    l2.season,
+                    l2.episode,
+                    e2.release_date,
+                    e2.id
+                ) AND c.watch_in_order
+                AND {filter_clause("c.id")}
+            GROUP BY
+                collection,
+                element1,
+                element2
+        """,
+    ]
+    for q in sql:
+        db.execute(sql_cleanup(q))
+
+
 ####
 ## Custom Table Framework
 ####
@@ -711,6 +771,46 @@ class CollectionUriMapping(db.Entity):
 CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, str] = {
     SafeStr(table_name): trim(table_sql)
     for table_name, table_sql in {
+        "element_lookup_cache": """
+            CREATE TABLE element_lookup_cache(
+                collection INT(11) NOT NULL,
+                element1 INT(11) NOT NULL,
+                element2 INT(11) NOT NULL
+            ) SELECT
+                c.id AS collection,
+                l1.element AS element1,
+                l2.element AS element2
+            FROM
+                mediacollection c
+            INNER JOIN mediacollectionlink l1 ON
+                c.id = l1.collection
+            INNER JOIN mediacollectionlink l2 ON
+                c.id = l2.collection
+            INNER JOIN mediaelement e1 ON
+                l1.element = e1.id
+            INNER JOIN mediaelement e2 ON
+                l2.element = e2.id
+            WHERE
+                (
+                    l1.season,
+                    l1.episode,
+                    e1.release_date,
+                    e1.id
+                ) <(
+                    l2.season,
+                    l2.episode,
+                    e2.release_date,
+                    e2.id
+                ) AND c.watch_in_order
+            GROUP BY
+                collection,
+                element1,
+                element2;
+            ALTER TABLE
+                `element_lookup_cache` ADD PRIMARY KEY(`element1`, `element2`, `collection`);
+            ALTER TABLE
+                `element_lookup_cache` ADD INDEX(`collection`);
+        """,
     }
 }
 
