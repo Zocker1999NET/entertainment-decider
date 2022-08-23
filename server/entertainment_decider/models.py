@@ -457,8 +457,12 @@ class MediaElement(db.Entity, Tagable):
         return self.last_updated is not None
 
     @property
+    def _left_length(self) -> int:
+        return self.length - self.progress
+
+    @property
     def left_length(self) -> int:
-        return 0 if self.watched else self.length - self.progress
+        return 0 if self.watched else self._left_length
 
     @property
     def ignored_recursive(self) -> bool:
