@@ -168,8 +168,8 @@ for key, val in os.environ.items():
         res: Any = val
         for caller in trans:
             new_res = caller(res)
-            if new_res is None:
-                res = res
+            if new_res is not None:
+                res = new_res
 
 
 ####
