@@ -270,6 +270,7 @@ def dashboard():
     # render
     return render_template(
         "dashboard.htm",
+        began_videos=began_videos,
         links_from_pinned_collections = links_from_pinned_collections,
         media_list = common.limit_iter(get_considerable(), media_limit),
     )
