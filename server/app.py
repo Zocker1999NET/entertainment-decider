@@ -45,6 +45,7 @@ from entertainment_decider.models import (
     MediaCollectionLink,
     MediaElement,
     generate_preference_list,
+    setup_custom_tables,
 )
 from entertainment_decider.extractors.collection import (
     collection_extract_uri,
@@ -187,6 +188,7 @@ for key, val in os.environ.items():
 
 db.bind(**flask_app.config["PONY"])
 db.generate_mapping(create_tables=True)
+setup_custom_tables()
 
 Pony(flask_app)
 

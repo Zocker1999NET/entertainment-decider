@@ -13,6 +13,8 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Mapping,
+    NewType,
     Optional,
     Set,
     Tuple,
@@ -25,7 +27,18 @@ import requests
 from pony import orm
 from pony.orm.core import Query as PonyQuery
 
+from .common import trim
+
 db = orm.Database()
+
+
+SafeStr = NewType("SafeStr", str)
+"""
+Use this type for strings which are expected to be safe to insert into SQL statements.
+They may be included into a SQL statement by quoting them manually: f"SELECT * FROM '{safe_str}'"
+
+DO NOT CAST STRINGS WHICH MAY BE SET BY USERS TO PREVENT SQL INJECTION ATTACKS.
+"""
 
 
 T = TypeVar("T")
@@ -687,3 +700,31 @@ class CollectionUriMapping(db.Entity):
     id: int = orm.PrimaryKey(int, auto=True)
     uri: str = orm.Required(str, unique=True)
     element: MediaCollection = orm.Required(MediaCollection)
+
+
+####
+## Custom Table Framework
+####
+
+
+# TODO replace fixed table names with dynamic resolved ones
+CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, str] = {
+    SafeStr(table_name): trim(table_sql)
+    for table_name, table_sql in {
+    }
+}
+
+
+def table_exists(table_name: SafeStr) -> bool:
+    # TODO may be mariadb specific
+    return db.exists(f"SHOW TABLE STATUS WHERE Name = '{table_name}'")
+
+
+def setup_custom_tables():
+    """
+    Creates & fills custom tables (especially cache tables) if they do not exist.
+    This should not destroy already existing data and should behave indempotent.
+    """
+    for table_name, table_sql in CUSTOM_TABLE_DEFINITIONS.items():
+        if not table_exists(table_name):
+            db.execute(table_sql)
