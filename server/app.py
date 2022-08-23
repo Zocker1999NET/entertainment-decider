@@ -456,7 +456,6 @@ def force_refresh_collection(collection_id: int):
     if coll is None:
         return "404 Not Found", 404
     collection_update(coll, check_cache_expired=False)
-    update_element_lookup_cache([coll.id])
     return redirect_back_or_okay()
 
 
@@ -635,13 +634,6 @@ def api_collection_delete(collection_id: int):
             "error": f"Object not found",
         }, 404
     collection.delete()
-    update_element_lookup_cache([collection_id])
-    return redirect_back_or_okay()
-
-
-@flask_app.route("/api/element_lookup_cache/update", methods=["POST"])
-def api_element_lookup_cache_rebuild():
-    update_element_lookup_cache()
     return redirect_back_or_okay()
 
 
