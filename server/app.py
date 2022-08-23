@@ -10,6 +10,7 @@ import io
 import itertools
 import logging
 import os
+from pathlib import Path
 from urllib.parse import urlencode, quote_plus
 from typing import (
     Any,
@@ -72,6 +73,7 @@ DEBUG_DATABASE = False
 
 flask_app = Flask(
     __name__,
+    static_folder=str(Path(__file__).parent / "static"),
 )
 flask_app.config.update(
     dict(
