@@ -43,7 +43,17 @@ DO NOT CAST STRINGS WHICH MAY BE SET BY USERS TO PREVENT SQL INJECTION ATTACKS.
 
 
 T = TypeVar("T")
-Query = Union[List[T], PonyQuery]
+
+
+class Query(
+    List[T],
+    PonyQuery,
+):
+    """
+    This class may be used to reflect PonyQuerys with all their "kind of" list behavior.
+    Only use it for type hintings.
+    """
+    pass
 
 
 THUMBNAIL_ALLOWED_TYPES = [
