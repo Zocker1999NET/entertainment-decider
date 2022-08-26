@@ -25,6 +25,9 @@
                     {{ c[0] }} videos: {{ c[1] }} ({{ c[2] | timedelta }}) (Average: {{ (c[2] / c[1]) | timedelta }})
                 </li>
             {% endfor %}
+            <li>
+                Progress: {{ ((stats.media.watched_seconds / (stats.media.known_seconds - stats.media.ignored_seconds)) * 100) | round(precision=2) }} %
+            </li>
         </ul>
     </body>
 </html>
