@@ -478,7 +478,7 @@ def show_stats():
     elements: List[MediaElement] = MediaElement.select()
     collections: List[MediaCollection] = MediaCollection.select()
     return render_template(
-        "stats.htm",
+        "stats/main.htm",
         stats={
             "last_updated": orm.max(c.last_updated for c in collections),
             "media": {
