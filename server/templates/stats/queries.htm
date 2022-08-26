@@ -1,0 +1,36 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = "Statistics" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        {{ macros.body_header() }}
+        <h1>{{ title }}</h1>
+        <table>
+            <tr>
+                <th>Query</th>
+                <th>DB Count</th>
+                <th>Cache Count</th>
+                <th>Min Time</th>
+                <th>Max Time</th>
+                <th>Avg Time</th>
+                <th>Sum Time</th>
+            </tr>
+            {% for s in stats %}
+                <tr>
+                    <td><pre style="font-family: monospace; max-width: 60rem; margin: 0; overflow: auto;">{{ s.sql }}</pre></td>
+                    <td>{{ s.db_count }}</td>
+                    <td>{{ s.cache_count }}</td>
+                    <td>{{ s.min_time | round(precision=3) }} s</td>
+                    <td>{{ s.max_time | round(precision=3) }} s</td>
+                    <td>{{ s.avg_time | round(precision=3) }} s</td>
+                    <td>{{ s.sum_time | round(precision=3) }} s</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

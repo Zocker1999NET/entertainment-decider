@@ -242,6 +242,11 @@ def timedelta(seconds: int) -> str:
 ####
 
 
+@flask_app.teardown_request
+def merge_query_stats(*_, **__):
+    db.merge_local_stats()
+
+
 @flask_app.route("/")
 def dashboard():
     # config
@@ -504,6 +509,14 @@ def show_stats():
                 ),
             },
         },
+    )
+
+@flask_app.route("/stats/queries")
+def show_stats_queries():
+    stats = sorted(db.global_stats.values(), key=lambda s: s.sum_time, reverse=True)
+    return render_template(
+        "stats/queries.htm",
+        stats=stats,
     )
 
 
