@@ -162,12 +162,14 @@
         </tr>
         {% for media in media_list %}
             <tr>
-                <td>{{ media.release_date.strftime("%d.%m.%Y") }}</td>
                 <td>
-                    {{ media.left_length | timedelta }}
+                    {{- media.release_date.strftime("%d.%m.%Y") -}}
                 </td>
                 <td>
-                    {{ media_element_buttons(media) }}
+                    {{- media.left_length | timedelta -}}
+                </td>
+                <td>
+                    {{- media_element_buttons(media) -}}
                 </td>
                 <td><a href="{{ media.info_link }}">{{ media.title }}</a></td>
             </tr>
@@ -187,13 +189,13 @@
         {% for link in link_list %}
             <tr>
                 <td>
-                    {{ link.element.release_date.strftime("%d.%m.%Y") }}
+                    {{- link.element.release_date.strftime("%d.%m.%Y") -}}
                 </td>
                 <td>
-                    {{ link.element.left_length | timedelta }}
+                    {{- link.element.left_length | timedelta -}}
                 </td>
                 <td>
-                    {{ media_element_buttons(link.element) }}
+                    {{- media_element_buttons(link.element) -}}
                 </td>
                 <td>
                     <a href="{{ link.element.info_link }}">{{ link.element.title }}</a>
