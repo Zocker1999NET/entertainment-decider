@@ -63,7 +63,7 @@
 {% endmacro %}
 
 {% macro hidden_redirect_back(fragment="") %}
-    <input type="hidden" name="redirect" value="{{ url_for(request.endpoint, **request.view_args) }}{{ ('#' + fragment) if fragment else '' }}"/>
+    <input type="hidden" name="redirect" value="{{ this_url() }}{{ ('#' + fragment) if fragment else '' }}"/>
 {% endmacro %}
 
 {% macro no_input_post_form(uri, text, fragment="") -%}

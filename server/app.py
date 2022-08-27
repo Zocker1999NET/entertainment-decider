@@ -18,6 +18,7 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Mapping,
     Optional,
     Set,
     Union,
@@ -30,6 +31,7 @@ from flask import (
     redirect,
     request,
     send_file,
+    url_for,
 )
 from flask.templating import render_template
 from markupsafe import Markup
@@ -203,6 +205,17 @@ Pony(flask_app)
 @flask_app.template_filter()
 def encode_options(opts: dict[str, Any]):
     return urlencode({k: str(v) for k, v in opts.items()}, quote_via=quote_plus)
+
+
+@flask_app.template_global()
+def this_url(changed_args: Mapping[str, str] = {}):
+    view_args = dict(request.view_args)
+    get_args = request.args.to_dict()
+    get_args.update(changed_args)
+    return url_for(request.endpoint, **view_args) + (
+        f"?{encode_options(get_args)}" if get_args else ""
+    )
+
 
 @flask_app.template_filter()
 def as_link(uri: str):
