@@ -80,7 +80,7 @@
         {% for name, uri in links.items() %}
             <a class="button" href="{{ uri }}">{{ name }}</a>
         {% endfor %}
-        {{ no_input_post_form("/api/refresh/collections", "Refresh Collections") }}
+        {{ no_input_post_form("/api/refresh/collections", "&#x1f504;"|safe) }}
     </div>
 {%- endmacro %}
 
