@@ -47,6 +47,18 @@
             color: gray;
             cursor: default;
         }
+        .button-list {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+        }
+        @media screen and (max-width: 700px) {
+            .button-list {
+                flex-direction: column;
+            }
+        }
     </style>
 {% endmacro %}
 
@@ -168,7 +180,7 @@
                 <td>
                     {{- media.left_length | timedelta -}}
                 </td>
-                <td>
+                <td class="button-list">
                     {{- media_element_buttons(media) -}}
                 </td>
                 <td><a href="{{ media.info_link }}">{{ media.title }}</a></td>
@@ -194,7 +206,7 @@
                 <td>
                     {{- link.element.left_length | timedelta -}}
                 </td>
-                <td>
+                <td class="button-list">
                     {{- media_element_buttons(link.element) -}}
                 </td>
                 <td>
