@@ -89,7 +89,7 @@ flask_app.config.update(
             create_db=True,
         )
         if DEBUG_DATABASE
-        else dict()
+        else dict(),
     )
 )
 
@@ -551,6 +551,7 @@ def show_stats():
             },
         },
     )
+
 
 @flask_app.route("/stats/queries")
 def show_stats_queries():
