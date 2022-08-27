@@ -370,6 +370,20 @@ def list_short_media(seconds: int = 10 * 60):
         media_list=list(itertools.islice(media_list, 100)),
     )
 
+
+@flask_app.route("/media/long")
+@flask_app.route("/media/long/<int:seconds>")
+def list_long_media(seconds: int = 10 * 60):
+    media_list: Iterable[MediaElement] = get_all_considered(
+        filter_by=f"{seconds} <= (length - progress)",
+        order_by="elem.release_date DESC, elem.id",
+    )
+    return render_template(
+        "media_list.htm",
+        media_list=list(itertools.islice(media_list, 100)),
+    )
+
+
 @flask_app.route("/media/unsorted")
 def list_unsorted_media():
     media_list: Iterable[MediaElement] = orm.select(
