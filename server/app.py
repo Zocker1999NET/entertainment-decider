@@ -235,7 +235,9 @@ TIMEDELTA_FORMAT = (
 
 
 @flask_app.template_filter("timedelta")
-def _filter_timedelta(seconds: int) -> str:
+def _filter_timedelta(seconds: Optional[int]) -> str:
+    if seconds is None:
+        return None
     delta = timedelta(seconds=seconds)
     ret = ""
     for unit in TIMEDELTA_FORMAT:
