@@ -26,7 +26,6 @@ from typing import (
 
 from flask import (
     Flask,
-    jsonify,
     make_response,
     redirect,
     request,
