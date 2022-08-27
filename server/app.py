@@ -11,6 +11,7 @@ import itertools
 import logging
 import os
 from pathlib import Path
+import re
 from urllib.parse import urlencode, quote_plus
 from typing import (
     Any,
@@ -104,6 +105,35 @@ def environ_int(value: Union[str, int]) -> int:
     if type(value) == int:
         return value
     return int(value)
+
+
+TIMEDELTA_PATTERN = re.compile(
+    r"^(((?P<hours>\d+):)?(?P<minutes>\d+):)?(?P<seconds>\d+)$"
+)
+
+
+def environ_timedelta(value: Union[int, str, timedelta]) -> timedelta:
+    if isinstance(value, timedelta):
+        return value
+    elif isinstance(value, str):
+        m = TIMEDELTA_PATTERN.search(value)
+        if not m:
+            raise Exception(f"Could not parse {value!r} as timestamp")
+        return timedelta(
+            hours=int(m.group("hours") or 0),
+            minutes=int(m.group("minutes") or 0),
+            seconds=int(m.group("seconds")),
+        )
+    elif isinstance(value, int):
+        return timedelta(seconds=value)
+    else:
+        raise Exception(f"Unknown type {type(value)}")
+
+
+def environ_timedelta_seconds(value: Union[int, str, timedelta]) -> int:
+    if isinstance(value, int):
+        return value
+    return environ_timedelta(value) // timedelta(seconds=1)
 
 
 ConfigKeySetter: Callable[[str, Any], Any]
@@ -776,7 +806,7 @@ def api_media_element(media_id: int):
         KEY_CONVERTER = {
             "title": str,
             "notes": str,
-            "progress": int,
+            "progress": environ_timedelta_seconds,
             "ignored": environ_bool,
             "watched": environ_bool,
         }
