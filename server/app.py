@@ -302,7 +302,7 @@ def dashboard():
     return render_template(
         "dashboard.htm",
         began_videos=began_videos,
-        links_from_pinned_collections = links_from_pinned_collections,
+        links_from_pinned_collections=links_from_pinned_collections,
         media_list=limited_media,
     )
 
@@ -324,7 +324,10 @@ def extract_collection():
 
 @flask_app.route("/collection/to_watch")
 def list_collections_with_unwatched():
-    return _list_collections(lambda collection: not collection.ignored and not collection.completed)
+    return _list_collections_by_filter(
+        lambda coll: not coll.ignored and not coll.completed
+    )
+
 
 @flask_app.route("/collection/pinned")
 def list_pinned_collection():
@@ -343,10 +346,17 @@ def show_collection(collection_id):
     collection: MediaCollection = MediaCollection.get(id=collection_id)
     if collection is None:
         return make_response(f"Not found", 404)
+    media_links = (
+        MediaCollectionLink.sorted(
+            MediaCollectionLink.select(lambda l: l.collection == collection)
+        )
+        if orm.count(collection.media_links) <= 100
+        else None
+    )
     return render_template(
         "collection_element.htm",
         collection=collection,
-        media_links=MediaCollectionLink.sorted(MediaCollectionLink.select(lambda l: l.collection == collection)) if orm.count(collection.media_links) <= 100 else None,
+        media_links=media_links,
     )
 
 
@@ -355,10 +365,13 @@ def show_collection_episodes(collection_id):
     collection: MediaCollection = MediaCollection.get(id=collection_id)
     if collection is None:
         return make_response(f"Not found", 404)
+    media_links = MediaCollectionLink.sorted(
+        MediaCollectionLink.select(lambda l: l.collection == collection)
+    )
     return render_template(
         "collection_episodes.htm",
         collection=collection,
-        media_links=MediaCollectionLink.sorted(MediaCollectionLink.select(lambda l: l.collection == collection)),
+        media_links=media_links,
     )
 
 
@@ -571,9 +584,12 @@ def test():
 
 def redirect_back_or_okay():
     if "redirect" not in request.form:
-        return {
-            "status": True,
-        }, 200
+        return make_response(
+            {
+                "status": True,
+            },
+            200,
+        )
     uri = request.form.get("redirect", type=str)
     if not uri.startswith("/"):
         return "400 Bad Request : Invalid Redirect Specified", 400
@@ -770,8 +786,10 @@ def api_media_element(media_id: int):
                     "status": False,
                     "error": f"Cannot set key {key!r} on MediaElement",
                 }, 400
-        element.set(**{key: KEY_CONVERTER[key](val) for key, val in data.items()})
-        return redirect_back_or_okay()
+        parsed_data = {key: KEY_CONVERTER[key](val) for key, val in data.items()}
+        element.set(**parsed_data)
+        resp = redirect_back_or_okay()
+        return resp
     else:
         return {
             "status": False,
