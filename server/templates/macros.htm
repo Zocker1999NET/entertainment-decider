@@ -76,10 +76,12 @@
         "Add Media": "/media/extract",
         "Add Collection": "/collection/extract",
     } %}
-    {% for name, uri in links.items() %}
-        <a class="button" href="{{ uri }}">{{ name }}</a>
-    {% endfor %}
-    {{ no_input_post_form("/api/refresh/collections", "Refresh Collections") }}
+    <div class="navigation">
+        {% for name, uri in links.items() %}
+            <a class="button" href="{{ uri }}">{{ name }}</a>
+        {% endfor %}
+        {{ no_input_post_form("/api/refresh/collections", "Refresh Collections") }}
+    </div>
 {%- endmacro %}
 
 {% macro body_header() %}
