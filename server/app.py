@@ -203,7 +203,7 @@ Pony(flask_app)
 
 
 @flask_app.template_filter()
-def encode_options(opts: dict[str, Any]):
+def encode_options(opts: Mapping[str, Any]) -> str:
     return urlencode({k: str(v) for k, v in opts.items()}, quote_via=quote_plus)
 
 
