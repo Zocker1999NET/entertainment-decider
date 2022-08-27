@@ -1,21 +1,25 @@
 {% macro shared_style() %}
     <link href="/static/stylesheets/reset.css" rel="stylesheet" />
     <style>
+        body {
+            background-color: #222222;
+            color: whitesmoke;
+        }
         table tr th, table tr td {
             margin: 0;
             padding: .2em;
-            border: solid black 1px;
+            border: solid white 1px;
         }
         table tr:nth-child(even) {
-            background-color: #eeeeee;
+            background-color: #333333;
         }
         a:link {
             text-decoration: none;
-            color: darkblue;
+            color: lightcyan;
         }
         a:visited {
             text-decoration: none;
-            color: darkblue;
+            color: lightcyan;
         }
         a:hover {
             text-decoration: none;
@@ -30,8 +34,13 @@
         .button {
             padding: .1rem .2rem;
             margin: 0 .1rem;
-            background-color: lightcoral;
+            background-color: rgb(153, 50, 204);
+            color: whitesmoke;
             border-radius: .3rem;
+        }
+        button:disabled {
+            background-color: rgb(98, 67, 113);
+            color: gray;
         }
     </style>
 {% endmacro %}
