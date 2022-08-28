@@ -119,9 +119,9 @@
     {{ _navigation() }}
 {%- endmacro %}
 
-{% macro media_element_buttons(element) %}
+{% macro media_element_buttons(element, show_fragment=True) %}
     {% set api_uri = "/api/media/" + element.id|string %}
-    {% set fragment = "media_element_" + element.id|string %}
+    {% set fragment = ("media_element_" + element.id|string) if show_fragment else None %}
     {{ as_play_link(element) }}
     {% if element.watched %}
         {{ post_form(api_uri, "watched", "false", "Unmark as Watched", fragment) }}
@@ -144,15 +144,15 @@
     {%- endif -%}
 {%- endmacro %}
 
-{% macro media_entry_content(element) %}
-    {{ media_element_buttons(element) }}
+{% macro media_entry_content(element, show_fragment=True) %}
+    {{ media_element_buttons(element, show_fragment=show_fragment) }}
     {{ element.release_date.strftime("%d.%m.%Y") }}
     {{ element.length | timedelta }}
     <a href="{{ element.info_link }}">{{ element.title }}</a>
 {%- endmacro %}
 
-{% macro link_entry_content(link) %}
-    {{ media_entry_content(link.element) -}}
+{% macro link_entry_content(link, show_fragment=True) %}
+    {{ media_entry_content(link.element, show_fragment=show_fragment) -}}
     {{- link_position_marker(link, prefix=true) -}}
 {%- endmacro %}
 
@@ -160,15 +160,15 @@
     <a href="{{ collection.info_link }}">{{ collection.title }}</a>
 {%- endmacro %}
 
-{% macro media_entry(element) %}
+{% macro media_entry(element, show_fragment=True) %}
     <li id="media_element_{{ element.id }}">
-        {{ media_entry_content(element) }}
+        {{ media_entry_content(element, show_fragment=show_fragment) }}
     </li>
 {%- endmacro %}
 
-{% macro link_entry(link) %}
+{% macro link_entry(link, show_fragment=True) %}
     <li id="media_element_{{ link.element.id }}">
-        {{ link_entry_content(link) }}
+        {{ link_entry_content(link, show_fragment=show_fragment) }}
     </li>
 {%- endmacro %}
 
