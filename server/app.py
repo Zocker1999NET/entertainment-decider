@@ -361,6 +361,11 @@ def list_collection():
     return _list_collections_by_filter(lambda coll: coll.is_root_collection)
 
 
+@flask_app.route("/collection/all")
+def list_collection_all():
+    return _list_collections_by_filter()
+
+
 @flask_app.route("/collection/extract")
 def extract_collection():
     return render_template("collection_extract.htm")
