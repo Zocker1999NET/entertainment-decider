@@ -87,7 +87,7 @@
             "video_uri": element.uri,
             "start": element.progress,
         } -%}
-        <a class="button" href="entertainment-decider:///player/play?{{ opts | encode_options }}">{{ symbol | safe }}</a>
+        <a class="button play_button" href="entertainment-decider:///player/play?{{ opts | encode_options }}">{{ symbol | safe }}</a>
     {% endif %}
 {%- endmacro -%}
 
