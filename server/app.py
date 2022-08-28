@@ -368,7 +368,7 @@ def extract_collection():
 @flask_app.route("/collection/to_watch")
 def list_collections_with_unwatched():
     return _list_collections_by_filter(
-        lambda coll: not coll.ignored and not coll.completed
+        lambda coll: coll.is_root_collection and not coll.ignored and not coll.completed
     )
 
 
