@@ -336,16 +336,30 @@ def dashboard():
     )
 
 
-def _list_collections(filter: Callable[[MediaCollection], bool]):
-    collection_list: Iterable[MediaCollection] = orm.select(c for c in MediaCollection).order_by(orm.desc(MediaCollection.release_date), MediaCollection.title, MediaCollection.id)
+def _list_collections(collections: Iterable[MediaCollection]):
     return render_template(
         "collection_list.htm",
-        collection_list=[collection for collection in collection_list if filter(collection)],
+        collection_list=list(collections),
     )
+
+
+def _list_collections_by_filter(
+    filter: Callable[[MediaCollection], bool] = lambda _: True,
+):
+    collection_list: Iterable[MediaCollection] = orm.select(
+        c for c in MediaCollection if filter(c)
+    ).order_by(
+        orm.desc(MediaCollection.release_date),
+        MediaCollection.title,
+        MediaCollection.id,
+    )
+    return _list_collections(collection_list)
+
 
 @flask_app.route("/collection")
 def list_collection():
-    return _list_collections(lambda _: True)
+    return _list_collections_by_filter(lambda coll: coll.is_root_collection)
+
 
 @flask_app.route("/collection/extract")
 def extract_collection():
