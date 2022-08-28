@@ -124,12 +124,12 @@
     {% set fragment = ("media_element_" + element.id|string) if show_fragment else None %}
     {{ as_play_link(element) }}
     {% if element.watched %}
-        {{ post_form(api_uri, "watched", "false", "Unmark as Watched", fragment) }}
+        {{ post_form(api_uri, "watched", "false", "Unmark &#9989;"|safe, fragment) }}
     {% elif element.ignored %}
-        {{ post_form(api_uri, "ignored", "false", "Unmark as Ignored", fragment) }}
+        {{ post_form(api_uri, "ignored", "false", "Unmark &#10062;"|safe, fragment) }}
     {% else %}
-        {{ post_form(api_uri, "watched", "true", "Watched", fragment) }}
-        {{ post_form(api_uri, "ignored", "true", "Ignore", fragment) }}
+        {{ post_form(api_uri, "watched", "true", "&#9989;"|safe, fragment) }}
+        {{ post_form(api_uri, "ignored", "true", "&#10062;"|safe, fragment) }}
     {% endif %}
 {% endmacro %}
 
