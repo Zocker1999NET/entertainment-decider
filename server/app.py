@@ -414,6 +414,7 @@ def list_pinned_collection():
 
 @flask_app.route("/collection/<int:collection_id>")
 def show_collection(collection_id):
+    SMALL_COLLECTION_MAX_COUNT = 100
     collection: MediaCollection = MediaCollection.get(id=collection_id)
     if collection is None:
         return make_response(f"Not found", 404)
@@ -421,7 +422,7 @@ def show_collection(collection_id):
         MediaCollectionLink.sorted(
             MediaCollectionLink.select(lambda l: l.collection == collection)
         )
-        if orm.count(collection.media_links) <= 100
+        if orm.count(collection.media_links) <= SMALL_COLLECTION_MAX_COUNT
         else None
     )
     return render_template(
