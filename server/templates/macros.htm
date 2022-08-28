@@ -80,7 +80,7 @@
     </form>
 {% endmacro %}
 
-{% macro as_play_link(element, symbol='Play') -%}
+{% macro as_play_link(element, symbol='&#9654;&#65039;') -%}
     {# TODO do not hardcode certain extractors here #}
     {% if element.extractor_name in ["ytdl", "youtube"] %}
         {%- set opts = {
