@@ -14,6 +14,13 @@
         <ul>
             {% set api_uri = "/api/collection/" + collection.id|string %}
             <li>
+                {{ macros.post_form(api_uri, "mark_unmarked_as", "watched", "mark left as watched") }}
+                {{ macros.post_form(api_uri, "mark_unmarked_as", "ignored", "mark left as ignored") }}
+                {{ macros.post_form(api_uri, "reset_marks", "True", "reset marks") }}
+                {{ macros.post_form(api_uri, "reset_ignored_marks", "True", "reset ignored") }}
+                {{ macros.no_input_post_form("/api/refresh/collection/" + collection.id|string, "refresh") }}
+            </li>
+            <li>
                 Pinned:
                 {{ collection.pinned | tenary("Yes", "no") }}
                 {{ macros.post_form(api_uri, "pinned", collection.pinned | tenary("false", "true"), "toggle") }}

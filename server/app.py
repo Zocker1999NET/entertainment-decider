@@ -737,6 +737,32 @@ def api_collection_element(collection_id: int):
         data = request.form.to_dict()
         if "redirect" in data:
             del data["redirect"]
+        if data.get("reset_ignored_marks", False):
+            for m in orm.select(
+                l.element for l in collection.media_links if l.element.ignored
+            ):
+                m.watched = False
+                m.ignored = False
+            del data["reset_ignored_marks"]
+        if data.get("reset_marks", False):
+            for m in orm.select(
+                l.element for l in collection.media_links if l.element.skip_over
+            ):
+                m.watched = False
+                m.ignored = False
+            del data["reset_marks"]
+        if "mark_unmarked_as" in data:
+            val = data["mark_unmarked_as"]
+            query = orm.select(
+                l.element for l in collection.media_links if not l.element.skip_over
+            )
+            if val == "watched":
+                for m in query:
+                    m.watched = True
+            elif val == "ignored":
+                for m in query:
+                    m.ignored = True
+            del data["mark_unmarked_as"]
         KEY_CONVERTER = {
             "title": str,
             "notes": str,
