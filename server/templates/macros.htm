@@ -199,6 +199,12 @@
     </li>
 {%- endmacro %}
 
+{% macro collection_entry(collection) %}
+    <li id="media_collection_{{ collection.id }}">
+        {{ collection_entry_content(collection, show_fragment=show_fragment) }}
+    </li>
+{%- endmacro %}
+
 {% macro media_table(media_list) %}
     <table>
         <tr>
