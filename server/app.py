@@ -41,6 +41,7 @@ from pony import orm
 from entertainment_decider import common
 from entertainment_decider.models import (
     PreferenceScore,
+    Query,
     Tag,
     db,
     MediaCollection,
@@ -286,6 +287,10 @@ def _filter_timedelta(seconds: Optional[int]) -> str:
 ####
 
 
+def _select_ids(cls: Type[T], ids: Iterable[int]) -> Query[T]:
+    return orm.select(o for o in cls if o.id in ids)
+
+
 @flask_app.teardown_request
 def merge_query_stats(*_, **__):
     db.merge_local_stats()
@@ -369,6 +374,24 @@ def list_collection_all():
 @flask_app.route("/collection/extract")
 def extract_collection():
     return render_template("collection_extract.htm")
+
+
+@flask_app.route("/collection/overview")
+def list_collection_overview():
+    data = request.args.to_dict()
+    ids = _parse_cs_ids(data.get("ids", "NULL"))
+    if not ids:
+        return {
+            "status": False,
+            "error": {
+                "msg": "Could not parse id list",
+                "data": {
+                    "ids": data.get("ids"),
+                },
+            },
+        }
+    return _list_collections(_select_ids(MediaCollection, ids))
+
 
 @flask_app.route("/collection/to_watch")
 def list_collections_with_unwatched():
