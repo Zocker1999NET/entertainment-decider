@@ -137,7 +137,7 @@
     {{- prefix and (link.season != 0 or link.episode != 0) | tenary(", ", "") -}}
     {%- if link.season != 0 -%}
         Season {{ link.season }}
-        {{- link.episode != 0 | tenary(", ", "") -}}
+        {{- (link.episode != 0) | tenary(", ", "") -}}
     {%- endif -%}
     {%- if link.episode != 0 -%}
         Episode {{ link.episode }}
