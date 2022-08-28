@@ -153,6 +153,10 @@
     {{- link_position_marker(link, prefix=true) -}}
 {%- endmacro %}
 
+{% macro collection_entry_content(collection) %}
+    <a href="{{ collection.info_link }}">{{ collection.title }}</a>
+{%- endmacro %}
+
 {% macro media_entry(element) %}
     <li id="media_element_{{ element.id }}">
         {{ media_entry_content(element) }}

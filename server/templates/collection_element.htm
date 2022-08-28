@@ -20,6 +20,12 @@
                 {{ macros.post_form(api_uri, "reset_ignored_marks", "True", "reset ignored") }}
                 {{ macros.no_input_post_form("/api/refresh/collection/" + collection.id|string, "refresh") }}
             </li>
+            {% if collection.has_creator and not collection.is_creator %}
+                <li>
+                    Creator:
+                    {{ macros.collection_entry_content(collection.creator) }}
+                </li>
+            {% endif %}
             <li>
                 Pinned:
                 {{ collection.pinned | tenary("Yes", "no") }}
