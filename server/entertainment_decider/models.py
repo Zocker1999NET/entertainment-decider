@@ -820,6 +820,9 @@ class CollectionUriMapping(db.Entity):
     element: MediaCollection = orm.Required(MediaCollection)
 
 
+MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE = "element_lookup_cache"
+
+
 SQL_WHITESPACE_PATTERN = re.compile(r"(\s|\n)+")
 
 
@@ -842,7 +845,7 @@ def sql_is_considered(elem_id: str, use_cache: bool = True) -> str:
         + (
             f"""
                 SELECT c.element2
-                FROM element_lookup_cache c
+                FROM {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE} c
                         INNER JOIN mediaelement m2 ON c.element1 = m2.id
                 WHERE c.element2 = {elem_id} AND NOT (m2.watched OR m2.ignored)
             """
@@ -924,7 +927,7 @@ def get_all_considered(
 
 def update_element_lookup_cache(collection_ids: List[int] = []):
     logging.info(
-        f"Rebuild element_lookup_cache for {len(collection_ids) if collection_ids else 'all'} collections …"
+        f"Rebuild {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE} for {len(collection_ids) if collection_ids else 'all'} collections …"
     )
 
     def filter_clause(c_id: str):
@@ -933,11 +936,11 @@ def update_element_lookup_cache(collection_ids: List[int] = []):
     orm.flush()
     sql = [
         f"""
-            DELETE QUICK FROM element_lookup_cache
+            DELETE QUICK FROM {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}
             WHERE {filter_clause("collection")};
         """,
         f"""
-            INSERT INTO element_lookup_cache (collection, element1, element2) SELECT
+            INSERT INTO {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE} (collection, element1, element2) SELECT
                 c.id AS collection,
                 l1.element AS element1,
                 l2.element AS element2
@@ -983,8 +986,8 @@ def update_element_lookup_cache(collection_ids: List[int] = []):
 CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, str] = {
     SafeStr(table_name): trim(table_sql)
     for table_name, table_sql in {
-        "element_lookup_cache": """
-            CREATE TABLE element_lookup_cache(
+        MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE: f"""
+            CREATE TABLE {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}(
                 collection INT(11) NOT NULL,
                 element1 INT(11) NOT NULL,
                 element2 INT(11) NOT NULL
@@ -1019,9 +1022,9 @@ CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, str] = {
                 element1,
                 element2;
             ALTER TABLE
-                `element_lookup_cache` ADD PRIMARY KEY(`element1`, `element2`, `collection`);
+                `{MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}` ADD PRIMARY KEY(`element1`, `element2`, `collection`);
             ALTER TABLE
-                `element_lookup_cache` ADD INDEX(`collection`);
+                `{MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}` ADD INDEX(`collection`);
         """,
     }
 }
