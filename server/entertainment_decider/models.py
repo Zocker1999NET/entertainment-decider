@@ -846,17 +846,17 @@ def sql_is_considered(elem_id: str, use_cache: bool = True) -> str:
             f"""
                 SELECT c.element2
                 FROM {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE} c
-                        INNER JOIN mediaelement m2 ON c.element1 = m2.id
+                        INNER JOIN {MediaElement._table_} m2 ON c.element1 = m2.id
                 WHERE c.element2 = {elem_id} AND NOT (m2.watched OR m2.ignored)
             """
             if use_cache
             else f"""
                 SELECT *
-                FROM mediaelement look_elem
-                        INNER JOIN mediacollectionlink link ON link.element = look_elem.id
-                        INNER JOIN mediacollection coll ON coll.id = link.collection
-                        INNER JOIN mediacollectionlink coll_link ON coll_link.collection = coll.id
-                        INNER JOIN mediaelement coll_elem ON coll_elem.id = coll_link.element
+                FROM {MediaElement._table_} look_elem
+                        INNER JOIN {MediaCollectionLink._table_} link ON link.element = look_elem.id
+                        INNER JOIN {MediaCollection._table_} coll ON coll.id = link.collection
+                        INNER JOIN {MediaCollectionLink._table_} coll_link ON coll_link.collection = coll.id
+                        INNER JOIN {MediaElement._table_} coll_elem ON coll_elem.id = coll_link.element
                 WHERE look_elem.id = {elem_id}
                     AND coll.watch_in_order
                     AND NOT (coll_elem.watched OR coll_elem.ignored)
@@ -867,7 +867,7 @@ def sql_is_considered(elem_id: str, use_cache: bool = True) -> str:
             ) AND NOT EXISTS (
                 SELECT *
                 FROM mediaelement_mediaelement m_m
-                        INNER JOIN mediaelement m ON m_m.mediaelement = m.id
+                        INNER JOIN {MediaElement._table_} m ON m_m.mediaelement = m.id
                 WHERE m_m.mediaelement_2 = {elem_id} AND NOT (m.watched OR m.ignored)
             )
         """
@@ -879,7 +879,7 @@ def is_considered(elem_id: int) -> bool:
         sql_cleanup(
             f"""
         SELECT elem.id
-        FROM mediaelement elem
+        FROM {MediaElement._table_} elem
         WHERE elem.id = {elem_id}
             AND NOT (elem.watched OR elem.ignored)
             AND elem.release_date <= NOW()
@@ -896,7 +896,7 @@ def are_multiple_considered(elem_ids: Iterable[int]) -> Mapping[int, bool]:
             sql_cleanup(
                 f"""
         SELECT elem.id
-        FROM mediaelement elem
+        FROM {MediaElement._table_} elem
         WHERE NOT (elem.watched OR elem.ignored)
             AND elem.release_date <= NOW()
             AND ({sql_is_considered("elem.id")})
@@ -914,7 +914,7 @@ def get_all_considered(
         sql_cleanup(
             f"""
         SELECT elem.*
-        FROM mediaelement elem
+        FROM {MediaElement._table_} elem
         WHERE NOT (elem.watched OR elem.ignored)
             AND elem.release_date <= NOW()
             AND {filter_by}
@@ -945,14 +945,14 @@ def update_element_lookup_cache(collection_ids: List[int] = []):
                 l1.element AS element1,
                 l2.element AS element2
             FROM
-                mediacollection c
-            INNER JOIN mediacollectionlink l1 ON
+                {MediaCollection._table_} c
+            INNER JOIN {MediaCollectionLink._table_} l1 ON
                 c.id = l1.collection
-            INNER JOIN mediacollectionlink l2 ON
+            INNER JOIN {MediaCollectionLink._table_} l2 ON
                 c.id = l2.collection
-            INNER JOIN mediaelement e1 ON
+            INNER JOIN {MediaElement._table_} e1 ON
                 l1.element = e1.id
-            INNER JOIN mediaelement e2 ON
+            INNER JOIN {MediaElement._table_} e2 ON
                 l2.element = e2.id
             WHERE
                 (
@@ -996,14 +996,14 @@ CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, str] = {
                 l1.element AS element1,
                 l2.element AS element2
             FROM
-                mediacollection c
-            INNER JOIN mediacollectionlink l1 ON
+                {MediaCollection._table_} c
+            INNER JOIN {MediaCollectionLink._table_} l1 ON
                 c.id = l1.collection
-            INNER JOIN mediacollectionlink l2 ON
+            INNER JOIN {MediaCollectionLink._table_} l2 ON
                 c.id = l2.collection
-            INNER JOIN mediaelement e1 ON
+            INNER JOIN {MediaElement._table_} e1 ON
                 l1.element = e1.id
-            INNER JOIN mediaelement e2 ON
+            INNER JOIN {MediaElement._table_} e2 ON
                 l2.element = e2.id
             WHERE
                 (
