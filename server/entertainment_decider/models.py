@@ -53,6 +53,7 @@ class Query(
     This class may be used to reflect PonyQuerys with all their "kind of" list behavior.
     Only use it for type hintings.
     """
+
     pass
 
 
@@ -427,33 +428,69 @@ class MediaCollectionLink(db.Entity):
 
 class MediaElement(db.Entity, Tagable):
 
-    id: int = orm.PrimaryKey(int, auto=True)
-    uri: str = orm.Required(str, unique=True)
+    id: int = orm.PrimaryKey(
+        int,
+        auto=True,
+    )
+    uri: str = orm.Required(
+        str,
+        unique=True,
+    )
 
     title: str = orm.Optional(str)
-    description: str = orm.Optional(orm.LongStr, nullable=True)
-    thumbnail: MediaThumbnail = orm.Optional(lambda: MediaThumbnail)
+    description: Optional[str] = orm.Optional(
+        orm.LongStr,
+        nullable=True,
+    )
+    thumbnail: Optional[MediaThumbnail] = orm.Optional(
+        lambda: MediaThumbnail,
+        nullable=True,
+    )
     notes: str = orm.Optional(str)
-    release_date: datetime = orm.Optional(datetime, index=True)
+    release_date: datetime = orm.Optional(
+        datetime,
+        index=True,
+    )
 
     extractor_name: str = orm.Optional(str)
     extractor_key: str = orm.Optional(str)
     orm.composite_index(extractor_name, extractor_key)
     last_updated: datetime = orm.Optional(datetime)
 
-    watched: bool = orm.Required(bool, column="watched", default=False)
-    ignored: bool = orm.Required(bool, column="ignored", default=False)
-    progress: int = orm.Required(int, default=0)
+    watched: bool = orm.Required(
+        bool,
+        column="watched",
+        default=False,
+    )
+    ignored: bool = orm.Required(
+        bool,
+        column="ignored",
+        default=False,
+    )
+    progress: int = orm.Required(
+        int,
+        default=0,
+    )
     length: int = orm.Optional(int)
 
-    tag_list: Iterable[Tag] = orm.Set(lambda: Tag)
-    uris: Iterable[MediaUriMapping] = orm.Set(lambda: MediaUriMapping)
+    tag_list: Iterable[Tag] = orm.Set(
+        lambda: Tag,
+    )
+    uris: Iterable[MediaUriMapping] = orm.Set(
+        lambda: MediaUriMapping,
+    )
     collection_links: Iterable[MediaCollectionLink] = orm.Set(
-        lambda: MediaCollectionLink
+        lambda: MediaCollectionLink,
     )
 
-    blocked_by: Set[MediaElement] = orm.Set(lambda: MediaElement, reverse="is_blocking")
-    is_blocking: Set[MediaElement] = orm.Set(lambda: MediaElement, reverse="blocked_by")
+    blocked_by: Set[MediaElement] = orm.Set(
+        lambda: MediaElement,
+        reverse="is_blocking",
+    )
+    is_blocking: Set[MediaElement] = orm.Set(
+        lambda: MediaElement,
+        reverse="blocked_by",
+    )
 
     @property
     def was_extracted(self) -> bool:
@@ -498,9 +535,7 @@ class MediaElement(db.Entity, Tagable):
         if orm.exists(e for e in self.blocked_by if not e.skip_over):
             return False
         ordered_collections: Query[MediaCollection] = orm.select(
-            l.collection
-            for l in self.collection_links
-            if l.collection.watch_in_order
+            l.collection for l in self.collection_links if l.collection.watch_in_order
         )
         for collection in ordered_collections:
             next = collection.next_episode
@@ -565,12 +600,34 @@ class MediaElement(db.Entity, Tagable):
 
 class MediaThumbnail(db.Entity):
 
-    id: int = orm.PrimaryKey(int, auto=True)
-    uri: str = orm.Required(str, unique=True)
-    last_downloaded: datetime = orm.Optional(datetime, default=None, nullable=True)
-    last_accessed: datetime = orm.Optional(datetime, default=None, nullable=True)
-    mime_type: str = orm.Optional(str, default="")
-    data: bytes = orm.Optional(bytes, default=None, nullable=True, lazy=True)
+    id: int = orm.PrimaryKey(
+        int,
+        auto=True,
+    )
+    uri: str = orm.Required(
+        str,
+        unique=True,
+    )
+    last_downloaded: datetime = orm.Optional(
+        datetime,
+        default=None,
+        nullable=True,
+    )
+    last_accessed: datetime = orm.Optional(
+        datetime,
+        default=None,
+        nullable=True,
+    )
+    mime_type: str = orm.Optional(
+        str,
+        default="",
+    )
+    data: bytes = orm.Optional(
+        bytes,
+        default=None,
+        nullable=True,
+        lazy=True,
+    )
 
     elements: Set[MediaElement] = orm.Set(lambda: MediaElement)
 
@@ -617,30 +674,62 @@ class MediaUriMapping(db.Entity):
 
 class MediaCollection(db.Entity, Tagable):
 
-    id: int = orm.PrimaryKey(int, auto=True)
-    uri: str = orm.Required(str, unique=True)
+    id: int = orm.PrimaryKey(
+        int,
+        auto=True,
+    )
+    uri: str = orm.Required(
+        str,
+        unique=True,
+    )
 
     title: str = orm.Optional(str)
     notes: str = orm.Optional(str)
     release_date: datetime = orm.Optional(datetime)
-    creator: MediaCollection = orm.Optional(lambda: MediaCollection, nullable=True)
+    creator: MediaCollection = orm.Optional(
+        lambda: MediaCollection,
+        nullable=True,
+    )
 
     extractor_name: str = orm.Optional(str)
     extractor_key: str = orm.Optional(str)
     orm.composite_index(extractor_name, extractor_key)
     last_updated: datetime = orm.Optional(datetime)
 
-    keep_updated: bool = orm.Required(bool, default=False)
-    watch_in_order_auto: bool = orm.Required(bool, default=True)
+    keep_updated: bool = orm.Required(
+        bool,
+        default=False,
+    )
+    watch_in_order_auto: bool = orm.Required(
+        bool,
+        default=True,
+    )
 
-    pinned: bool = orm.Required(bool, default=False)
-    ignored: bool = orm.Required(bool, default=False)
-    watch_in_order: bool = orm.Required(bool, default=True)
+    pinned: bool = orm.Required(
+        bool,
+        default=False,
+    )
+    ignored: bool = orm.Required(
+        bool,
+        default=False,
+    )
+    watch_in_order: bool = orm.Required(
+        bool,
+        default=True,
+    )
 
-    tag_list: Iterable[Tag] = orm.Set(lambda: Tag)
-    uris: Iterable[CollectionUriMapping] = orm.Set(lambda: CollectionUriMapping)
-    media_links: Iterable[MediaCollectionLink] = orm.Set(MediaCollectionLink)
-    created_collections: Set[MediaCollection] = orm.Set(lambda: MediaCollection)
+    tag_list: Iterable[Tag] = orm.Set(
+        lambda: Tag,
+    )
+    uris: Iterable[CollectionUriMapping] = orm.Set(
+        lambda: CollectionUriMapping,
+    )
+    media_links: Iterable[MediaCollectionLink] = orm.Set(
+        MediaCollectionLink,
+    )
+    created_collections: Set[MediaCollection] = orm.Set(
+        lambda: MediaCollection,
+    )
 
     @property
     def is_creator(self) -> bool:
