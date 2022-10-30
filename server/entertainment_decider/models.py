@@ -684,6 +684,10 @@ class MediaCollection(db.Entity, Tagable):
     )
 
     title: str = orm.Optional(str)
+    description: str = orm.Optional(
+        orm.LongStr,
+        nullable=True,
+    )
     notes: str = orm.Optional(str)
     release_date: datetime = orm.Optional(datetime)
     creator: MediaCollection = orm.Optional(
