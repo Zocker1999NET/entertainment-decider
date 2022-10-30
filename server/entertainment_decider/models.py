@@ -461,12 +461,15 @@ class MediaElement(db.Entity, Tagable):
         bool,
         column="watched",
         default=False,
+        index=False,  # does not need index because of composite index below
     )
     ignored: bool = orm.Required(
         bool,
         column="ignored",
         default=False,
+        index=True,
     )
+    orm.composite_index(watched, ignored)
     progress: int = orm.Required(
         int,
         default=0,
