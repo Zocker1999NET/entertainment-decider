@@ -629,7 +629,7 @@ class MediaThumbnail(db.Entity):
         bytes,
         default=None,
         nullable=True,
-        lazy=True,
+        lazy=True,  # do not always preload huge image data
     )
 
     elements: Set[MediaElement] = orm.Set(lambda: MediaElement)
