@@ -706,6 +706,7 @@ class MediaCollection(db.Entity, Tagable):
     keep_updated: bool = orm.Required(
         bool,
         default=False,
+        index=True,
     )
     watch_in_order_auto: bool = orm.Required(
         bool,
@@ -715,6 +716,7 @@ class MediaCollection(db.Entity, Tagable):
     pinned: bool = orm.Required(
         bool,
         default=False,
+        index=True,
     )
     ignored: bool = orm.Required(
         bool,
@@ -723,6 +725,7 @@ class MediaCollection(db.Entity, Tagable):
     watch_in_order: bool = orm.Required(
         bool,
         default=True,
+        index=True,
     )
 
     tag_list: Iterable[Tag] = orm.Set(
