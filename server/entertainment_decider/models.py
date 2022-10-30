@@ -512,6 +512,28 @@ class MediaElement(db.Entity, Tagable):
         return not self.skip_over and self.progress != 0
 
     @property
+    def average_release_per_week(self) -> float:
+        return (
+            orm.avg(
+                link.collection.average_release_per_week
+                for link in self.collection_links
+                if link.collection.watch_in_order
+            )
+            or 0
+        )
+
+    @property
+    def average_release_per_week_now(self) -> float:
+        return (
+            orm.avg(
+                link.collection.average_release_per_week_now
+                for link in self.collection_links
+                if link.collection.watch_in_order
+            )
+            or 0
+        )
+
+    @property
     def ignored_recursive(self) -> bool:
         return (
             orm.count(
