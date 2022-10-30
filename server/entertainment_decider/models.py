@@ -434,7 +434,7 @@ class MediaElement(db.Entity, Tagable):
     description: str = orm.Optional(orm.LongStr, nullable=True)
     thumbnail: MediaThumbnail = orm.Optional(lambda: MediaThumbnail)
     notes: str = orm.Optional(str)
-    release_date: datetime = orm.Optional(datetime)
+    release_date: datetime = orm.Optional(datetime, index=True)
 
     extractor_name: str = orm.Optional(str)
     extractor_key: str = orm.Optional(str)
