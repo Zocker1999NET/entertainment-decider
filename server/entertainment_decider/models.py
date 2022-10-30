@@ -777,15 +777,21 @@ class MediaCollection(db.Entity, Tagable):
         media: MediaElement,
         season: int = 0,
         episode: int = 0,
-    ) -> MediaCollectionLink:
+    ) -> Optional[MediaCollectionLink]:
         link: MediaCollectionLink = MediaCollectionLink.get(
             collection=self, element=media
         )
+        change = False
         if link is None:
+            change = True
             link = MediaCollectionLink(collection=self, element=media)
-        link.season, link.episode = season, episode
-        orm.flush()
-        return link
+        if (link.season, link.episode) != (season, episode):
+            change = True
+            link.season, link.episode = season, episode
+        if change:
+            orm.flush()
+            return link
+        return None
 
     def add_single_uri(self, uri: str) -> bool:
         mapping: CollectionUriMapping = CollectionUriMapping.get(uri=uri)
