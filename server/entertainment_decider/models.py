@@ -773,7 +773,10 @@ class MediaCollection(db.Entity, Tagable):
         return CollectionStats.from_collection(self)
 
     def add_episode(
-        self, media: MediaElement, season: int = 0, episode: int = 0
+        self,
+        media: MediaElement,
+        season: int = 0,
+        episode: int = 0,
     ) -> MediaCollectionLink:
         link: MediaCollectionLink = MediaCollectionLink.get(
             collection=self, element=media
