@@ -788,6 +788,9 @@ class MediaCollection(db.Entity, Tagable):
         if (link.season, link.episode) != (season, episode):
             change = True
             link.season, link.episode = season, episode
+        if self.ignored and not media.skip_over:
+            change = True
+            media.ignored = True
         if change:
             orm.flush()
             return link
