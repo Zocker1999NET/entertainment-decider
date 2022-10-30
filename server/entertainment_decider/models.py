@@ -508,6 +508,10 @@ class MediaElement(db.Entity, Tagable):
         return 0 if self.watched else self._left_length
 
     @property
+    def started(self) -> bool:
+        return not self.skip_over and self.progress != 0
+
+    @property
     def ignored_recursive(self) -> bool:
         return (
             orm.count(
