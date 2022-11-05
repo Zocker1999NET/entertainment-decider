@@ -849,6 +849,8 @@ class MediaUriMapping(db.Entity):
 
 class MediaCollection(db.Entity, UriHolder, Tagable):
 
+    ### columns
+
     id: int = orm.PrimaryKey(
         int,
         auto=True,
@@ -920,6 +922,31 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         lambda: MediaCollection,
     )
 
+    ### for UriHolder
+
+    @property
+    def _primary_uri(self) -> str:
+        return self.uri
+
+    def _set_primary_uri(self, uri: str) -> None:
+        self.uri = uri
+
+    @property
+    def _get_uri_set(self) -> Set[str]:
+        return {m.uri for m in self.uris}
+
+    def _set_uri_set(self, uri_set: Set[str]) -> None:
+        self.uris = set()
+        self.add_uris(uri_set)
+
+    ### for Tagable
+
+    @property
+    def orm_assigned_tags(self) -> Query[Tag]:
+        return self.tag_list
+
+    ### properties
+
     @property
     def is_creator(self) -> bool:
         return self == self.creator
@@ -953,32 +980,15 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     def completed(self) -> bool:
         return self.__to_watch_episodes().count() <= 0
 
-    ### for UriHolder
-
-    @property
-    def _primary_uri(self) -> str:
-        return self.uri
-
-    def _set_primary_uri(self, uri: str) -> None:
-        self.uri = uri
-
-    @property
-    def _get_uri_set(self) -> Set[str]:
-        return {m.uri for m in self.uris}
-
-    def _set_uri_set(self, uri_set: Set[str]) -> None:
-        self.uris = set()
-        self.add_uris(uri_set)
-
-    ### others
-
-    @property
-    def orm_assigned_tags(self) -> Query[Tag]:
-        return self.tag_list
-
     @property
     def stats(self) -> CollectionStats:
         return CollectionStats.from_collection(self)
+
+    @property
+    def info_link(self) -> str:
+        return f"/collection/{self.id}"
+
+    ### methods
 
     def add_episode(
         self,
@@ -1024,10 +1034,6 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
 
     def before_update(self) -> None:
         self.add_single_uri(self.uri)
-
-    @property
-    def info_link(self) -> str:
-        return f"/collection/{self.id}"
 
 
 class CollectionUriMapping(db.Entity):
