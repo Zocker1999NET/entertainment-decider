@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 import logging
+import math
 from typing import Optional, TypeVar
 
 from ...models import CollectionUriMapping, MediaCollection, MediaElement
@@ -27,6 +29,16 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
             elem.add_single_uri(uri)
             return elem
         return None
+
+    @staticmethod
+    def _calculate_wait_hours(
+        last_release_date: datetime,
+        growth_rate: float = 3.25508,  # estimated for approriate cache timeout times (every 12 hours for 10 days old playlist)
+    ) -> timedelta:
+        days_since = max((datetime.now() - last_release_date) // timedelta(days=1), 1)
+        wait_units = math.log(days_since, growth_rate)
+        wait_hours = (wait_units + 1) * 4
+        return timedelta(hours=wait_hours)
 
     def __configure_collection(self, collection: MediaCollection) -> None:
         collection.keep_updated = True

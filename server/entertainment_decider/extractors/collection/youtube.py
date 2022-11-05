@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 import re
 from typing import Dict
@@ -54,7 +54,10 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
         return True
 
     def _cache_expired(self, object: MediaCollection) -> bool:
-        return (datetime.now() - object.last_updated) > timedelta(hours=4)
+        last_release_date = orm.max(l.element.release_date for l in object.media_links)
+        return (datetime.now() - object.last_updated) > self._calculate_wait_hours(
+            last_release_date
+        )
 
     def _extract_offline(self, uri: str) -> ExtractedData[Dict]:
         playlist_id = self.__convert_if_required(self.__get_id(uri))
