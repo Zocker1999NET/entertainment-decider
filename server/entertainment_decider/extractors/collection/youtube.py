@@ -70,10 +70,21 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
     def _extract_online(self, uri: str) -> ExtractedData[Dict]:
         playlist_id = self.__convert_if_required(self.__get_id(uri))
         playlist_link = f"https://www.youtube.com/playlist?list={playlist_id}"
+        is_channel = self.__is_channel_id(playlist_id)
         logging.info(f"Request Youtube playlist {playlist_link!r}")
         playlist = youtubesearchpython.Playlist(playlist_link)
-        while playlist.hasMoreVideos:
-            playlist.getNextVideos()
+        try:
+            while playlist.hasMoreVideos:
+                playlist.getNextVideos()
+        except Exception as e:
+            # TODO improve check of Exception kind if possible
+            if is_channel and "invalid status code" in str(e.args[0]).lower():
+                # Partial Update on channels can be accepted because newest videos are at the top
+                logging.warning(
+                    f"Failed to retrieve channel completely, proceed with partial update"
+                )
+            else:
+                raise e
         logging.debug(
             f"Retrieved {len(playlist.videos)} videos from playlist {playlist_link!r}"
         )
