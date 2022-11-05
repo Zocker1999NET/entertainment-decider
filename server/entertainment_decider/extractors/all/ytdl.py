@@ -12,7 +12,7 @@ from ...common import call
 cache = ApplicationCache(
     app_name="entertainment-decider-ytdl",
     create_cache_dir=True,
-    default_max_age=7 * 86400,
+    default_max_age=86400,
 )
 cache.clean_cache()
 
