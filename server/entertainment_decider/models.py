@@ -1178,7 +1178,6 @@ def update_element_lookup_cache(collection_ids: List[int] = []):
 ####
 
 
-# TODO replace fixed table names with dynamic resolved ones
 CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, str] = {
     SafeStr(table_name): trim(table_sql)
     for table_name, table_sql in {
