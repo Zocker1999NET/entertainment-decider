@@ -245,6 +245,14 @@ class Tagable:
             used |= new_tags
         return used
 
+    def share_score_flat(self, score: float) -> PreferenceScoreAppender:
+        direct_tags = [tag for tag in self.direct_tags if tag.use_for_preferences]
+        if len(direct_tags) <= 0:
+            return PreferenceScoreAppender()
+        return PreferenceScoreAppender(
+            PreferenceScore({tag: score / len(direct_tags) for tag in direct_tags})
+        )
+
 
 T_tagged = TypeVar("T_tagged", bound=Tagable)
 
@@ -271,9 +279,12 @@ class PreferenceScore:
         self,
         tagable: Tagable,
         score: float,
+        on_hierachy: bool = True,
     ) -> PreferenceScore:
         addition = (
             tagable.tag_hierachy.share_score(score)
+            if on_hierachy
+            else tagable.share_score_flat(score)
         )
         return (self & addition).calculate()
 
