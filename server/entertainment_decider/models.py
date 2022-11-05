@@ -1226,8 +1226,10 @@ CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, str] = {
 
 
 def table_exists(table_name: SafeStr) -> bool:
-    # TODO may be mariadb specific
-    return db.exists(f"SHOW TABLE STATUS WHERE Name = '{table_name}'")
+    return db.provider.table_exists(
+        connection=db.get_connection(),
+        table_name=table_name,
+    )
 
 
 def setup_custom_tables():
