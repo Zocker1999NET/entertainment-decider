@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict, Optional, TypeVar
+from typing import Optional, TypeVar
 
 from ...models import MediaCollection, MediaElement, MediaUriMapping
 from ..generic import AuthorExtractedData, ExtractedData, GeneralExtractor
@@ -71,12 +71,12 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
             )
         return collection
 
-    def __add_to_author_collection(self, element: MediaElement, data: Dict):
+    def __add_to_author_collection(self, element: MediaElement, data: T) -> None:
         author_data = self._get_author_data(data)
         if author_data is None or not author_data.is_valid:
             return
         collection = self.__get_author_collection(author_data)
         collection.add_episode(element)
 
-    def _update_hook(self, object: MediaElement, data: ExtractedData[T]):
+    def _update_hook(self, object: MediaElement, data: ExtractedData[T]) -> None:
         self.__add_to_author_collection(object, data.data)
