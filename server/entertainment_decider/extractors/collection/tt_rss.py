@@ -69,6 +69,8 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
     def _update_object_raw(self, object: MediaCollection, data: HeadlineList) -> None:
         if not object.title:
             object.title = object.uri
+        object.creator = None
+        object.set_watch_in_order_auto(True)
         logging.debug(f"Got {len(data)} headlines")
         rss_uri = self.__decode_uri(object.uri)
         readed_headlines = list[int]()
