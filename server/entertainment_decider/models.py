@@ -311,12 +311,6 @@ class PreferenceScore:
     def calculate_iter_score(self, tag_iter: Iterable[Tag]) -> float:
         return math.fsum(self.points.get(tag, 0) for tag in tag_iter)
 
-    def order_by_score(self, objects: Iterable[T_tagged]) -> List[T_tagged]:
-        return sorted(objects, key=self.calculate_score)
-
-    def get_first_by_score(self, objects: Iterable[T_tagged]) -> T_tagged:
-        return min(objects, key=self.calculate_score)
-
     @classmethod
     def from_json(cls, data: str) -> PreferenceScore:
         dicts: Dict = json.loads(data)
