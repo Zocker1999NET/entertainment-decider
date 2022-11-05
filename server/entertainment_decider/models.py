@@ -397,6 +397,8 @@ def generate_preference_list(
 ) -> List[MediaElement]:
     res_ids = list[int]()
     element_list = object_gen()
+
+    # add tags corresponding to collections
     collections: Iterable[MediaCollection] = MediaCollection.select()
     for coll in collections:
         coll.tag_list.add(
@@ -405,7 +407,11 @@ def generate_preference_list(
                 use_for_preferences=True,
             )
         )
+
+    # flush after custom tags
     orm.flush()
+
+    # gen elements
     while True:
         if len(element_list) <= 0:
             break
