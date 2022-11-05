@@ -801,7 +801,10 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         nullable=True,
     )
     notes: str = orm.Optional(str)
-    release_date: datetime = orm.Optional(datetime)
+    release_date: Optional[datetime] = orm.Optional(
+        datetime,
+        nullable=True,
+    )
     creator: Optional[MediaCollection] = orm.Optional(
         lambda: MediaCollection,
         nullable=True,
