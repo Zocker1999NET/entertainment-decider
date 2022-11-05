@@ -123,3 +123,8 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
             )
             if element:
                 orm.commit()  # so progress is stored
+        object.release_date = (
+            object.first_released_episode.element.release_date
+            if len(object.media_links) > 0
+            else None
+        )
