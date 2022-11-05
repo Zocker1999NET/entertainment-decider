@@ -86,6 +86,39 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
             )
         return element
 
+    def _inject_episode(
+        self,
+        collection: MediaCollection,
+        data: ExtractedData[Any],
+        season: int = 0,
+        episode: int = 0,
+    ) -> Optional[MediaElement]:
+        from ..media import media_expect_extractor
+
+        extractor = media_expect_extractor(data.object_uri)
+        if data.extractor_name != extractor.name:
+            raise Exception(
+                f"Expected extractor {data.extractor_name!r} for uri {data.object_uri!r}, instead got {extractor.name!r}"
+            )
+        try:
+            element = extractor.inject_object(data)
+        except ExtractionError:
+            logging.warning(
+                f"Failed while extracting media {data.object_uri!r} while injecting from {collection.uri!r}",
+                exc_info=True,
+            )
+            return None
+        link = collection.add_episode(
+            media=element,
+            season=season,
+            episode=episode,
+        )
+        if link:
+            logging.debug(
+                f"Add to collection {collection.title!r} media {data.object_uri!r} (Season {season}, Episode {episode})"
+            )
+        return element
+
     def _sort_episodes(self, coll: MediaCollection) -> None:
         sorting_methods: Mapping[int, Callable[[MediaCollectionLink], Any]] = {
             1: lambda l: l.element.release_date,
