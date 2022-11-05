@@ -175,6 +175,14 @@ class GeneralExtractor(Generic[E, T]):
         logging.debug(f"Updating info for media: {data!r}")
         return self._update_object(object, data)
 
+    def inject_object(self, data: ExtractedData[T]) -> E:
+        object = self._load_object(data)
+        data = self._extract_required(data)
+        if not object:
+            logging.debug(f"Store info for object: {data!r}")
+            object = self._create_object(data)
+        return self._update_object(object, data)
+
     def store_object(self, data: ExtractedData[T]) -> E:
         object = self._load_object(data)
         if object:
