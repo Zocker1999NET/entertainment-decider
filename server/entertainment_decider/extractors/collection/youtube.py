@@ -97,8 +97,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
         )
         object.add_single_uri(info["link"])
         video_list = data["videos"]
-        if object.watch_in_order_auto:
-            object.watch_in_order = not is_channel
+        object.set_watch_in_order_auto(not is_channel)
         if is_channel:
             video_list = reversed(video_list)
         for index, video in enumerate(video_list):

@@ -1065,6 +1065,10 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
 
     ### methods
 
+    def set_watch_in_order_auto(self, watch_in_order: bool) -> None:
+        if self.watch_in_order_auto:
+            self.watch_in_order = watch_in_order
+
     def add_episode(
         self,
         media: MediaElement,
