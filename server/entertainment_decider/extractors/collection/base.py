@@ -14,7 +14,6 @@ from ...models import (
     MediaElement,
 )
 from ..generic import ExtractedData, ExtractionError, GeneralExtractor
-from ..media import media_extract_uri
 
 
 T = TypeVar("T")
@@ -67,6 +66,10 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
         season: int = 0,
         episode: int = 0,
     ) -> Optional[MediaElement]:
+        # to avoid circular dependency
+        # sadly do not know where
+        from ..media import media_extract_uri
+
         try:
             element = media_extract_uri(uri)
         except ExtractionError:
