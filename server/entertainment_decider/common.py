@@ -1,3 +1,4 @@
+from datetime import date, datetime
 import itertools
 import subprocess
 from typing import (
@@ -44,3 +45,7 @@ T = TypeVar("T")
 
 def limit_iter(iter: Iterable[T], limit: int) -> List[T]:
     return list(itertools.islice(iter, limit))
+
+
+def date_to_datetime(d: date) -> datetime:
+    return datetime(d.year, d.month, d.day)
