@@ -15,6 +15,7 @@ COLLECTION_EXTRACTORS: Dict[str, CollectionExtractor] = {
     "tt-rss": TtRssCollectionExtractor(
         params=tt_rss_params,
         label_filter=-1033,
+        mark_as_read=True,
     ),
     "youtube": YouTubeCollectionExtractor(),
 }
