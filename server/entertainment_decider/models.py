@@ -241,7 +241,7 @@ class Tagable:
         return self.__tag_hierachy[1]
 
 
-T = TypeVar("T", bound=Tagable)
+T_tagged = TypeVar("T_tagged", bound=Tagable)
 
 
 @dataclass
@@ -270,11 +270,11 @@ class PreferenceScore:
             self.points[tag] for tag in object.all_tags if tag in self.points
         )
 
-    def order_by_score(self, objects: Iterable[T]) -> List[T]:
-        return sorted(objects, key=lambda o: self.calculate_score(o))
+    def order_by_score(self, objects: Iterable[T_tagged]) -> List[T_tagged]:
+        return sorted(objects, key=self.calculate_score)
 
-    def get_first_by_score(self, objects: Iterable[T]) -> List[T]:
-        return min(objects, key=lambda o: self.calculate_score(o))
+    def get_first_by_score(self, objects: Iterable[T_tagged]) -> T_tagged:
+        return min(objects, key=self.calculate_score)
 
     @classmethod
     def from_json(cls, data: str) -> PreferenceScore:
@@ -313,7 +313,7 @@ class PreferenceScoreAppender:
         for preference in args:
             self.__append(preference)
 
-    def __append(self, preference: PreferenceScoreCompatible):
+    def __append(self, preference: PreferenceScoreCompatible) -> None:
         if isinstance(preference, PreferenceScore):
             self.points_list.append(preference)
         elif isinstance(preference, PreferenceScoreAppender):
@@ -469,11 +469,11 @@ class MediaCollectionLink(db.Entity):
     orm.composite_index(season, episode)
 
     @property
-    def element_id(self):
+    def element_id(self) -> int:
         return self.element.id
 
     @property
-    def element_release_date(self):
+    def element_release_date(self) -> datetime:
         return self.element.release_date
 
     @staticmethod
@@ -669,7 +669,7 @@ class MediaElement(db.Entity, UriHolder, Tagable):
 
     ### own methods
 
-    def merge_to(self, other: MediaElement):
+    def merge_to(self, other: MediaElement) -> None:
         if self.watched:
             other.watched = True
         if self.ignored:
@@ -699,14 +699,14 @@ class MediaElement(db.Entity, UriHolder, Tagable):
             )  # TODO may replace with merge call
         return False
 
-    def before_insert(self):
+    def before_insert(self) -> None:
         self.before_update()
 
-    def before_update(self):
+    def before_update(self) -> None:
         self.add_single_uri(self.uri)
 
     @property
-    def info_link(self):
+    def info_link(self) -> str:
         return f"/media/{self.id}"
 
 
@@ -747,7 +747,7 @@ class MediaThumbnail(db.Entity):
     def from_uri(cls, uri: str) -> MediaThumbnail:
         return cls.get(uri=uri) or MediaThumbnail(uri=uri)
 
-    def access(self):
+    def access(self) -> None:
         self.last_accessed = datetime.now()
 
     def download(self) -> bool:
@@ -765,7 +765,7 @@ class MediaThumbnail(db.Entity):
             return True
         return self.download()
 
-    def access_data(self):
+    def access_data(self) -> None:
         self.prepare()
         self.access()
 
@@ -802,7 +802,7 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     )
     notes: str = orm.Optional(str)
     release_date: datetime = orm.Optional(datetime)
-    creator: MediaCollection = orm.Optional(
+    creator: Optional[MediaCollection] = orm.Optional(
         lambda: MediaCollection,
         nullable=True,
     )
