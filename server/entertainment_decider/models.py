@@ -407,6 +407,17 @@ def generate_preference_list(
             )
         )
 
+    # add tags corresponding to extractors
+    @cache
+    def get_extractor_tag(extractor_name: str) -> Tag:
+        return Tag(
+            title=f"Automatic for extractor {extractor_name}",
+            use_for_preferences=True,
+        )
+
+    for element in element_list:
+        element.tag_list.add(get_extractor_tag(element.extractor_name))
+
     # flush after custom tags
     orm.flush()
 
