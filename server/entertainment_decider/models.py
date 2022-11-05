@@ -395,7 +395,6 @@ def generate_preference_list(
     score_adapt: float,
     limit: Optional[int] = None,
 ) -> List[MediaElement]:
-    res_ids = list[int]()
     element_list = object_gen()
 
     # add tags corresponding to collections
@@ -412,6 +411,7 @@ def generate_preference_list(
     orm.flush()
 
     # gen elements
+    res_ids = list[int]()
     while True:
         if len(element_list) <= 0:
             break
