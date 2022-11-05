@@ -44,7 +44,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
             return cls.__convert_channel_id(collection_id)
         return collection_id
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("youtube")
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
@@ -87,7 +87,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
             },
         )
 
-    def _update_object_raw(self, object: MediaCollection, data: Dict):
+    def _update_object_raw(self, object: MediaCollection, data: Dict) -> None:
         info = data["info"]
         is_channel = self.__is_channel_id(info["id"])
         object.title = (

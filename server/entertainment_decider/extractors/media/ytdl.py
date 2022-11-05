@@ -25,7 +25,7 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
         re.VERBOSE,
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("ytdl")
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
@@ -65,7 +65,7 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             data=vid_data,
         )
 
-    def _update_object_raw(self, object: MediaElement, data: Dict):
+    def _update_object_raw(self, object: MediaElement, data: Dict) -> None:
         object.title = (
             f"{data['title']} - {data['uploader']}"
             if "uploader" in data

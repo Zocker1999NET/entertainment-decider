@@ -27,7 +27,10 @@ def collection_expect_extractor(uri: str) -> CollectionExtractor:
     )
 
 
-def collection_update(collection: MediaCollection, check_cache_expired: bool = True):
+def collection_update(
+    collection: MediaCollection,
+    check_cache_expired: bool = True,
+) -> None:
     ex = collection_expect_extractor(collection.uri)
     ex.update_object(
         object=collection,

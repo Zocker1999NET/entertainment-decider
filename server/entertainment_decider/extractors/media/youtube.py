@@ -77,7 +77,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
         re.VERBOSE,
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("youtube")
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
@@ -113,7 +113,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             data=vid_data,
         )
 
-    def _update_object_raw(self, object: MediaElement, data: YoutubeVideoData):
+    def _update_object_raw(self, object: MediaElement, data: YoutubeVideoData) -> None:
         object.title = f"{data['title']} - {data['channel']['name']}"
         object.description = data.get("description")
         if data.get("thumbnails"):

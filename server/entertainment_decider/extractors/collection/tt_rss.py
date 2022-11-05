@@ -66,7 +66,7 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
             data=data,
         )
 
-    def _update_object_raw(self, object: MediaCollection, data: HeadlineList) -> str:
+    def _update_object_raw(self, object: MediaCollection, data: HeadlineList) -> None:
         if not object.title:
             object.title = object.uri
         logging.debug(f"Got {len(data)} headlines")

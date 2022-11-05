@@ -83,7 +83,7 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
             )
         return element
 
-    def _sort_episodes(self, coll: MediaCollection):
+    def _sort_episodes(self, coll: MediaCollection) -> None:
         sorting_methods: Mapping[int, Callable[[MediaCollectionLink], Any]] = {
             1: lambda l: l.element.release_date,
         }
@@ -97,5 +97,5 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
             link.season = 0
             link.episode = index + 1
 
-    def _update_hook(self, object: MediaCollection, data: ExtractedData[T]):
+    def _update_hook(self, object: MediaCollection, data: ExtractedData[T]) -> None:
         self._sort_episodes(object)

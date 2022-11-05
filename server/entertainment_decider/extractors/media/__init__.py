@@ -23,7 +23,7 @@ def media_expect_extractor(uri: str) -> MediaExtractor:
     )
 
 
-def media_update(element: MediaElement, check_cache_expired: bool = True):
+def media_update(element: MediaElement, check_cache_expired: bool = True) -> None:
     ex = media_expect_extractor(element.uri)
     ex.update_object(
         object=element,
