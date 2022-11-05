@@ -5,6 +5,7 @@ import base64
 import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
+from functools import cache
 import gzip
 import json
 import math
@@ -395,15 +396,15 @@ def generate_preference_list(
     limit: Optional[int] = None,
 ) -> List[MediaElement]:
     res_ids = list[int]()
-    tag_map = dict[MediaCollection, Tag]()
     element_list = object_gen()
-    for element in element_list:
-        for link in element.collection_links:
-            if link.collection not in tag_map:
-                tag = Tag(title="Automatic")
-                tag.use_for_preferences = True
-                link.collection.tag_list.add(tag)
-                tag_map[link.collection] = tag
+    collections: Iterable[MediaCollection] = MediaCollection.select()
+    for coll in collections:
+        coll.tag_list.add(
+            Tag(
+                title="Automatic",
+                use_for_preferences=True,
+            )
+        )
     orm.flush()
     while True:
         if len(element_list) <= 0:
