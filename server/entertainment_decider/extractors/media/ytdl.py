@@ -65,7 +65,7 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             data=vid_data,
         )
 
-    def _update_object_raw(self, object: MediaElement, data: Dict) -> str:
+    def _update_object_raw(self, object: MediaElement, data: Dict):
         object.title = (
             f"{data['title']} - {data['uploader']}"
             if "uploader" in data
