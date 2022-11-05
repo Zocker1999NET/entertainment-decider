@@ -30,6 +30,7 @@ from pony import orm
 from pony.orm.core import Query as PonyQuery
 
 from .common import trim
+from .extras import Chain
 
 db = orm.Database()
 
@@ -284,26 +285,32 @@ class PreferenceScore:
 
     @classmethod
     def from_base64(cls, in_data: str, encoding: str = "utf-8") -> PreferenceScore:
-        data = in_data.encode(encoding)
-        data = base64.decodebytes(data)
-        data = gzip.decompress(data)
-        data = data.decode(encoding)
-        data = PreferenceScore.from_json(data)
-        return data
+        return (
+            Chain(in_data)
+            | (lambda d: d.encode(encoding=encoding))
+            | base64.decodebytes
+            | gzip.decompress
+            | (lambda d: d.decode(encoding=encoding))
+            | PreferenceScore.from_json
+        ).get()
 
     def to_json(self) -> str:
         return json.dumps({tag.id: score for tag, score in self.points.items()})
 
     def to_base64(self, encoding: str = "utf-8") -> str:
-        data = self.to_json()
-        data = data.encode(encoding)
-        data = gzip.compress(
-            data=data,
-            compresslevel=9,
-        )
-        data = base64.encodebytes(data)
-        data = data.decode(encoding)
-        return data
+        return (
+            Chain(self)
+            | PreferenceScore.to_json
+            | (lambda d: d.encode(encoding=encoding))
+            | (
+                lambda d: gzip.compress(
+                    data=d,
+                    compresslevel=9,
+                )
+            )
+            | base64.encodebytes
+            | (lambda d: d.decode(encoding=encoding))
+        ).get()
 
 
 class PreferenceScoreAppender:
