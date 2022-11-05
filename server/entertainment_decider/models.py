@@ -1221,7 +1221,7 @@ CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, str] = {
             ALTER TABLE
                 `{MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}` ADD INDEX(`collection`);
         """,
-    }
+    }.items()
 }
 
 
@@ -1232,6 +1232,7 @@ def table_exists(table_name: SafeStr) -> bool:
     )
 
 
+@orm.db_session
 def setup_custom_tables():
     """
     Creates & fills custom tables (especially cache tables) if they do not exist.
