@@ -416,6 +416,7 @@ def generate_preference_list(
         base = base.adapt_score(first_element, score_adapt)
         element_list = object_gen()
     orm.rollback()
+    db.execute(f"ALTER TABLE {Tag._table_} AUTO_INCREMENT = 1;")
     return [MediaElement[i] for i in res_ids]
 
 
