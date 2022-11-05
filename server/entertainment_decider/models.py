@@ -670,6 +670,18 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         return True
 
     @property
+    def detected_creators(self) -> Query[MediaCollectionLink]:
+        return orm.select(
+            link for link in self.collection_links if link.collection.is_creator
+        )
+
+    @property
+    def detected_playlists(self) -> Query[MediaCollectionLink]:
+        return orm.select(
+            link for link in self.collection_links if link.collection.watch_in_order
+        )
+
+    @property
     def assigned_tags(self) -> Set[Tag]:
         return set(self.tag_list)
 
