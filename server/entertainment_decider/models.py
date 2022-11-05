@@ -1038,6 +1038,61 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     def was_extracted(self) -> bool:
         return self.last_updated is not None
 
+    @property
+    def count(self) -> int:
+        return orm.count(self.media_links)
+
+    @property
+    def full_length(self) -> int:
+        return orm.sum(link.element.length for link in self.media_links)
+
+    @property
+    def first_episode(self) -> Optional[MediaCollectionLink]:
+        return (
+            orm.select(l for l in self.media_links)
+            .order_by(MediaCollectionLink.sort_key)
+            .first()
+        )
+
+    @property
+    def last_episode(self) -> Optional[MediaCollectionLink]:
+        return (
+            orm.select(l for l in self.media_links)
+            .order_by(MediaCollectionLink.desc_sort_key)
+            .first()
+        )
+
+    @property
+    def first_released_episode(self) -> Optional[MediaCollectionLink]:
+        return (
+            orm.select(l for l in self.media_links)
+            .order_by(lambda l: l.element.release_date)
+            .first()
+        )
+
+    @property
+    def last_released_episode(self) -> Optional[MediaCollectionLink]:
+        # return orm \
+        #    .select(l for l in self.media_links) \
+        #    .order_by(lambda l: orm.desc(l.element.release_date)) \
+        #    .first()
+        return (
+            orm.select(l for l in self.media_links)
+            .order_by(lambda l: orm.desc(l.element.release_date))
+            .first()
+        )
+
+    @property
+    def last_release_date_to_watch(self) -> Optional[datetime]:
+        return orm.max(
+            (
+                l.element.release_date
+                for l in self.media_links
+                if not l.element.skip_over
+            ),
+            default=None,
+        )
+
     def __to_watch_episodes(self) -> Query | Iterable[MediaCollectionLink]:
         return orm.select(
             link for link in self.media_links if not link.element.skip_over
@@ -1052,8 +1107,45 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         )
 
     @property
+    def to_watch_count(self) -> int:
+        return self.__to_watch_episodes().count()
+
+    @property
     def completed(self) -> bool:
-        return self.__to_watch_episodes().count() <= 0
+        return self.to_watch_count <= 0
+
+    @property
+    def average_release_per_week(self) -> float:
+        return (
+            (
+                self.full_length
+                / (
+                    (
+                        (
+                            (
+                                self.last_released_episode.element.release_date
+                                - self.first_released_episode.element.release_date
+                            )
+                            * (self.count / (self.count - 1))
+                        )
+                        / timedelta(days=7)
+                    )
+                    or 1
+                )
+            )
+            if self.count >= 2
+            else self.full_length
+        )
+
+    @property
+    def average_release_per_week_now(self) -> float:
+        return self.full_length / (
+            (
+                (datetime.now() - self.first_released_episode.element.release_date)
+                / timedelta(days=7)
+            )
+            or 1
+        )
 
     @property
     def stats(self) -> CollectionStats:
