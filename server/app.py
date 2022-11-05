@@ -524,7 +524,7 @@ def show_media_thumb(media_id: int):
         etag=True,
         as_attachment=False,
         last_modified=thumb.last_downloaded,
-        cache_timeout=24 * 60 * 60,
+        max_age=24 * 60 * 60,
     )
 
 
