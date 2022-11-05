@@ -128,3 +128,12 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
             if len(object.media_links) > 0
             else None
         )
+        # creator exists in most cases as videos were already processed
+        # if not, creator is not that important
+        object.creator = (
+            object
+            if is_channel
+            else CollectionExtractor.check_uri(
+                f"https://www.youtube.com/channel/{info['channel']['id']}"
+            )
+        )
