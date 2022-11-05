@@ -187,34 +187,49 @@ class Tagable:
 
     ## abstracted
 
-    @property
-    def assigned_tags(self) -> Set[Tag]:
+    @abstractproperty
+    def orm_assigned_tags(self) -> Query[Tag]:
         """
         Tags which are directly assigned to this object by the user or automatic actions.
         """
-        raise NotImplementedError("")
 
     @property
-    def inherited_tags(self) -> Set[Tag]:
+    def orm_inherited_tags(self) -> Query[Tag]:
         """
         Tags, which are inherited by any other means than super/sub-tag relationships.
         This relationship does not declare a distance between this tags and assigned tags.
         """
-        return set()
+        return []  # TODO to orm compatible
 
     @property
-    def super_tags(self) -> Set[Tag]:
+    def orm_super_tags(self) -> Query[Tag]:
         """
         Tags, which are inherited only by super/sub-tag relationships.
         This relationship does declare a distance between this tags and assigned tags.
         """
-        return set()
+        return []  # TODO to orm compatible
 
     ## implemented
 
     @property
+    def assigned_tags(self) -> Set[Tag]:
+        return set(self.orm_assigned_tags)
+
+    @property
+    def inherited_tags(self) -> Set[Tag]:
+        return set(self.orm_inherited_tags)
+
+    @property
+    def super_tags(self) -> Set[Tag]:
+        return set(self.orm_super_tags)
+
+    @property
+    def orm_direct_tags(self) -> Query[Tag]:
+        return self.orm_assigned_tags + self.orm_inherited_tags
+
+    @property
     def direct_tags(self) -> Set[Tag]:
-        return self.assigned_tags | self.inherited_tags
+        return set(self.orm_direct_tags)
 
     @property
     def tag_hierachy(self) -> TagRootElement:
@@ -478,12 +493,12 @@ class Tag(db.Entity, Tagable):
     _media_list: Iterable[MediaElement] = orm.Set(lambda: MediaElement)
 
     @property
-    def assigned_tags(self) -> Set[Tag]:
-        return {self}
+    def orm_assigned_tags(self) -> Query[Tag]:
+        return [self]
 
     @property
-    def super_tags(self) -> Set[Tag]:
-        return set(self.super_tag_list)
+    def orm_super_tags(self) -> Query[Tag]:
+        return self.super_tag_list
 
 
 ## Element <-> Collection Linking
@@ -593,6 +608,17 @@ class MediaElement(db.Entity, UriHolder, Tagable):
     )
 
     @property
+    def orm_assigned_tags(self) -> Query[Tag]:
+        return self.tag_list
+
+    @property
+    def orm_inherited_tags(self) -> Query[Tag]:
+        # TODO: return orm.select(tag for link in self.collection_links for tag in link.collection.orm_direct_tags)
+        return [
+            tag for link in self.collection_links for tag in link.collection.direct_tags
+        ]
+
+    @property
     def was_extracted(self) -> bool:
         return self.last_updated is not None
 
@@ -680,17 +706,6 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         return orm.select(
             link for link in self.collection_links if link.collection.watch_in_order
         )
-
-    @property
-    def assigned_tags(self) -> Set[Tag]:
-        return set(self.tag_list)
-
-    @property
-    def inherited_tags(self) -> Set[Tag]:
-        result = set()
-        for link in self.collection_links:
-            result |= link.collection.direct_tags
-        return result
 
     ### for UriHolder
 
@@ -932,10 +947,6 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     def completed(self) -> bool:
         return self.__to_watch_episodes().count() <= 0
 
-    @property
-    def assigned_tags(self) -> Set[Tag]:
-        return set(self.tag_list)
-
     ### for UriHolder
 
     @property
@@ -954,6 +965,10 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         self.add_uris(uri_set)
 
     ### others
+
+    @property
+    def orm_assigned_tags(self) -> Query[Tag]:
+        return self.tag_list
 
     @property
     def stats(self) -> CollectionStats:
