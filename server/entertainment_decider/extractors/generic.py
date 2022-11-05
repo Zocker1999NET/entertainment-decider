@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 import logging
-from typing import Dict, Generic, Optional, TypeVar
+from typing import Generic, Optional, TypeVar
 
 from ..models import MediaCollection, MediaElement
 
@@ -20,11 +20,11 @@ class SuitableLevel(Enum):
     ALWAYS = (True, True)
 
     @property
-    def can_accept(self):
+    def can_accept(self) -> bool:
         return self.value[0]
 
     @property
-    def accept_immediately(self):
+    def accept_immediately(self) -> bool:
         return self.value[1]
 
     @staticmethod
@@ -75,12 +75,14 @@ class ExtractedData(ExtractedDataLight, Generic[T]):
 
     def load_media(self) -> Optional[MediaElement]:
         return MediaElement.get(
-            extractor_name=self.extractor_name, extractor_key=self.object_key
+            extractor_name=self.extractor_name,
+            extractor_key=self.object_key,
         )
 
     def load_collection(self) -> Optional[MediaCollection]:
         return MediaCollection.get(
-            extractor_name=self.extractor_name, extractor_key=self.object_key
+            extractor_name=self.extractor_name,
+            extractor_key=self.object_key,
         )
 
 
@@ -89,7 +91,7 @@ class AuthorExtractedData(ExtractedDataLight):
     author_name: str
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         return len(list(v for _, v in self.__dict__.items() if v is None)) <= 0
 
 
@@ -132,10 +134,10 @@ class GeneralExtractor(Generic[E, T]):
     def _extract_online(self, uri: str) -> ExtractedData[T]:
         raise NotImplementedError()
 
-    def _update_object_raw(self, object: E, data: T):
+    def _update_object_raw(self, object: E, data: T) -> None:
         raise NotImplementedError()
 
-    def _update_hook(self, object: E, data: ExtractedData[T]):
+    def _update_hook(self, object: E, data: ExtractedData[T]) -> None:
         return None
 
     # defined
