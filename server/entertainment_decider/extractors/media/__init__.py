@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Tuple
 
 
 from ...models import MediaElement
@@ -31,9 +31,14 @@ def media_update(element: MediaElement, check_cache_expired: bool = True) -> Non
     )
 
 
-def media_extract_uri(uri: str) -> MediaElement:
-    elem: MediaElement = MediaExtractor.check_uri(uri)
+def media_extract_uri_new(uri: str) -> Tuple[bool, MediaElement]:
+    elem = MediaExtractor.check_uri(uri)
     if not elem:
-        ex = media_expect_extractor(uri)
-        elem = ex.extract_and_store(uri)
+        return True, media_expect_extractor(uri).extract_and_store(uri)
+    return False, elem
+
+
+# exists to mirror collection_extract_uri
+def media_extract_uri(uri: str) -> MediaElement:
+    _, elem = media_extract_uri_new(uri)
     return elem
