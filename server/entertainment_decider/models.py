@@ -1019,14 +1019,14 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
             )  # TODO may replace with merge call
         return False
 
-    def before_insert(self):
+    def before_insert(self) -> None:
         self.before_update()
 
-    def before_update(self):
+    def before_update(self) -> None:
         self.add_single_uri(self.uri)
 
     @property
-    def info_link(self):
+    def info_link(self) -> str:
         return f"/collection/{self.id}"
 
 
@@ -1254,7 +1254,7 @@ def table_exists(table_name: SafeStr) -> bool:
 
 
 @orm.db_session
-def setup_custom_tables():
+def setup_custom_tables() -> None:
     """
     Creates & fills custom tables (especially cache tables) if they do not exist.
     This should not destroy already existing data and should behave indempotent.
