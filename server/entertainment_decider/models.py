@@ -267,8 +267,15 @@ class PreferenceScore:
     def __neg__(self) -> PreferenceScore:
         return self * -1
 
-    def adapt_score(self, tagable: Tagable, score: float) -> PreferenceScore:
-        return (self & tagable.tag_hierachy.share_score(score)).calculate()
+    def adapt_score(
+        self,
+        tagable: Tagable,
+        score: float,
+    ) -> PreferenceScore:
+        addition = (
+            tagable.tag_hierachy.share_score(score)
+        )
+        return (self & addition).calculate()
 
     def calculate_score(self, object: Tagable) -> float:
         return self.calculate_iter_score(object.all_tags)
