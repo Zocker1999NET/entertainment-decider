@@ -821,6 +821,10 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         bool,
         default=True,
     )
+    sorting_method: int = orm.Required(
+        int,
+        default=0,
+    )
 
     pinned: bool = orm.Required(
         bool,

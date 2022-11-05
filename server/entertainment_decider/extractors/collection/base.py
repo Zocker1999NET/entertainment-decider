@@ -3,11 +3,14 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 import logging
 import math
-from typing import Optional, TypeVar
+from typing import Any, Callable, Mapping, Optional, TypeVar
+
+from pony import orm
 
 from ...models import (
     CollectionUriMapping,
     MediaCollection,
+    MediaCollectionLink,
     MediaElement,
 )
 from ..generic import ExtractedData, ExtractionError, GeneralExtractor
@@ -79,3 +82,20 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
                 f"Add to collection {collection.title!r} media {uri!r} (Season {season}, Episode {episode})"
             )
         return element
+
+    def _sort_episodes(self, coll: MediaCollection):
+        sorting_methods: Mapping[int, Callable[[MediaCollectionLink], Any]] = {
+            1: lambda l: l.element.release_date,
+        }
+        method = sorting_methods.get(coll.sorting_method)
+        if method is None:
+            return
+        logging.debug(f"Sort collection by type {coll.sorting_method}")
+        for index, link in enumerate(
+            orm.select(l for l in coll.media_links).order_by(method)
+        ):
+            link.season = 0
+            link.episode = index + 1
+
+    def _update_hook(self, object: MediaCollection, data: ExtractedData[T]):
+        self._sort_episodes(object)
