@@ -64,15 +64,18 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
         season: int = 0,
         episode: int = 0,
     ) -> Optional[MediaElement]:
-        logging.debug(f"Add to collection {collection.title!r} media {uri!r} (Season {season}, Episode {episode})")
         try:
             element = media_extract_uri(uri)
         except ExtractionError:
             logging.warning(f"Failed while extracting media {uri!r}", exc_info=True)
             return None
-        collection.add_episode(
+        link = collection.add_episode(
             media=element,
             season=season,
             episode=episode,
         )
+        if link is not None:
+            logging.debug(
+                f"Add to collection {collection.title!r} media {uri!r} (Season {season}, Episode {episode})"
+            )
         return element
