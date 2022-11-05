@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Tuple
+
 
 from ...config import app_config
 from ...models import MediaCollection
@@ -39,11 +40,16 @@ def collection_update(
     )
 
 
-def collection_extract_uri(uri: str) -> MediaCollection:
-    elem: MediaCollection = CollectionExtractor.check_uri(uri)
-    ex = collection_expect_extractor(uri)
+def collection_extract_uri_new(uri: str) -> Tuple[bool, MediaCollection]:
+    elem = CollectionExtractor.check_uri(uri)
     if not elem:
-        elem = ex.extract_and_store(uri)
-    else:
+        return True, collection_expect_extractor(uri).extract_and_store(uri)
+    return False, elem
+
+
+def collection_extract_uri(uri: str) -> MediaCollection:
+    new_obj, elem = collection_extract_uri_new(uri)
+    if not new_obj:
+        ex = collection_expect_extractor(uri)
         ex.update_object(elem, check_cache_expired=False)
     return elem
