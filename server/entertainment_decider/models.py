@@ -4,9 +4,10 @@ from abc import abstractmethod, abstractproperty
 import base64
 import dataclasses
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import cache
 import gzip
+from itertools import chain
 import json
 import math
 import logging
@@ -421,12 +422,62 @@ def generate_preference_list(
     # flush after custom tags
     orm.flush()
 
+    # score calc
+    now = datetime.now()
+
+    @cache
+    def all_tags(element: MediaElement) -> List[Tag]:
+        return [tag for tag in element.all_tags if tag.use_for_preferences]
+
+    # TODO prepare static score in parallel (or cache it in DB for longer)
+    @cache
+    def gen_statis_score(element: MediaElement) -> float:
+        pinned_collections = orm.count(
+            link for link in element.collection_links if link.collection.pinned
+        )
+        # reference_date = orm.max((elem_link.element.release_date for coll_link in element.collection_links for elem_link in coll_link.collection.media_links if coll_link.collection.watch_in_order and not elem_link.element.skip_over), default=element.release_date)
+        # reference_date = max((l.collection.last_release_date_to_watch for l in element.collection_links if l.collection.watch_in_order), default=element.release_date)
+        reference_date = element.release_date
+        age_nerf = (
+            (
+                max(-0.5, math.log((now - reference_date) / timedelta(days=14)) - 1)
+                if reference_date < now  # possible on yet to release media
+                else -0.5
+            )
+            # nerf the nerf when pinned or started to prevent hiding
+            * 0.1
+            if (pinned_collections > 0) or element.started
+            else 1
+        )
+        # avg_rel = element.average_release_per_week or element.left_length
+        # avg_rel = element.left_length
+        all_nerfs = (
+            # by id to make sorting consistent
+            (10**-8) * math.log(element.id + 1000),
+            # for age of media (newer is better)
+            age_nerf,
+            # for average length in relevant collections / length of video itself
+            # max(0, (math.log(avg_rel + 1) - 5) / 2) if avg_rel else 0
+        )
+        all_buffs = (
+            # for already began to watch
+            2 if element.started else 0,
+            # for count of tags (more is better)
+            0.5 * math.log(len(all_tags(element)) + 1),
+            # for being in pinned collections
+            3 * math.log(pinned_collections + 1),
+        )
+        return math.fsum(chain(all_nerfs, (-val for val in all_buffs)))
+
+    def gen_score(element: MediaElement) -> float:
+        return gen_statis_score(element) + base.calculate_iter_score(all_tags(element))
+
     # gen elements
     res_ids = list[int]()
     while True:
         if len(element_list) <= 0:
             break
-        first_element = base.get_first_by_score(element_list)
+        first_element = min(element_list, key=gen_score)
         res_ids.append(first_element.id)
         if limit is not None and limit <= len(res_ids):
             break
