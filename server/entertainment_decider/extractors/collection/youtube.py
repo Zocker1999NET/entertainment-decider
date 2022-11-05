@@ -112,6 +112,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
         object.set_watch_in_order_auto(not is_channel)
         if is_channel:
             video_list = reversed(video_list)
+            object.sorting_method = 1  # TODO sort channels by date
         for index, video in enumerate(video_list):
             video_url = f"https://www.youtube.com/watch?v={video['id']}"
             element = self._add_episode(
