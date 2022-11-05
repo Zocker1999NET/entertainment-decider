@@ -5,7 +5,11 @@ import logging
 import math
 from typing import Optional, TypeVar
 
-from ...models import CollectionUriMapping, MediaCollection, MediaElement
+from ...models import (
+    CollectionUriMapping,
+    MediaCollection,
+    MediaElement,
+)
 from ..generic import ExtractedData, ExtractionError, GeneralExtractor
 from ..media import media_extract_uri
 
@@ -14,7 +18,6 @@ T = TypeVar("T")
 
 
 class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
-
     @staticmethod
     def check_uri(uri: str) -> Optional[MediaCollection]:
         mapping: CollectionUriMapping = CollectionUriMapping.get(uri=uri)
@@ -23,8 +26,8 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
         elem: MediaCollection = MediaCollection.get(uri=uri)
         if elem:
             logging.warning(
-                f"Add missing URI mapping entry for uri {uri!r}, " +
-                "this should not happen at this point and is considered a bug"
+                f"Add missing URI mapping entry for uri {uri!r}, "
+                + "this should not happen at this point and is considered a bug"
             )
             elem.add_single_uri(uri)
             return elem
@@ -54,7 +57,13 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
             self.__configure_collection(collection)
         return collection
 
-    def _add_episode(self, collection: MediaCollection, uri: str, season: int = 0, episode: int = 0) -> Optional[MediaElement]:
+    def _add_episode(
+        self,
+        collection: MediaCollection,
+        uri: str,
+        season: int = 0,
+        episode: int = 0,
+    ) -> Optional[MediaElement]:
         logging.debug(f"Add to collection {collection.title!r} media {uri!r} (Season {season}, Episode {episode})")
         try:
             element = media_extract_uri(uri)
@@ -62,8 +71,8 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
             logging.warning(f"Failed while extracting media {uri!r}", exc_info=True)
             return None
         collection.add_episode(
-            media = element,
-            season = season,
-            episode = episode,
+            media=element,
+            season=season,
+            episode=episode,
         )
         return element
