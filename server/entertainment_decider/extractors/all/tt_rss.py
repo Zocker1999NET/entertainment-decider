@@ -5,10 +5,10 @@ from enum import Enum
 from functools import partial
 import logging
 import re
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 import urllib.parse as url
 
-from tinytinypy import Connection
+from tinytinypy import Connection, UpdateField, UpdateMode
 from tinytinypy.main import Headline
 
 
@@ -115,3 +115,14 @@ class TtRssUri:
 
     def request(self, params: TtRssConnectionParameter, **kwargs) -> HeadlineList:
         return self.kind.request(self.id)(params, **self.options, **kwargs)
+
+    def set_read(
+        self,
+        params: TtRssConnectionParameter,
+        article_ids: Sequence[int],
+    ) -> None:
+        _build_connection(params=params).updateArticle(
+            article_ids=article_ids,
+            mode=UpdateMode.SET_TO_FALSE,
+            field=UpdateField.UNREAD,
+        )

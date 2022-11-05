@@ -59,15 +59,6 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
                 if self.__label_filter
                 in (label_marker[0] for label_marker in headline.labels)
             ]
-        if self.__mark_as_read:
-            parameters = {
-                "article_ids": ",".join(str(headline.feedId) for headline in data),
-                "field": "2",  # unread
-                "mode": "0",  # false
-            }
-            raise NotImplementedError(
-                "Cannot set articles as read with tinytinypy for now"
-            )  # TODO
         return ExtractedData(
             extractor_name=self.name,
             object_key=uri,
@@ -79,8 +70,14 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
         if not object.title:
             object.title = object.uri
         logging.debug(f"Got {len(data)} headlines")
+        rss_uri = self.__decode_uri(object.uri)
+        readed_headlines = list[int]()
         for headline in data:
-            self._add_episode(collection=object, uri=headline.url)
+            elem = self._add_episode(collection=object, uri=headline.url)
+            if elem is not None:
+                readed_headlines.append(headline.headlineId)
             orm.commit()
+        if self.__mark_as_read:
+            rss_uri.set_read(self.__params, readed_headlines)
         if object.watch_in_order_auto:
             object.watch_in_order = False  # no order available
