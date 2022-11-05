@@ -53,9 +53,9 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
         self.__configure_collection(collection)
         return collection
 
-    def _load_object(self, data: ExtractedData[T]) -> MediaCollection:
+    def _load_object(self, data: ExtractedData[T]) -> Optional[MediaCollection]:
         collection = data.load_collection()
-        if collection:
+        if collection is not None:
             self.__configure_collection(collection)
         return collection
 

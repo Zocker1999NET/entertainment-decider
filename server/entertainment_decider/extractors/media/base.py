@@ -38,7 +38,7 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
     def _create_object(self, data: ExtractedData[T]) -> MediaElement:
         return data.create_media()
 
-    def _load_object(self, data: ExtractedData[T]) -> MediaElement:
+    def _load_object(self, data: ExtractedData[T]) -> Optional[MediaElement]:
         return data.load_media()
 
     def __create_author_collection(

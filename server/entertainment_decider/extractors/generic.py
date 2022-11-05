@@ -114,7 +114,7 @@ class GeneralExtractor(Generic[E, T]):
     def _create_object(self, data: ExtractedData[T]) -> E:
         raise NotImplementedError()
 
-    def _load_object(self, data: ExtractedData[T]) -> E:
+    def _load_object(self, data: ExtractedData[T]) -> Optional[E]:
         raise NotImplementedError()
 
     # abstract (for specific extractor classes)
@@ -178,14 +178,14 @@ class GeneralExtractor(Generic[E, T]):
     def inject_object(self, data: ExtractedData[T]) -> E:
         object = self._load_object(data)
         data = self._extract_required(data)
-        if not object:
+        if object is None:
             logging.debug(f"Store info for object: {data!r}")
             object = self._create_object(data)
         return self._update_object(object, data)
 
     def store_object(self, data: ExtractedData[T]) -> E:
         object = self._load_object(data)
-        if object:
+        if object is not None:
             logging.debug(f"Found object already in database: {data!r}")
             return object
         data = self._extract_required(data)
