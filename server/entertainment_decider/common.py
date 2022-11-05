@@ -1,9 +1,22 @@
 import itertools
 import subprocess
-from typing import Iterable, List, Literal, TypeVar, Union
+from typing import (
+    IO,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
 
-def call(args, check=True, stdin=None) -> subprocess.CompletedProcess:
+def call(
+    args: Sequence[str],
+    check: bool = True,
+    stdin: Optional[IO] = None,
+) -> subprocess.CompletedProcess:
     proc = subprocess.run(
         args,
         capture_output=True,
