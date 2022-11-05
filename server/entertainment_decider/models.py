@@ -531,6 +531,18 @@ class MediaCollectionLink(db.Entity):
         )
 
     @staticmethod
+    def desc_sort_key(link: MediaCollectionLink) -> Tuple:
+        """
+        Only working for Pony calls
+        """
+        return (
+            orm.desc(link.season),
+            orm.desc(link.episode),
+            orm.desc(link.element.release_date),
+            orm.desc(link.element.id),
+        )
+
+    @staticmethod
     def sorted(iterable: Iterable[MediaCollectionLink]) -> List[MediaCollectionLink]:
         return sorted(iterable, key=MediaCollectionLink.sort_key)
 
