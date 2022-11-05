@@ -540,6 +540,8 @@ class MediaCollectionLink(db.Entity):
 
 class MediaElement(db.Entity, UriHolder, Tagable):
 
+    ### columns
+
     id: int = orm.PrimaryKey(
         int,
         auto=True,
@@ -607,6 +609,25 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         reverse="blocked_by",
     )
 
+    ### for UriHolder
+
+    @property
+    def _primary_uri(self) -> str:
+        return self.uri
+
+    def _set_primary_uri(self, uri: str) -> None:
+        self.uri = uri
+
+    @property
+    def _get_uri_set(self) -> Set[str]:
+        return {m.uri for m in self.uris}
+
+    def _set_uri_set(self, uri_set: Set[str]) -> None:
+        self.uris = set()
+        self.add_uris(uri_set)
+
+    ### for Tagable
+
     @property
     def orm_assigned_tags(self) -> Query[Tag]:
         return self.tag_list
@@ -617,6 +638,8 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         return [
             tag for link in self.collection_links for tag in link.collection.direct_tags
         ]
+
+    ### properties
 
     @property
     def was_extracted(self) -> bool:
@@ -707,24 +730,11 @@ class MediaElement(db.Entity, UriHolder, Tagable):
             link for link in self.collection_links if link.collection.watch_in_order
         )
 
-    ### for UriHolder
-
     @property
-    def _primary_uri(self) -> str:
-        return self.uri
+    def info_link(self) -> str:
+        return f"/media/{self.id}"
 
-    def _set_primary_uri(self, uri: str) -> None:
-        self.uri = uri
-
-    @property
-    def _get_uri_set(self) -> Set[str]:
-        return {m.uri for m in self.uris}
-
-    def _set_uri_set(self, uri_set: Set[str]) -> None:
-        self.uris = set()
-        self.add_uris(uri_set)
-
-    ### own methods
+    ### methods
 
     def merge_to(self, other: MediaElement) -> None:
         if self.watched:
@@ -761,10 +771,6 @@ class MediaElement(db.Entity, UriHolder, Tagable):
 
     def before_update(self) -> None:
         self.add_single_uri(self.uri)
-
-    @property
-    def info_link(self) -> str:
-        return f"/media/{self.id}"
 
 
 class MediaThumbnail(db.Entity):
