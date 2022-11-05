@@ -81,7 +81,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
         super().__init__("youtube")
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
-        return SuitableLevel.always_or_no(self.__uri_regex.match(uri))
+        return SuitableLevel.always_or_no(self.__uri_regex.match(uri) is not None)
 
     def _get_author_data(self, data: YoutubeVideoData) -> Optional[AuthorExtractedData]:
         return AuthorExtractedData(
