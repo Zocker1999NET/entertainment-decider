@@ -266,9 +266,10 @@ class PreferenceScore:
         return (self & tagable.tag_hierachy.share_score(score)).calculate()
 
     def calculate_score(self, object: Tagable) -> float:
-        return math.fsum(
-            self.points[tag] for tag in object.all_tags if tag in self.points
-        )
+        return self.calculate_iter_score(object.all_tags)
+
+    def calculate_iter_score(self, tag_iter: Iterable[Tag]) -> float:
+        return math.fsum(self.points.get(tag, 0) for tag in tag_iter)
 
     def order_by_score(self, objects: Iterable[T_tagged]) -> List[T_tagged]:
         return sorted(objects, key=self.calculate_score)
