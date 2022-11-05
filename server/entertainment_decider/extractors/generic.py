@@ -123,7 +123,7 @@ class GeneralExtractor(Generic[E, T]):
     def can_extract_offline(self, uri: str) -> bool:
         return False
 
-    def _cache_expired(self, date: datetime) -> bool:
+    def _cache_expired(self, object: E) -> bool:
         return False
 
     def _extract_offline_only(self, uri: str) -> ExtractedData[T]:
@@ -163,7 +163,7 @@ class GeneralExtractor(Generic[E, T]):
         if (
             object.was_extracted
             and check_cache_expired
-            and not self._cache_expired(object.last_updated)
+            and not self._cache_expired(object)
         ):
             logging.debug(
                 f"Skip info for element as already extracted and cache valid: {object.title!r}"

@@ -53,8 +53,8 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
     def can_extract_offline(self, uri: str) -> bool:
         return True
 
-    def _cache_expired(self, date: datetime) -> bool:
-        return (datetime.now() - date) > timedelta(hours=4)
+    def _cache_expired(self, object: MediaCollection) -> bool:
+        return (datetime.now() - object.last_updated) > timedelta(hours=4)
 
     def _extract_offline(self, uri: str) -> ExtractedData[Dict]:
         playlist_id = self.__convert_if_required(self.__get_id(uri))

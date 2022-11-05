@@ -38,8 +38,8 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
     def can_extract_offline(self, uri: str) -> bool:
         return True
 
-    def _cache_expired(self, date: datetime) -> bool:
-        return (datetime.now() - date) > timedelta(minutes=10)
+    def _cache_expired(self, object: MediaCollection) -> bool:
+        return (datetime.now() - object.last_updated) > timedelta(minutes=10)
 
     def _extract_offline(self, uri: str) -> ExtractedData[HeadlineList]:
         return ExtractedData(
