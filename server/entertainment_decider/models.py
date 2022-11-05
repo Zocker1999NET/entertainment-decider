@@ -217,7 +217,7 @@ class Tagable:
         return self.assigned_tags | self.inherited_tags
 
     @property
-    def __tag_hierachy(self) -> Tuple[TagRootElement, Set[Tag]]:
+    def tag_hierachy(self) -> TagRootElement:
         root = TagRootElement(
             base=self,
             children=[TagTreeElement(tag) for tag in self.direct_tags],
@@ -232,15 +232,18 @@ class Tagable:
                     cur.children.append(elem)
                     stack.append(elem)
                     used.add(tag)
-        return root, used
-
-    @property
-    def tag_hierachy(self) -> TagRootElement:
-        return self.__tag_hierachy[0]
+        return root
 
     @property
     def all_tags(self) -> Set[Tag]:
-        return self.__tag_hierachy[1]
+        queue: List[Tag] = list(self.direct_tags)
+        used: Set[Tag] = set(queue)
+        while queue:
+            tag = queue.pop(0)
+            new_tags = tag.super_tags - used
+            queue.extend(new_tags)
+            used |= new_tags
+        return used
 
 
 T_tagged = TypeVar("T_tagged", bound=Tagable)
