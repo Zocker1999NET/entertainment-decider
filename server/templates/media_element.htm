@@ -81,6 +81,52 @@
                         <li>{{ link.uri | as_link }} {% if element.uri == link.uri %}*{% endif %}</li>
                     {% endfor %}
                 </ul>
+                <h2>Blocked By</h2>
+                <form class="form-single-button" action="/api/media/add_blocking" method="post">
+                    {{ macros.hidden_redirect_back() }}
+                    <input type="hidden" name="is_blocking" value="{{ element.id }}" />
+                    <input type="number" name="blocked_by" />
+                    <button type="submit">
+                        add
+                    </button>
+                </form>
+                {% if element.blocked_by %}
+                    <div class="thumbnail_list">
+                        {% for sub_elem in element.blocked_by %}
+                            {% call macros.media_thumbnail_view(
+                                element=sub_elem,
+                                check_considered=True,
+                            ) %}
+                                {% call macros.post_form("/api/media/remove_blocking", "blocked_by", sub_elem.id|string, "X") %}
+                                    <input type="hidden" name="is_blocking" value="{{ element.id }}" />
+                                {% endcall %}
+                            {% endcall %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <h2>Is Blocking</h2>
+                <form class="form-single-button" action="/api/media/add_blocking" method="post">
+                    {{ macros.hidden_redirect_back() }}
+                    <input type="hidden" name="blocked_by" value="{{ element.id }}" />
+                    <input type="number" name="is_blocking" />
+                    <button type="submit">
+                        add
+                    </button>
+                </form>
+                {% if element.is_blocking %}
+                    <div class="thumbnail_list">
+                        {% for sub_elem in element.is_blocking %}
+                            {% call macros.media_thumbnail_view(
+                                element=sub_elem,
+                                check_considered=True,
+                            ) %}
+                                {% call macros.post_form("/api/media/remove_blocking", "is_blocking", sub_elem.id|string, "X") %}
+                                    <input type="hidden" name="blocked_by" value="{{ element.id }}" />
+                                {% endcall %}
+                            {% endcall %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
         </div>
     </body>

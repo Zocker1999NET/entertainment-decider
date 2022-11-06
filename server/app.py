@@ -1169,6 +1169,46 @@ def api_media_element(media_id: int) -> ResponseReturnValue:
         }, 405
 
 
+@flask_app.route("/api/media/add_blocking", methods=["POST"])
+def api_media_add_blocking() -> ResponseReturnValue:
+    data = request.form.to_dict()
+    blocked_by_id = data.get("blocked_by")
+    is_blocking_id = data.get("is_blocking")
+    blocked_by: Optional[MediaElement] = (
+        MediaElement.get(id=blocked_by_id) if blocked_by_id else None
+    )
+    is_blocking: Optional[MediaElement] = (
+        MediaElement.get(id=is_blocking_id) if is_blocking_id else None
+    )
+    if not blocked_by or not is_blocking:
+        return {
+            "status": False,
+            "error": f"Object not found",
+        }, 404
+    blocked_by.is_blocking.add(is_blocking)
+    return redirect_back_or_okay()
+
+
+@flask_app.route("/api/media/remove_blocking", methods=["POST"])
+def api_media_remove_blocking() -> ResponseReturnValue:
+    data = request.form.to_dict()
+    blocked_by_id = data.get("blocked_by")
+    is_blocking_id = data.get("is_blocking")
+    blocked_by: Optional[MediaElement] = (
+        MediaElement.get(id=blocked_by_id) if blocked_by_id else None
+    )
+    is_blocking: Optional[MediaElement] = (
+        MediaElement.get(id=is_blocking_id) if is_blocking_id else None
+    )
+    if not blocked_by or not is_blocking:
+        return {
+            "status": False,
+            "error": f"Object not found",
+        }, 404
+    blocked_by.is_blocking.remove(is_blocking)
+    return redirect_back_or_okay()
+
+
 def _api_media_set_x(call: Callable[[MediaElement], Any]) -> ResponseReturnValue:
     data = request.form.to_dict()
     ids = _parse_cs_ids(data.get("ids", "NULL"))
