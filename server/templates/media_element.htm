@@ -23,6 +23,13 @@
                     <li>
                         {{ macros.media_element_buttons(element) }}
                         {{ macros.no_input_post_form("/api/refresh/media/" + element.id|string, "refresh") }}
+                        {% if not element.skip_over %}
+                            <form class="form-single-button" method="post" action="/api/media/{{ element.id }}">
+                                {{ macros.hidden_redirect_back() }}
+                                <input type="text" name="progress" placeholder="xx:xx or xxx in seconds" value="{{ element.progress or '' }}" />
+                                <button type="submit">set progress</button>
+                            </form>
+                        {% endif %}
                     </li>
                     <li>Can be considered: {{ element.can_considered | tenary("Yes", "no") }}</li>
                     <li>
