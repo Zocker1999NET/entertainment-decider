@@ -391,6 +391,7 @@
 
 {% macro _sidebar() %}
     <div class="sidebar-box">
+        <a class="sidebar-button button" href="/recommendations/adaptive">Adaptive</a>
         <a class="sidebar-button button" href="/recommendations/short_filler">Small Fillers</a>
         <a class="sidebar-button button" href="/recommendations/series_episode">Series Episode</a>
         <a class="sidebar-button button" href="/recommendations/movie_like">Movie Like</a>
@@ -432,6 +433,7 @@
 {% macro media_thumbnail_buttons(
     element,
     show_fragment=True,
+    show_rating=False
 ) %}
     {% set api_uri = "/api/media/" + element.id|string %}
     {% set fragment = ("media_element_" + element.id|string) if show_fragment else None %}
@@ -445,6 +447,10 @@
         {{ post_form(api_uri, "watched", "true", "&#10003;"|safe, fragment) }}
         {{ as_play_link(element, symbol='&#9655;') }}
         {{ post_form(api_uri, "ignored", "true", "&#10005;"|safe, fragment) }}
+    {% endif %}
+    {% if show_rating %}
+        {{ post_form("/cookies/rating/positive", "media_id", element.id|string, "+", fragment) }}
+        {{ post_form("/cookies/rating/negative", "media_id", element.id|string, "-", fragment) }}
     {% endif %}
 {% endmacro %}
 
@@ -465,6 +471,7 @@
     check_considered=True,
     is_considered=True,
     link_collection=True,
+    show_rating=False,
     title=None,
 ) %}
     {% set element = link.element if link else element %}
@@ -505,7 +512,7 @@
                 {%- endif -%}
             "></div>
             <div class="button_list">
-                {{ media_thumbnail_buttons(element) }}
+                {{ media_thumbnail_buttons(element, show_rating=show_rating) }}
             </div>
             {% if caller is defined %}
                 <div class="additional_info">
@@ -539,6 +546,7 @@
     links=None,
     check_considered=True,
     link_collection=True,
+    show_rating=False,
     titles=None,
 ) %}
     {%- set l = elements or links -%}
@@ -552,6 +560,7 @@
                 check_considered=False,
                 is_considered=considered[elem.id] if check_considered else True,
                 link_collection=link_collection,
+                show_rating=show_rating,
                 title=titles[loop.index0] if titles else None,
             ) }}
         {% endfor %}

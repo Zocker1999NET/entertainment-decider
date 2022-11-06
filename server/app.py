@@ -72,6 +72,16 @@ from entertainment_decider.extras import remove_common_trails
 T = TypeVar("T")
 
 
+def adapt_score_list(
+    base: Optional[PreferenceScore] = None,
+    tag_points_mapping: Dict[int, int] = {},
+) -> PreferenceScore:
+    o = base or PreferenceScore()
+    for tag_id, points in tag_points_mapping.items():
+        o = o.adapt_score(Tag[tag_id], points, on_hierachy=False)
+    return o
+
+
 ####
 # Logging Config
 ####
@@ -237,6 +247,14 @@ db.generate_mapping(create_tables=True)
 setup_custom_tables()
 
 Pony(flask_app)
+
+
+####
+# Settings helpers
+####
+
+
+PREFERENCES_SCORE_NAME = "score_adapt"
 
 
 ####
@@ -692,6 +710,70 @@ def recommend_on_media(media_id: int) -> ResponseReturnValue:
             limit=MEDIA_COUNT,
         ),
     )
+
+
+@flask_app.route("/recommendations/adaptive")
+def recommend_adaptive() -> ResponseReturnValue:
+    score_adapt = request.args.get("score_adapt", default=2, type=int)
+    max_length = request.args.get("max_length", default=0, type=int)
+    preferences = request.cookies.get(
+        key=PREFERENCES_SCORE_NAME,
+        default=PreferenceScore(),
+        type=PreferenceScore.from_base64,
+    ) * (1 if score_adapt > 0 else -1 if score_adapt < 0 else 0)
+    preference_list = generate_preference_list(
+        object_gen=lambda: get_all_considered(
+            order_by="elem.release_date DESC",
+            filter_by=f"(length - progress) <= {max_length * 60}"
+            if max_length
+            else "true",
+        ),
+        score_adapt=score_adapt,
+        base=preferences,
+        limit=32,
+    )
+    resp = make_response(
+        render_template(
+            "recommendations_adaptive.htm",
+            max_length=max_length,
+            score_adapt=score_adapt,
+            preferences=preferences,
+            media_list=preference_list,
+        )
+    )
+    return resp
+
+
+def cookies_rating(negative: bool) -> ResponseReturnValue:
+    media_id = request.form.get("media_id", default=None, type=str)
+    element = MediaElement.get(id=media_id) if media_id else None
+    if element is None:
+        return "Not found", 404
+    preferences = request.cookies.get(
+        key=PREFERENCES_SCORE_NAME,
+        default=PreferenceScore(),
+        type=PreferenceScore.from_base64,
+    ).adapt_score(element, score=3 if negative else -3)
+    resp = redirect_back_or_okay()
+    resp.set_cookie(PREFERENCES_SCORE_NAME, preferences.to_base64())
+    return resp
+
+
+@flask_app.route("/cookies/rating/positive", methods=["POST"])
+def cookies_rating_positive() -> ResponseReturnValue:
+    return cookies_rating(False)
+
+
+@flask_app.route("/cookies/rating/negative", methods=["POST"])
+def cookies_rating_negative() -> ResponseReturnValue:
+    return cookies_rating(True)
+
+
+@flask_app.route("/cookies/rating/reset", methods=["POST"])
+def cookies_rating_reset() -> ResponseReturnValue:
+    resp = redirect_back_or_okay()
+    resp.delete_cookie(key=PREFERENCES_SCORE_NAME)
+    return resp
 
 
 @flask_app.route("/api/refresh/collections", methods=["POST"])

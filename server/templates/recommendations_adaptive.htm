@@ -1,0 +1,43 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = "Adaptive Recommendations" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        {{ macros.body_header() }}
+        <h1>{{ title }}</h1>
+        <form class="form-single-button" method="get" action="/recommendations/adaptive">
+            <label>
+                <span>Max Length:</span>
+                <input type="number" name="max_length" min="0" size="4" value="{{ max_length or '' }}"/>
+                <span>min</span>
+            </label>
+            <label>
+                <span>Score Adapt:</span>
+                <input type="number" name="score_adapt" min="-5" step="1" max="5" size="2" value="{{ score_adapt or 1 }}"/>
+            </label>
+            <button type="submit">Search</button>
+        </form>
+        <form class="form-single-button" method="post" action="/cookies/rating/reset">
+            {{ macros.hidden_redirect_back(fragment=fragment) }}
+            <button type="submit">Reset</button>
+        </form>
+        <div>
+            <span>Preferences:</span>
+            <ul>
+                {% for tag, score in preferences.points.items() %}
+                    <li>{{ tag.title }}: {{ score }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {{ macros.media_thumbnail_list(
+            elements=media_list,
+            check_considered=False,
+            show_rating=True,
+        ) }}
+    </body>
+</html>
