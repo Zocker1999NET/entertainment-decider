@@ -384,6 +384,7 @@
     check_considered=True,
     is_considered=True,
     link_collection=True,
+    title=None,
 ) %}
     {% set element = link.element if link else element %}
     <div class="thumbnail_entry" id="media_element_{{ element.id }}" title="{{ element.title }}">
@@ -445,7 +446,7 @@
             </span>
         </div>
         <a class="thumbnail_title" href="{{ element.info_link }}">
-            {{ element.title }}
+            {{ title or element.title }}
         </a>
     </div>
 {%- endmacro %}
@@ -455,6 +456,7 @@
     links=None,
     check_considered=True,
     link_collection=True,
+    titles=None,
 ) %}
     {%- set l = elements or links -%}
     {%- set considered = (links|map(attribute="element") if links else elements)|map(attribute="id")|are_considered -%}
@@ -467,6 +469,7 @@
                 check_considered=False,
                 is_considered=considered[elem.id] if check_considered else True,
                 link_collection=link_collection,
+                title=titles[loop.index0] if titles else None,
             ) }}
         {% endfor %}
     </div>

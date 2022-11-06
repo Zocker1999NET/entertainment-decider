@@ -66,6 +66,7 @@ from entertainment_decider.extractors.media import (
     media_extract_uri,
     media_update,
 )
+from entertainment_decider.extras import remove_common_trails
 
 
 T = TypeVar("T")
@@ -489,10 +490,16 @@ def show_collection(collection_id: int) -> ResponseReturnValue:
         if orm.count(collection.media_links) <= SMALL_COLLECTION_MAX_COUNT
         else None
     )
+    media_titles = (
+        remove_common_trails([link.element.title for link in media_links])
+        if media_links is not None
+        else None
+    )
     return render_template(
         "collection_element.htm",
         collection=collection,
         media_links=media_links,
+        media_titles=media_titles,
     )
 
 
@@ -504,10 +511,12 @@ def show_collection_episodes(collection_id: int) -> ResponseReturnValue:
     media_links = MediaCollectionLink.sorted(
         MediaCollectionLink.select(lambda l: l.collection == collection)
     )
+    media_titles = remove_common_trails([link.element.title for link in media_links])
     return render_template(
         "collection_episodes.htm",
         collection=collection,
         media_links=media_links,
+        media_titles=media_titles,
     )
 
 
