@@ -416,7 +416,11 @@
                 {%- if element.started %} started
                 {%- endif -%}
             ">
-                {{- element.length | timedelta -}}
+                {%- if element.started -%}
+                    {{ element.left_length | timedelta }} ({{ element.length | timedelta }})
+                {%- else -%}
+                    {{- element.length | timedelta -}}
+                {%- endif -%}
             </span>
         </div>
         <a class="thumbnail_title" href="{{ element.info_link }}">
