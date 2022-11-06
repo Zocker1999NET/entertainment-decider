@@ -133,6 +133,16 @@
             transition: opacity .2s linear;
             z-index: 20;
         }
+        .thumbnail_view > .overlay.watched,
+        .thumbnail_view > .overlay.ignored {
+            opacity: 66%;
+        }
+        .thumbnail_view > .overlay.watched {
+            background-color: rgba(20, 117, 0, 0.7);
+        }
+        .thumbnail_view > .overlay.ignored {
+            background-color: rgba(117, 0, 0, 0.7);
+        }
         .thumbnail_view > .button_list {
             display: inline-flex;
             flex-wrap: nowrap;
@@ -383,6 +393,11 @@
                     {%- endif -%}
                 </a>
             {% endif %}
+            <div class="overlay
+                {%- if element.watched %} watched
+                {%- elif element.ignored %} ignored
+                {%- endif -%}
+            "></div>
             <div class="button_list">
                 {{ media_thumbnail_buttons(element) }}
             </div>
