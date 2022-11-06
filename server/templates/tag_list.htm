@@ -17,6 +17,7 @@
                 <th>Use for Pref.</th>
                 <th>Super Tags</th>
                 <th>Sub Tags</th>
+                <th>Notes</th>
             </tr>
             {% macro format_tag(tag) %}
                 <a title="{{ tag.title }}">{{ tag.id }}</a>
@@ -43,6 +44,9 @@
                     </td>
                     <td>
                         {{ format_tag_list(tag.sub_tag_list) }}
+                    </td>
+                    <td>
+                        {{ tag.notes or "" }}
                     </td>
                 </tr>
             {% endfor %}
