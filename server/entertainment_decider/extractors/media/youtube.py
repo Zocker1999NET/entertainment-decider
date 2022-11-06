@@ -14,7 +14,7 @@ from ...models import (
 )
 from ..generic import (
     AuthorExtractedData,
-    ExtractedData,
+    ExtractedDataOnline,
     ExtractionError,
     SuitableLevel,
 )
@@ -91,7 +91,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             author_name=data["channel"]["name"],
         )
 
-    def _extract_online(self, uri: str) -> ExtractedData[YoutubeVideoData]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[YoutubeVideoData]:
         logging.info(f"Request info using youtube_search_python for {uri!r}")
         uri_match = self.__uri_regex.match(uri)
         if not uri_match:
@@ -106,7 +106,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             raise ExtractionError() from e
         if vid_data["isLiveNow"]:
             raise ExtractionError("Video is live, so pass extraction")
-        return ExtractedData[YoutubeVideoData](
+        return ExtractedDataOnline[YoutubeVideoData](
             object_uri=uri,
             extractor_name=self.name,
             object_key=vid_data["id"],

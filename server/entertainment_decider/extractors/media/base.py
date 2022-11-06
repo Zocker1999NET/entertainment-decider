@@ -4,7 +4,12 @@ import logging
 from typing import Optional, TypeVar
 
 from ...models import MediaCollection, MediaElement, MediaUriMapping
-from ..generic import AuthorExtractedData, ExtractedData, GeneralExtractor
+from ..generic import (
+    AuthorExtractedData,
+    ExtractedDataOnline,
+    ExtractedDataOffline,
+    GeneralExtractor,
+)
 from ..collection.base import CollectionExtractor
 
 
@@ -35,10 +40,10 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
             return elem
         return None
 
-    def _create_object(self, data: ExtractedData[T]) -> MediaElement:
+    def _create_object(self, data: ExtractedDataOffline[T]) -> MediaElement:
         return data.create_media()
 
-    def _load_object(self, data: ExtractedData[T]) -> Optional[MediaElement]:
+    def _load_object(self, data: ExtractedDataOffline[T]) -> Optional[MediaElement]:
         return data.load_media()
 
     def __create_author_collection(
@@ -78,5 +83,5 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
         collection = self.__get_author_collection(author_data)
         collection.add_episode(element)
 
-    def _update_hook(self, object: MediaElement, data: ExtractedData[T]) -> None:
+    def _update_hook(self, object: MediaElement, data: ExtractedDataOnline[T]) -> None:
         self.__add_to_author_collection(object, data.data)

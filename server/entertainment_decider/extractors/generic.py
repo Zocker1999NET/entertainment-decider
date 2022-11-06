@@ -64,15 +64,6 @@ class ExtractedDataLight:
             extractor_key=self.object_key,
         )
 
-
-@dataclass
-class ExtractedData(ExtractedDataLight, Generic[T]):
-    data: T = dataclasses.field(repr=False, compare=False)
-
-    @property
-    def has_data(self) -> bool:
-        return self.data is not None
-
     def load_media(self) -> Optional[MediaElement]:
         return MediaElement.get(
             extractor_name=self.extractor_name,
@@ -84,6 +75,39 @@ class ExtractedData(ExtractedDataLight, Generic[T]):
             extractor_name=self.extractor_name,
             extractor_key=self.object_key,
         )
+
+
+@dataclass
+class ExtractedDataOffline(ExtractedDataLight, Generic[T]):
+    data: Optional[T] = dataclasses.field(default=None, repr=False, compare=False)
+
+    @property
+    def has_data(self) -> bool:
+        return self.data is not None
+
+    @property
+    def online_type(self) -> ExtractedDataOnline[T]:
+        if self.data is None:
+            raise Exception("Explicit type requires data to be set")
+        return ExtractedDataOnline[T](
+            object_uri=self.object_uri,
+            extractor_name=self.extractor_name,
+            object_key=self.object_key,
+            data=self.data,
+        )
+
+
+@dataclass
+class ExtractedDataOnline(ExtractedDataOffline[T]):
+    data: T = dataclasses.field(repr=False, compare=False)
+
+    @property
+    def has_data(self) -> bool:
+        return True
+
+    @property
+    def online_type(self) -> ExtractedDataOnline[T]:
+        return self
 
 
 @dataclass
@@ -111,10 +135,10 @@ class GeneralExtractor(Generic[E, T]):
     def check_uri(uri: str) -> Optional[E]:
         raise NotImplementedError()
 
-    def _create_object(self, data: ExtractedData[T]) -> E:
+    def _create_object(self, data: ExtractedDataOffline[T]) -> E:
         raise NotImplementedError()
 
-    def _load_object(self, data: ExtractedData[T]) -> Optional[E]:
+    def _load_object(self, data: ExtractedDataOffline[T]) -> Optional[E]:
         raise NotImplementedError()
 
     # abstract (for specific extractor classes)
@@ -128,33 +152,35 @@ class GeneralExtractor(Generic[E, T]):
     def _cache_expired(self, object: E) -> bool:
         return False
 
-    def _extract_offline_only(self, uri: str) -> ExtractedDataLight:
+    def _extract_offline_only(self, uri: str) -> ExtractedDataOffline[T]:
         raise NotImplementedError()
 
-    def _extract_online(self, uri: str) -> ExtractedData[T]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[T]:
         raise NotImplementedError()
 
     def _update_object_raw(self, object: E, data: T) -> None:
         raise NotImplementedError()
 
-    def _update_hook(self, object: E, data: ExtractedData[T]) -> None:
+    def _update_hook(self, object: E, data: ExtractedDataOnline[T]) -> None:
         return None
 
     # defined
 
-    def _extract_offline(self, uri: str) -> ExtractedDataLight:
+    def _extract_offline(self, uri: str) -> ExtractedDataOffline[T]:
         return (
             self._extract_offline_only(uri)
             if self.can_extract_offline(uri)
             else self._extract_online(uri)
         )
 
-    def _extract_required(self, data: ExtractedData[T]) -> ExtractedData[T]:
+    def _extract_required(
+        self, data: ExtractedDataOffline[T]
+    ) -> ExtractedDataOnline[T]:
         if data.has_data:
-            return data
+            return data.online_type
         return self._extract_online(data.object_uri)
 
-    def _update_object(self, object: E, data: ExtractedData[T]) -> E:
+    def _update_object(self, object: E, data: ExtractedDataOnline[T]) -> E:
         object.uri = data.object_uri
         self._update_object_raw(object, data.data)
         self._update_hook(object, data)
@@ -175,7 +201,7 @@ class GeneralExtractor(Generic[E, T]):
         logging.debug(f"Updating info for media: {data!r}")
         return self._update_object(object, data)
 
-    def inject_object(self, data: ExtractedData[T]) -> E:
+    def inject_object(self, data: ExtractedDataOnline[T]) -> E:
         object = self._load_object(data)
         data = self._extract_required(data)
         if object is None:
@@ -183,15 +209,15 @@ class GeneralExtractor(Generic[E, T]):
             object = self._create_object(data)
         return self._update_object(object, data)
 
-    def store_object(self, data: ExtractedData[T]) -> E:
+    def store_object(self, data: ExtractedDataOffline[T]) -> E:
         object = self._load_object(data)
         if object is not None:
             logging.debug(f"Found object already in database: {data!r}")
             return object
-        data = self._extract_required(data)
-        logging.debug(f"Store info for object: {data!r}")
-        object = self._create_object(data)
-        return self._update_object(object, data)
+        full_data = self._extract_required(data)
+        logging.debug(f"Store info for object: {full_data!r}")
+        object = self._create_object(full_data)
+        return self._update_object(object, full_data)
 
     def extract_and_store(self, uri: str) -> E:
         object = self.check_uri(uri)

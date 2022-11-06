@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 import re
-from typing import List, Set
+from typing import List, Set, TypeAlias
 
 from pony import orm
 
 from ...models import MediaCollection, MediaCollectionLink, MediaElement
-from ..generic import ExtractedData, ExtractedDataLight, SuitableLevel
+from ..generic import ExtractedDataOnline, ExtractedDataOffline, SuitableLevel
 from .base import CollectionExtractor
 
 
-class AggregatedCollectionExtractor(CollectionExtractor[List[List[MediaElement]]]):
+DataType: TypeAlias = List[List[MediaElement]]
+
+
+class AggregatedCollectionExtractor(CollectionExtractor[DataType]):
 
     __uri_regex = re.compile(r"^aggregated:///(?P<id>\d+(,\d+)*)")
 
@@ -43,18 +46,18 @@ class AggregatedCollectionExtractor(CollectionExtractor[List[List[MediaElement]]
                 return True
         return False
 
-    def _extract_offline(self, uri: str) -> ExtractedDataLight:
+    def _extract_offline(self, uri: str) -> ExtractedDataOffline[DataType]:
         coll_id = ",".join(str(i) for i in self.__get_id(uri))
-        return ExtractedDataLight(
+        return ExtractedDataOffline[DataType](
             extractor_name=self.name,
             object_key=coll_id,
             object_uri=uri,
         )
 
-    def _extract_online(self, uri: str) -> ExtractedData[List[List[MediaElement]]]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[DataType]:
         colls = self.__get_collections(uri)
         coll_id = ",".join(str(c.id) for c in colls)
-        return ExtractedData(
+        return ExtractedDataOnline[DataType](
             extractor_name=self.name,
             object_key=coll_id,
             object_uri=uri,
@@ -69,9 +72,7 @@ class AggregatedCollectionExtractor(CollectionExtractor[List[List[MediaElement]]
             ],
         )
 
-    def _update_object_raw(
-        self, object: MediaCollection, data: List[List[MediaElement]]
-    ) -> None:
+    def _update_object_raw(self, object: MediaCollection, data: DataType) -> None:
         if object.title is None or "[aggregated]" not in object.title:
             object.title = f"[aggregated] {object.uri}"
         object.creator = None

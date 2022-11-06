@@ -7,8 +7,13 @@ from typing import Optional
 import requests
 
 from ...models import MediaElement, MediaThumbnail
-from ..all.tvmaze import TvmazeEpisodeEmbedded, select_best_image
-from ..generic import ExtractedData, ExtractedDataLight, ExtractionError, SuitableLevel
+from ..all.tvmaze import TvmazeEpisodeEmbedded, TvmazeShowEmbedded, select_best_image
+from ..generic import (
+    ExtractedDataOnline,
+    ExtractedDataOffline,
+    ExtractionError,
+    SuitableLevel,
+)
 from .base import MediaExtractor
 
 
@@ -54,15 +59,15 @@ class TvmazeMediaExtractor(MediaExtractor[TvmazeEpisodeEmbedded]):
     def can_extract_offline(self, uri: str) -> bool:
         return True
 
-    def _extract_offline(self, uri: str) -> ExtractedDataLight:
+    def _extract_offline(self, uri: str) -> ExtractedDataOffline[TvmazeEpisodeEmbedded]:
         episode_id = self.__get_episode_id(uri)
-        return ExtractedDataLight(
+        return ExtractedDataOffline[TvmazeEpisodeEmbedded](
             extractor_name=self.name,
             object_key=str(episode_id),
             object_uri=uri,
         )
 
-    def _extract_online(self, uri: str) -> ExtractedData[TvmazeEpisodeEmbedded]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[TvmazeEpisodeEmbedded]:
         episode_id = self.__get_episode_id(uri)
         if episode_id is None:
             raise Exception(f"Expected {uri!r} to be extractable")
@@ -76,7 +81,7 @@ class TvmazeMediaExtractor(MediaExtractor[TvmazeEpisodeEmbedded]):
             },
         )
         data = res.json()
-        return ExtractedData(
+        return ExtractedDataOnline[TvmazeEpisodeEmbedded](
             extractor_name=self.name,
             object_key=str(episode_id),
             object_uri=uri,
@@ -84,7 +89,9 @@ class TvmazeMediaExtractor(MediaExtractor[TvmazeEpisodeEmbedded]):
         )
 
     def _update_object_raw(
-        self, object: MediaElement, data: TvmazeEpisodeEmbedded
+        self,
+        object: MediaElement,
+        data: TvmazeEpisodeEmbedded,
     ) -> None:
         # sanity check
         airstamp = data.get("airstamp")

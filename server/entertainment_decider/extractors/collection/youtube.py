@@ -3,17 +3,20 @@ from __future__ import annotations
 from datetime import datetime
 import logging
 import re
-from typing import Dict
+from typing import Dict, TypeAlias
 
 from pony import orm  # TODO remove
 import youtubesearchpython
 
 from ...models import MediaCollection
-from ..generic import ExtractedData, ExtractedDataLight, SuitableLevel
+from ..generic import ExtractedDataOnline, ExtractedDataOffline, SuitableLevel
 from .base import CollectionExtractor
 
 
-class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
+DataType: TypeAlias = Dict
+
+
+class YouTubeCollectionExtractor(CollectionExtractor[DataType]):
 
     __uri_regex = re.compile(
         r"^https?://(www\.)?youtube\.com/(channel/|playlist\?list=)(?P<id>[^/&?]+)"
@@ -59,15 +62,15 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
             last_release_date
         )
 
-    def _extract_offline(self, uri: str) -> ExtractedDataLight:
+    def _extract_offline(self, uri: str) -> ExtractedDataOffline[DataType]:
         playlist_id = self.__convert_if_required(self.__get_id(uri))
-        return ExtractedDataLight(
+        return ExtractedDataOffline[DataType](
             extractor_name=self.name,
             object_key=playlist_id,
             object_uri=uri,
         )
 
-    def _extract_online(self, uri: str) -> ExtractedData[Dict]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[DataType]:
         orig_id = self.__get_id(uri)
         playlist_id = self.__convert_if_required(orig_id)
         playlist_link = f"https://www.youtube.com/playlist?list={playlist_id}"
@@ -89,7 +92,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
         logging.debug(
             f"Retrieved {len(playlist.videos)} videos from playlist {playlist_link!r}"
         )
-        return ExtractedData(
+        return ExtractedDataOnline[DataType](
             extractor_name=self.name,
             object_key=playlist_id,
             object_uri=uri,
@@ -99,7 +102,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
             },
         )
 
-    def _update_object_raw(self, object: MediaCollection, data: Dict) -> None:
+    def _update_object_raw(self, object: MediaCollection, data: DataType) -> None:
         info = data["info"]
         is_channel = self.__is_channel_id(info["id"])
         object.title = (

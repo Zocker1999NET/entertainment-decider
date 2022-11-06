@@ -12,7 +12,12 @@ from ...models import (
     thumbnail_sort_key,
 )
 from ..all.ytdl import get_video_info, YtdlErrorException
-from ..generic import AuthorExtractedData, ExtractedData, ExtractionError, SuitableLevel
+from ..generic import (
+    AuthorExtractedData,
+    ExtractedDataOnline,
+    ExtractionError,
+    SuitableLevel,
+)
 from .base import MediaExtractor
 
 
@@ -48,7 +53,7 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             else None,
         )
 
-    def _extract_online(self, uri: str) -> ExtractedData[Dict]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[Dict]:
         logging.info(f"Request info using youtube-dl for {uri!r}")
         try:
             vid_data = get_video_info(uri)
@@ -58,7 +63,7 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             raise ExtractionError("Video is live, so pass extraction")
         ytdl_extractor_key = vid_data.get("extractor_key") or vid_data["ie_key"]
         ytdl_video_id = vid_data["id"]
-        return ExtractedData[Dict](
+        return ExtractedDataOnline[Dict](
             object_uri=uri,
             extractor_name=self.name,
             object_key=f"{ytdl_extractor_key}:{ytdl_video_id}",

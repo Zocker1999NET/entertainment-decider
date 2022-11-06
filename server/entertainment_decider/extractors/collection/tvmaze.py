@@ -10,7 +10,7 @@ import requests
 
 from ...models import MediaCollection, Tag
 from ..all.tvmaze import TvmazeEpisodeEmbedded, TvmazeShowEmbedded, add_embedding
-from ..generic import ExtractedData, ExtractedDataLight, SuitableLevel
+from ..generic import ExtractedDataOnline, ExtractedDataOffline, SuitableLevel
 from .base import CollectionExtractor
 
 
@@ -71,15 +71,15 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
             last_release_date
         )
 
-    def _extract_offline(self, uri: str) -> ExtractedDataLight:
+    def _extract_offline(self, uri: str) -> ExtractedDataOffline[TvmazeShowEmbedded]:
         show_id = self.__require_show_id(uri)
-        return ExtractedDataLight(
+        return ExtractedDataOffline[TvmazeShowEmbedded](
             extractor_name=self.name,
             object_key=str(show_id),
             object_uri=self.__get_show_uri(show_id),
         )
 
-    def _extract_online(self, uri: str) -> ExtractedData[TvmazeShowEmbedded]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[TvmazeShowEmbedded]:
         show_id = self.__require_show_id(uri)
         api_uri = self.__get_show_api_uri(show_id)
         res = requests.get(
@@ -91,7 +91,7 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
             },
         )
         data = res.json()
-        return ExtractedData(
+        return ExtractedDataOnline[TvmazeShowEmbedded](
             extractor_name=self.name,
             object_key=str(show_id),
             object_uri=self.__get_show_uri(show_id),
@@ -125,7 +125,7 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
                 add_embedding(episode, "show", data)
                 self._inject_episode(
                     collection=object,
-                    data=ExtractedData[TvmazeEpisodeEmbedded](
+                    data=ExtractedDataOnline[TvmazeEpisodeEmbedded](
                         extractor_name="tvmaze",
                         object_key=str(episode["id"]),
                         object_uri=f"tvmaze:///episodes/{episode['id']}",

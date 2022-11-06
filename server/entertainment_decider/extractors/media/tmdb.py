@@ -8,7 +8,12 @@ from pony import orm
 
 from ...models import MediaElement, MediaThumbnail, Query, Tag
 from ..all.tmdb import TmdbMovieData, TMDB_REGEX_URI
-from ..generic import ExtractedData, ExtractedDataLight, ExtractionError, SuitableLevel
+from ..generic import (
+    ExtractedDataOnline,
+    ExtractedDataOffline,
+    ExtractionError,
+    SuitableLevel,
+)
 from .base import MediaExtractor
 
 
@@ -41,18 +46,18 @@ class TmdbMovieMediaExtractor(MediaExtractor[TmdbMovieData]):
     def can_extract_offline(self, uri: str) -> bool:
         return True
 
-    def _extract_offline(self, uri: str) -> ExtractedDataLight:
+    def _extract_offline(self, uri: str) -> ExtractedDataOffline[TmdbMovieData]:
         movie_id = self.__get_movie_id(uri)
-        return ExtractedDataLight(
+        return ExtractedDataOffline[TmdbMovieData](
             extractor_name=self.name,
             object_key=str(movie_id),
             object_uri=uri,
         )
 
-    def _extract_online(self, uri: str) -> ExtractedData[TmdbMovieData]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[TmdbMovieData]:
         movie_id = self.__get_movie_id(uri)
         data = TmdbMovieData.from_id(movie_id)
-        return ExtractedData(
+        return ExtractedDataOnline[TmdbMovieData](
             extractor_name=self.name,
             object_key=f"movie:{movie_id}",
             object_uri=uri,

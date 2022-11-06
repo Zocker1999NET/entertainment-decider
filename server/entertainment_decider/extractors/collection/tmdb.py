@@ -11,9 +11,8 @@ from ..all.tmdb import (
     TmdbCollectionData,
     TMDB_REGEX_URI,
     TmdbKeywordData,
-    TmdbMovieEntryData,
 )
-from ..generic import ExtractedData, ExtractedDataLight, SuitableLevel
+from ..generic import ExtractedDataOnline, ExtractedDataOffline, SuitableLevel
 from .base import CollectionExtractor
 
 
@@ -58,9 +57,9 @@ class TmdbBaseExtractor(CollectionExtractor[T]):
             self._calculate_wait_hours(last_release_date) * 7 * 24
         )
 
-    def _extract_offline(self, uri: str) -> ExtractedDataLight:
+    def _extract_offline(self, uri: str) -> ExtractedDataOffline[T]:
         id = self._get_id(uri)
-        return ExtractedDataLight(
+        return ExtractedDataOffline[T](
             extractor_name=self.name,
             object_key=f"{self.TMDB_CLASS}:{id}",
             object_uri=uri,
@@ -71,10 +70,10 @@ class TmdbCollectionExtractor(TmdbBaseExtractor[TmdbCollectionData]):
 
     TMDB_CLASS = "collection"
 
-    def _extract_online(self, uri: str) -> ExtractedData[TmdbCollectionData]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[TmdbCollectionData]:
         id = self._get_id(uri)
         data = TmdbCollectionData.from_id(id)
-        return ExtractedData(
+        return ExtractedDataOnline(
             extractor_name=self.name,
             object_key=f"{self.TMDB_CLASS}:{id}",
             object_uri=uri,
@@ -110,10 +109,10 @@ class TmdbKeywordExtractor(TmdbBaseExtractor[TmdbKeywordData]):
 
     TMDB_CLASS = "keyword"
 
-    def _extract_online(self, uri: str) -> ExtractedData[TmdbKeywordData]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[TmdbKeywordData]:
         id = self._get_id(uri)
         data = TmdbKeywordData.from_id(id)
-        return ExtractedData(
+        return ExtractedDataOnline(
             extractor_name=self.name,
             object_key=f"{self.TMDB_CLASS}:{id}",
             object_uri=uri,

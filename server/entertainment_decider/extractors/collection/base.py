@@ -13,7 +13,12 @@ from ...models import (
     MediaCollectionLink,
     MediaElement,
 )
-from ..generic import ExtractedData, ExtractionError, GeneralExtractor
+from ..generic import (
+    ExtractedDataOnline,
+    ExtractedDataOffline,
+    ExtractionError,
+    GeneralExtractor,
+)
 
 
 T = TypeVar("T")
@@ -48,12 +53,12 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
     def __configure_collection(self, collection: MediaCollection) -> None:
         collection.keep_updated = True
 
-    def _create_object(self, data: ExtractedData[T]) -> MediaCollection:
+    def _create_object(self, data: ExtractedDataOffline[T]) -> MediaCollection:
         collection = data.create_collection()
         self.__configure_collection(collection)
         return collection
 
-    def _load_object(self, data: ExtractedData[T]) -> Optional[MediaCollection]:
+    def _load_object(self, data: ExtractedDataOffline[T]) -> Optional[MediaCollection]:
         collection = data.load_collection()
         if collection is not None:
             self.__configure_collection(collection)
@@ -89,7 +94,7 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
     def _inject_episode(
         self,
         collection: MediaCollection,
-        data: ExtractedData[Any],
+        data: ExtractedDataOnline[Any],
         season: int = 0,
         episode: int = 0,
     ) -> Optional[MediaElement]:
@@ -133,5 +138,7 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
             link.season = 0
             link.episode = index + 1
 
-    def _update_hook(self, object: MediaCollection, data: ExtractedData[T]) -> None:
+    def _update_hook(
+        self, object: MediaCollection, data: ExtractedDataOnline[T]
+    ) -> None:
         self._sort_episodes(object)
