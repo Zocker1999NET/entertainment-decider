@@ -58,6 +58,12 @@
                 {{ stats.to_watch_seconds | timedelta }}
                 ({{ stats.to_watch_count }} elements)
             </li>
+            {% if collection.average_release_per_week %}
+                <li>
+                    Average Release:
+                    {{ collection.average_release_per_week | timedelta }} per Week
+                </li>
+            {% endif %}
             {% if collection.all_tags %}
                 <li>
                     Tags: {{ collection.all_tags | map(attribute="title") | sort | join(" | ") }}
