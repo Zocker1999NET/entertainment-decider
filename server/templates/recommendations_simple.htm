@@ -11,9 +11,6 @@
         {{ macros.body_header() }}
         <h1>{{ title }}</h1>
         <ul>
-            <li>Persistent Value: {{ random_val }}</li>
-        </ul>
-        <ul>
             {% for element in media_list %}
                 {{ macros.media_entry(element) }}
             {% endfor %}
