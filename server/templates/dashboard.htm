@@ -20,6 +20,7 @@
         {% if links_from_pinned_collections %}
             {{ macros.media_thumbnail_list(
                 links=links_from_pinned_collections,
+                link_collection=True,
             ) }}
         {% else %}
             <i>No pinned collections with episodes to watch found. <a href="/collection/pinned">See pinned collections</a></i>

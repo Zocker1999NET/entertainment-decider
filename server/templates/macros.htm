@@ -208,6 +208,9 @@
             top: 0;
             left: 0;
         }
+        .thumbnail_view > .episode_info[href] {
+            --box-color: rgba(153, 50, 204, .8);
+        }
         .thumbnail_view > .additional_info {
             top: 0;
             right: 0;
@@ -374,6 +377,7 @@
 {% macro media_thumbnail_view(
     element=None,
     link=None,
+    link_collection=True,
 ) %}
     {% set element = link.element if link else element %}
     <div class="thumbnail_entry" id="media_element_{{ element.id }}" title="{{ element.title }}">
@@ -387,6 +391,9 @@
             {% if link and (link.season or link.episode) %}
                 <a
                     class="episode_info"
+                    {% if link_collection -%}
+                        href="{{ link.collection.info_link }}"
+                    {%- endif -%}
                 >
                     {%- if link.season != 0 -%}
                         s{{ "%02d" % link.season }}
@@ -432,6 +439,7 @@
 {% macro media_thumbnail_list(
     elements=None,
     links=None,
+    link_collection=True,
 ) %}
     {%- set l = elements or links -%}
     <div class="thumbnail_list">
@@ -440,6 +448,7 @@
             {{ media_thumbnail_view(
                 element=o if not links else None,
                 link=o if links else None,
+                link_collection=link_collection,
             ) }}
         {% endfor %}
     </div>
