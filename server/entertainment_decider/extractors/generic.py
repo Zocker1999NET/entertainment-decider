@@ -67,7 +67,7 @@ class ExtractedDataLight:
 
 @dataclass
 class ExtractedData(ExtractedDataLight, Generic[T]):
-    data: T = dataclasses.field(default=None, repr=False, compare=False)
+    data: T = dataclasses.field(repr=False, compare=False)
 
     @property
     def has_data(self) -> bool:
@@ -128,7 +128,7 @@ class GeneralExtractor(Generic[E, T]):
     def _cache_expired(self, object: E) -> bool:
         return False
 
-    def _extract_offline_only(self, uri: str) -> ExtractedData[T]:
+    def _extract_offline_only(self, uri: str) -> ExtractedDataLight:
         raise NotImplementedError()
 
     def _extract_online(self, uri: str) -> ExtractedData[T]:
@@ -142,7 +142,7 @@ class GeneralExtractor(Generic[E, T]):
 
     # defined
 
-    def _extract_offline(self, uri: str) -> ExtractedData[T]:
+    def _extract_offline(self, uri: str) -> ExtractedDataLight:
         return (
             self._extract_offline_only(uri)
             if self.can_extract_offline(uri)

@@ -8,7 +8,7 @@ from pony import orm  # TODO remove
 
 from ...models import MediaCollection
 from ..all.tt_rss import HeadlineList, TtRssConnectionParameter, TtRssUri
-from ..generic import ExtractedData, SuitableLevel
+from ..generic import ExtractedData, ExtractedDataLight, SuitableLevel
 from .base import CollectionExtractor
 
 
@@ -41,8 +41,8 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
     def _cache_expired(self, object: MediaCollection) -> bool:
         return (datetime.now() - object.last_updated) > timedelta(minutes=15)
 
-    def _extract_offline(self, uri: str) -> ExtractedData[HeadlineList]:
-        return ExtractedData(
+    def _extract_offline(self, uri: str) -> ExtractedDataLight:
+        return ExtractedDataLight(
             extractor_name=self.name,
             object_key=uri,
             object_uri=uri,

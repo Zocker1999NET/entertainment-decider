@@ -9,7 +9,7 @@ from pony import orm  # TODO remove
 import youtubesearchpython
 
 from ...models import MediaCollection
-from ..generic import ExtractedData, SuitableLevel
+from ..generic import ExtractedData, ExtractedDataLight, SuitableLevel
 from .base import CollectionExtractor
 
 
@@ -59,9 +59,9 @@ class YouTubeCollectionExtractor(CollectionExtractor[Dict]):
             last_release_date
         )
 
-    def _extract_offline(self, uri: str) -> ExtractedData[Dict]:
+    def _extract_offline(self, uri: str) -> ExtractedDataLight:
         playlist_id = self.__convert_if_required(self.__get_id(uri))
-        return ExtractedData(
+        return ExtractedDataLight(
             extractor_name=self.name,
             object_key=playlist_id,
             object_uri=uri,
