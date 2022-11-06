@@ -326,6 +326,13 @@ def time_since(date: datetime) -> str:
 ####
 
 
+def _parse_cs_ids(cs_ids: str) -> List[int] | None:
+    try:
+        return [int(i) for i in cs_ids.split(",")]
+    except ValueError as e:
+        return None
+
+
 def _select_ids(cls: Type[T], ids: Iterable[int]) -> Query[T]:
     return orm.select(o for o in cls if o.id in ids)
 
@@ -522,6 +529,27 @@ def list_long_media(seconds: int = 10 * 60) -> ResponseReturnValue:
     return render_template(
         "media_list.htm",
         media_list=list(itertools.islice(media_list, 100)),
+    )
+
+
+@flask_app.route("/media/overview")
+def list_media_overview() -> ResponseReturnValue:
+    data = request.args.to_dict()
+    ids = _parse_cs_ids(data.get("ids", "NULL"))
+    if not ids:
+        return {
+            "status": False,
+            "error": {
+                "msg": "Could not parse id list",
+                "data": {
+                    "ids": data.get("ids"),
+                },
+            },
+        }
+    return render_template(
+        "media_list.htm",
+        media_list=_select_ids(MediaElement, ids),
+        check_considered=False,
     )
 
 
@@ -749,6 +777,59 @@ def api_collection_extract() -> ResponseReturnValue:
         return redirect(c.info_link)
     return redirect_back_or_okay()
 
+
+@flask_app.route("/api/collection/extract/mass", methods=["POST"])
+def api_collection_extract_mass() -> ResponseReturnValue:
+    data = request.form.to_dict()
+    if "uris" not in data:
+        return {
+            "status": False,
+            "error": f"Missing uri value to extract",
+        }
+    uris = [
+        u
+        for u in (u.strip() for u in data["uris"].replace("\r\n", "\n").split("\n"))
+        if u and not u.startswith("#")
+    ]
+    coll_ids = list[int]()
+    errors = []
+    for u in uris:
+        try:
+            coll = collection_extract_uri(u)
+            coll_ids.append(coll.id)
+            orm.commit()
+        except Exception as e:
+            orm.rollback()
+            errors.append(
+                {
+                    "uri": u,
+                    "error": {
+                        "type": repr(type(e)),
+                        "args": repr(e.args),
+                    },
+                }
+            )
+    if errors:
+        return {
+            "status": False,
+            "successful_collections": coll_ids,
+            "error": {
+                "msg": "Failed to update all collections successfully",
+                "data": errors,
+            },
+        }, 501
+    if coll_ids:
+        update_element_lookup_cache(coll_ids)
+    if coll_ids and environ_bool(data.get("redirect_to_overview", False)):
+        return redirect(
+            "/collection/overview?ids=" + ",".join(str(i) for i in coll_ids)
+        )
+    return {
+        "status": True,
+        "successful_collections": coll_ids,
+    }
+
+
 @flask_app.route("/api/collection/<int:collection_id>", methods=["GET", "POST"])
 def api_collection_element(collection_id: int) -> ResponseReturnValue:
     collection: MediaCollection = MediaCollection.get(id=collection_id)
@@ -879,6 +960,55 @@ def api_media_extract() -> ResponseReturnValue:
     if m and environ_bool(data.get("redirect_to_object", False)):
         return redirect(m.info_link)
     return redirect_back_or_okay()
+
+
+@flask_app.route("/api/media/extract/mass", methods=["POST"])
+def api_media_extract_mass() -> ResponseReturnValue:
+    data = request.form.to_dict()
+    if "uris" not in data:
+        return {
+            "status": False,
+            "error": f"Missing uri value to extract",
+        }
+    uris = [
+        u
+        for u in (u.strip() for u in data["uris"].replace("\r\n", "\n").split("\n"))
+        if u and not u.startswith("#")
+    ]
+    media_ids = list[int]()
+    errors = []
+    for u in uris:
+        try:
+            media = media_extract_uri(u)
+            media_ids.append(media.id)
+            orm.commit()
+        except Exception as e:
+            orm.rollback()
+            errors.append(
+                {
+                    "uri": u,
+                    "error": {
+                        "type": repr(type(e)),
+                        "args": repr(e.args),
+                    },
+                }
+            )
+    if errors:
+        return {
+            "status": False,
+            "successful_medias": media_ids,
+            "error": {
+                "msg": "Failed to update all medias successfully",
+                "data": errors,
+            },
+        }, 501
+    if media_ids and environ_bool(data.get("redirect_to_overview", False)):
+        return redirect("/media/overview?ids=" + ",".join(str(i) for i in media_ids))
+    return {
+        "status": True,
+        "successful_medias": media_ids,
+    }
+
 
 @flask_app.route("/api/media/<int:media_id>", methods=["GET", "POST"])
 def api_media_element(media_id: int) -> ResponseReturnValue:
