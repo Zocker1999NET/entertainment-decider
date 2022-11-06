@@ -62,7 +62,7 @@
                 </ul>
                 <h2>Part of Collections</h2>
                 <ul>
-                    {% for link in element.collection_links %}
+                    {% for link in element.collection_links|sort(attribute="collection.title") %}
                         <li>
                             <a href="{{ link.collection.info_link }}">{{ link.collection.title }}</a>
                             {%- if link.season != 0 -%}
