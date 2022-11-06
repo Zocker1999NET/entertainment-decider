@@ -465,7 +465,9 @@ def generate_preference_list(
         return math.fsum(chain(all_nerfs, (-val for val in all_buffs)))
 
     def gen_score(element: MediaElement) -> float:
-        return gen_statis_score(element) + preference.calculate_iter_score(all_tags(element))
+        static_score = gen_statis_score(element)
+        pref_score = preference.calculate_iter_score(all_tags(element))
+        return static_score + pref_score
 
     # gen elements
     res_ids = list[int]()
