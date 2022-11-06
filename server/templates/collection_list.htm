@@ -13,6 +13,8 @@
         <table class="collection_table_list">
             <tr>
                 <th>Date</th>
+                <th>Count</th>
+                <th>To Watch</th>
                 <th>Thumbnail</th>
                 <th>Title</th>
                 <th>Tags</th>
@@ -26,6 +28,8 @@
                             unknown
                         {% endif %}
                     </td>
+                    <td>{{ collection.count }}</td>
+                    <td>{{ collection.to_watch_count }}</td>
                     <td>
                         {% set e = (collection.next_episode or collection.first_episode).element %}
                         <img class="thumbnail_img" src="{{ e.info_link }}/thumbnail" alt="Thumbnail for {{ e.title }}" loading="lazy" />
