@@ -46,6 +46,14 @@
                             {{ element.progress | timedelta }}
                         {% endif %}
                     </li>
+                    {% set avg_rel = element.average_release_per_week %}
+                    {% if avg_rel %}
+                        <li>
+                            Average Release:
+                            {{ avg_rel | timedelta }}
+                            per week
+                        </li>
+                    {% endif %}
                     {% if element.all_tags %}
                         <li>
                             Tags: {{ element.all_tags | map(attribute="title") | join(" | ") }}
