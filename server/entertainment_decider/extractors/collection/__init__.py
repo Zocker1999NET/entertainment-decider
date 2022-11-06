@@ -7,6 +7,7 @@ from ...config import app_config
 from ...models import MediaCollection
 from ..helpers import expect_suitable_extractor
 from .base import CollectionExtractor
+from .aggregated import AggregatedCollectionExtractor
 from .tt_rss import TtRssCollectionExtractor, TtRssConnectionParameter
 from .tmdb import TmdbCollectionExtractor, TmdbKeywordExtractor
 from .tvmaze import TvmazeCollectionExtractor
@@ -15,6 +16,7 @@ from .youtube import YouTubeCollectionExtractor
 
 tt_rss_params = TtRssConnectionParameter(**app_config["extractors"]["tt_rss"])
 COLLECTION_EXTRACTORS: Dict[str, CollectionExtractor] = {
+    "aggregated": AggregatedCollectionExtractor(),
     "tt-rss": TtRssCollectionExtractor(
         params=tt_rss_params,
         label_filter=-1033,
