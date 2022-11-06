@@ -1099,3 +1099,61 @@ def api_media_element(media_id: int) -> ResponseReturnValue:
             "status": False,
             "error": "405 Method Not Allowed",
         }, 405
+
+
+def _api_media_set_x(call: Callable[[MediaElement], Any]) -> ResponseReturnValue:
+    data = request.form.to_dict()
+    ids = _parse_cs_ids(data.get("ids", "NULL"))
+    if not ids:
+        return {
+            "status": False,
+            "error": {
+                "msg": "Could not parse id list",
+                "data": {
+                    "ids": data.get("ids"),
+                },
+            },
+        }
+    for m in _select_ids(MediaElement, ids):
+        call(m)
+    return redirect_back_or_okay()
+
+
+@flask_app.route("/api/media/set_watched", methods=["POST"])
+def api_media_set_watched() -> ResponseReturnValue:
+    def call(m: MediaElement) -> None:
+        m.watched = True
+        m.ignored = False  # TODO move into class
+
+    return _api_media_set_x(call)
+
+
+@flask_app.route("/api/media/set_ignored", methods=["POST"])
+def api_media_set_ignored() -> ResponseReturnValue:
+    def call(m: MediaElement) -> None:
+        m.watched = False  # TODO move into class
+        m.ignored = True
+
+    return _api_media_set_x(call)
+
+
+@flask_app.route("/api/media/set_dependent", methods=["POST"])
+def api_media_set_dependent() -> ResponseReturnValue:
+    data = request.form.to_dict()
+    ids = _parse_cs_ids(data.get("ids", "NULL"))
+    if not ids:
+        return {
+            "status": False,
+            "error": {
+                "msg": "Could not parse id list",
+                "data": {
+                    "ids": data.get("ids"),
+                },
+            },
+        }
+    elements: Query[MediaElement] = _select_ids(MediaElement, ids).order_by(
+        MediaElement.release_date
+    )
+    for last, cur in common.iter_lookahead(common.fix_iter(elements)):
+        last.is_blocking.add(cur)
+    return redirect_back_or_okay()

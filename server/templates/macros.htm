@@ -1,4 +1,6 @@
 {% macro shared_style() %}
+    <script src="/static/scripts/jquery.min.js"></script>
+    <script src="/static/scripts/select.js"></script>
     <link href="/static/stylesheets/reset.css" rel="stylesheet" />
     <style>
         body {
@@ -86,6 +88,30 @@
 
             font-size: 1.2rem;
         }
+        /* select view */
+        #select_view {
+            display: flex;
+            position: fixed;
+            right: 4rem;
+            bottom: 0;
+            padding: 1rem;
+            background-color: #333333;
+            border-radius: 1rem 1rem 0 0;
+            box-shadow: 0 0 .2rem .4rem #444444;
+            align-items: center;
+            gap: .4rem;
+            opacity: 0%;
+            visibility: hidden;
+            transition: opacity .1s linear, visibility .1s linear;
+            z-index: 200;
+        }
+        #select_view[to_display='true'] {
+            opacity: 100%;
+            visibility: visible;
+        }
+        #select_view > .text > * {
+            display: inline;
+        }
         /* thumbnail view */
         .thumbnail_img {
             width: 100%;
@@ -164,8 +190,10 @@
             transition: opacity .2s linear, visibility .2s linear;
         }
         .thumbnail_view:hover > .button_list,
+        .thumbnail_view:hover > .checkbox,
         .thumbnail_view:hover > .overlay,
         .thumbnail_view:active > .button_list,
+        .thumbnail_view:active > .checkbox,
         .thumbnail_view:active > .overlay {
             opacity: 100%;
             visibility: visible;
@@ -190,6 +218,7 @@
             height: 2.8rem;
         }
         .thumbnail_view > .additional_info,
+        .thumbnail_view > .checkbox,
         .thumbnail_view > .episode_info,
         .thumbnail_view > .length,
         .thumbnail_view > .release_date {
@@ -215,9 +244,22 @@
         .thumbnail_view > .episode_info[href] {
             --box-color: rgba(153, 50, 204, .8);
         }
-        .thumbnail_view > .additional_info {
+        .thumbnail_view > .additional_info,
+        .thumbnail_view > .checkbox {
             top: 0;
             right: 0;
+        }
+        .thumbnail_view > .checkbox {
+            opacity: 0%;
+            visibility: hidden;
+            transform: scale(1.4) translate(-20%, 20%);
+            transition: opacity .2s linear, visibility .2s linear;
+        }
+        .thumbnail_view:hover > .checkbox,
+        .thumbnail_view:active > .checkbox,
+        .thumbnail_view > .checkbox:checked {
+            opacity: 100%;
+            visibility: visible;
         }
         .thumbnail_view > .release_date {
             left: 0;
@@ -330,8 +372,21 @@
     </div>
 {%- endmacro %}
 
+{% macro _select_view() %}
+    <div id="select_view" to_display="false">
+        <div class="text">
+            <div class="counter">X</div> videos selected
+        </div>
+        <button id="select_button_watch" onclick="select_watch();">watched</button>
+        <button id="select_button_ignore" onclick="select_ignore();">ignored</button>
+        <button id="select_button_dependent" onclick="select_dependent();">make dependent</button>
+        <button id="select_button_" onclick="select_clear();">clear selection</button>
+    </div>
+{%- endmacro %}
+
 {% macro body_header() %}
     {{ _navigation() }}
+    {{ _select_view() }}
 {%- endmacro %}
 
 {% macro media_element_buttons(element, show_fragment=True) %}
@@ -430,6 +485,8 @@
                 <div class="additional_info">
                     {{ caller() }}
                 </div>
+            {% else %}
+                <input class="checkbox" type="checkbox" name="element_id" value="{{ element.id }}" onchange="select_onChange();" />
             {% endif %}
             <span class="release_date" title="{{ element.release_date.strftime('%d.%m.%Y') }}">
                 {{ element.release_date | time_since }}
