@@ -14,7 +14,7 @@
             <h2>Single Collection</h2>
             <form method="post" action="/api/collection/extract">
                 {{ macros.hidden_redirect_back() }}
-                <input type="text" name="uri" style="width: 40em;" />
+                <input type="text" name="uri" style="width: 40em;" autofocus />
                 <button type="submit" name="redirect_to_object" value="true">
                     extract
                 </button>
