@@ -8,6 +8,7 @@ from ...models import MediaCollection
 from ..helpers import expect_suitable_extractor
 from .base import CollectionExtractor
 from .tt_rss import TtRssCollectionExtractor, TtRssConnectionParameter
+from .tvmaze import TvmazeCollectionExtractor
 from .youtube import YouTubeCollectionExtractor
 
 
@@ -18,6 +19,7 @@ COLLECTION_EXTRACTORS: Dict[str, CollectionExtractor] = {
         label_filter=-1033,
         mark_as_read=True,
     ),
+    "tvmaze": TvmazeCollectionExtractor(),
     "youtube": YouTubeCollectionExtractor(),
 }
 

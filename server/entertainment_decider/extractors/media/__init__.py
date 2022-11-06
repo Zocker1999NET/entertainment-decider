@@ -6,11 +6,13 @@ from typing import Dict, Tuple
 from ...models import MediaElement
 from ..helpers import expect_suitable_extractor
 from .base import MediaExtractor
+from .tvmaze import TvmazeMediaExtractor
 from .youtube import YoutubeMediaExtractor
 from .ytdl import YtdlMediaExtractor
 
 
 MEDIA_EXTRACTORS: Dict[str, MediaExtractor] = {
+    "tvmaze": TvmazeMediaExtractor(),
     "youtube": YoutubeMediaExtractor(),
     "ytdl": YtdlMediaExtractor(),
 }
