@@ -88,6 +88,23 @@
 
             font-size: 1.2rem;
         }
+        /* sidebar box */
+        .sidebar-box {
+            display: flex;
+            position: sticky;
+            float: right;
+            margin: .5rem;
+            top: 1rem;
+            right: 1rem;
+            flex-direction: column;
+            gap: .4rem;
+        }
+        .sidebar-button {
+            font-size: 1.6rem;
+            min-width: 1.7rem;
+            writing-mode: vertical-rl;
+            text-align: center;
+        }
         /* select view */
         #select_view {
             display: flex;
@@ -372,6 +389,14 @@
     </div>
 {%- endmacro %}
 
+{% macro _sidebar() %}
+    <div class="sidebar-box">
+        <a class="sidebar-button button" href="/recommendations/short_filler">Small Fillers</a>
+        <a class="sidebar-button button" href="/recommendations/series_episode">Series Episode</a>
+        <a class="sidebar-button button" href="/recommendations/movie_like">Movie Like</a>
+    </div>
+{%- endmacro %}
+
 {% macro _select_view() %}
     <div id="select_view" to_display="false">
         <div class="text">
@@ -386,6 +411,7 @@
 
 {% macro body_header() %}
     {{ _navigation() }}
+    {{ _sidebar() }}
     {{ _select_view() }}
 {%- endmacro %}
 

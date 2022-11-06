@@ -626,6 +626,54 @@ def show_media_thumb(media_id: int) -> ResponseReturnValue:
     )
 
 
+@flask_app.route("/recommendations/short_filler")
+def recommend_short_filler() -> ResponseReturnValue:
+    return render_template(
+        "recommendations_simple.htm",
+        mode_name="Short Fillers",
+        media_list=generate_preference_list(
+            object_gen=lambda: get_all_considered(
+                filter_by="length <= 15*60",
+                order_by="elem.release_date DESC",
+            ),
+            score_adapt=1,
+            limit=24,
+        ),
+    )
+
+
+@flask_app.route("/recommendations/series_episode")
+def recommend_series_episode() -> ResponseReturnValue:
+    return render_template(
+        "recommendations_simple.htm",
+        mode_name="Series Episodes",
+        media_list=generate_preference_list(
+            object_gen=lambda: get_all_considered(
+                filter_by="15*60 <= length and length <= 45*60",
+                order_by="elem.release_date DESC",
+            ),
+            score_adapt=1,
+            limit=16,
+        ),
+    )
+
+
+@flask_app.route("/recommendations/movie_like")
+def recommend_movie_like() -> ResponseReturnValue:
+    return render_template(
+        "recommendations_simple.htm",
+        mode_name="Movie Like",
+        media_list=generate_preference_list(
+            object_gen=lambda: get_all_considered(
+                filter_by="45*60 <= length",
+                order_by="elem.release_date DESC",
+            ),
+            score_adapt=1,
+            limit=16,
+        ),
+    )
+
+
 @flask_app.route("/api/refresh/collections", methods=["POST"])
 def refresh_collections() -> ResponseReturnValue:
     collection_ids = set[int](
