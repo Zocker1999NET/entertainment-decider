@@ -74,7 +74,7 @@
                     Next Episode:
                     {% set link = collection.next_episode %}
                     {% if link %}
-                        {{ macros.link_entry_content(link) }}
+                        {{ macros.link_entry_content(link, show_fragment=False) }}
                     {% else %}
                         no next episode
                     {% endif %}
