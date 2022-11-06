@@ -513,6 +513,7 @@ def list_media() -> ResponseReturnValue:
     return render_template(
         "media_list.htm",
         media_list=common.limit_iter(media_list, 100),
+        check_considered=False,
     )
 
 
@@ -540,6 +541,7 @@ def list_long_media(seconds: int = 10 * 60) -> ResponseReturnValue:
     return render_template(
         "media_list.htm",
         media_list=list(itertools.islice(media_list, 100)),
+        check_considered=False,
     )
 
 
@@ -572,6 +574,7 @@ def list_unsorted_media() -> ResponseReturnValue:
     return render_template(
         "media_list.htm",
         media_list=media_list,
+        check_considered=True,
     )
 
 

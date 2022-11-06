@@ -134,7 +134,8 @@
             z-index: 20;
         }
         .thumbnail_view > .overlay.watched,
-        .thumbnail_view > .overlay.ignored {
+        .thumbnail_view > .overlay.ignored,
+        .thumbnail_view > .overlay.not_considered {
             opacity: 66%;
         }
         .thumbnail_view > .overlay.watched {
@@ -142,6 +143,9 @@
         }
         .thumbnail_view > .overlay.ignored {
             background-color: rgba(117, 0, 0, 0.7);
+        }
+        .thumbnail_view > .overlay.not_considered {
+            background-color: rgba(34, 34, 34, 0.7);
         }
         .thumbnail_view > .button_list {
             display: inline-flex;
@@ -377,6 +381,7 @@
 {% macro media_thumbnail_view(
     element=None,
     link=None,
+    check_considered=True,
     link_collection=True,
 ) %}
     {% set element = link.element if link else element %}
@@ -409,6 +414,9 @@
             <div class="overlay
                 {%- if element.watched %} watched
                 {%- elif element.ignored %} ignored
+                {%- elif (
+                    check_considered and not element.can_considered
+                ) %} not_considered
                 {%- endif -%}
             "></div>
             <div class="button_list">
@@ -442,6 +450,7 @@
 {% macro media_thumbnail_list(
     elements=None,
     links=None,
+    check_considered=True,
     link_collection=True,
 ) %}
     {%- set l = elements or links -%}
@@ -451,6 +460,7 @@
             {{ media_thumbnail_view(
                 element=o if not links else None,
                 link=o if links else None,
+                check_considered=False,
                 link_collection=link_collection,
             ) }}
         {% endfor %}

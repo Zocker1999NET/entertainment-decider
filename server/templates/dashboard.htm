@@ -14,12 +14,14 @@
             <h2>Began Videos</h2>
             {{ macros.media_thumbnail_list(
                 elements=began_videos,
+                check_considered=True,
             ) }}
         {% endif %}
         <h2>From Pinned Collections</h2>
         {% if links_from_pinned_collections %}
             {{ macros.media_thumbnail_list(
                 links=links_from_pinned_collections,
+                check_considered=False,
                 link_collection=True,
             ) }}
         {% else %}
@@ -29,6 +31,7 @@
         <h2>Latest Videos</h2>
         {{ macros.media_thumbnail_list(
             elements=media_list,
+            check_considered=False,
         ) }}
     </body>
 </html>
