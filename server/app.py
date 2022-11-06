@@ -22,6 +22,8 @@ from typing import (
     Mapping,
     Optional,
     Set,
+    Type,
+    TypeVar,
     Union,
 )
 
@@ -62,6 +64,9 @@ from entertainment_decider.extractors.media import (
     media_extract_uri,
     media_update,
 )
+
+
+T = TypeVar("T")
 
 
 ####
