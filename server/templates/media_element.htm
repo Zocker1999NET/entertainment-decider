@@ -11,6 +11,7 @@
         {{ macros.body_header() }}
         <h1>{{ title }}</h1>
         <div class="element_view">
+            <img class="thumbnail_img" src="{{ element.info_link }}/thumbnail" alt="Thumbnail" />
             <div class="element_info">
                 {% if element.description != None %}
                     <div class="description">{{ element.description }}</div>
