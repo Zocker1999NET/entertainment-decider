@@ -103,6 +103,9 @@
 {% macro post_form(uri, key, val, text, fragment="") %}
     <form class="form-single-button" method="POST" action="{{ uri }}">
         {{ hidden_redirect_back(fragment=fragment) }}
+        {% if caller is defined %}
+            {{ caller() }}
+        {% endif %}
         <button name="{{ key }}" value="{{ val }}">{{ text }}</button>
     </form>
 {% endmacro %}
