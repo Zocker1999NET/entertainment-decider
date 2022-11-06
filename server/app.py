@@ -674,6 +674,26 @@ def recommend_movie_like() -> ResponseReturnValue:
     )
 
 
+@flask_app.route("/recommendations/based_on/media/<int:media_id>")
+@flask_app.route("/media/<int:media_id>/recommendations")
+def recommend_on_media(media_id: int) -> ResponseReturnValue:
+    MEDIA_COUNT = 10
+    SCORE_ADAPT = 1
+    media_base = MediaElement[media_id]
+    # to ensure all shown videos have similarity to selected one
+    base = PreferenceScore().adapt_score(media_base, -(MEDIA_COUNT * SCORE_ADAPT) - 1)
+    return render_template(
+        "recommendations_simple.htm",
+        mode_name=f'"{media_base.title}"',
+        media_list=generate_preference_list(
+            object_gen=lambda: get_all_considered("elem.release_date DESC"),
+            score_adapt=SCORE_ADAPT,
+            base=base,
+            limit=MEDIA_COUNT,
+        ),
+    )
+
+
 @flask_app.route("/api/refresh/collections", methods=["POST"])
 def refresh_collections() -> ResponseReturnValue:
     collection_ids = set[int](

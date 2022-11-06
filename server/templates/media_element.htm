@@ -22,6 +22,7 @@
                 <ul>
                     <li>
                         {{ macros.media_element_buttons(element) }}
+                        <a class="button" href="{{ element.info_link }}/recommendations">Recommendations</a>
                         {{ macros.no_input_post_form("/api/refresh/media/" + element.id|string, "refresh") }}
                         {% if not element.skip_over %}
                             <form class="form-single-button" method="post" action="/api/media/{{ element.id }}">
