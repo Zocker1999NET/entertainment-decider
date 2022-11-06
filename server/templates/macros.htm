@@ -220,6 +220,9 @@
             bottom: 0;
             right: 0;
         }
+        .thumbnail_view > .length.started {
+            --box-color: rgba(20, 117, 0, 0.6);
+        }
         .thumbnail_title {
             padding: .1rem;
             white-space: normal;
@@ -409,7 +412,10 @@
             <span class="release_date" title="{{ element.release_date.strftime('%d.%m.%Y') }}">
                 {{ element.release_date | time_since }}
             </span>
-            <span class="length">
+            <span class="length
+                {%- if element.started %} started
+                {%- endif -%}
+            ">
                 {{- element.length | timedelta -}}
             </span>
         </div>
