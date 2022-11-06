@@ -92,6 +92,18 @@
                 <li>{{ link.uri | as_link }} {% if collection.uri == link.uri %}*{% endif %}</li>
             {% endfor %}
         </ul>
+        {% if collection.created_collections %}
+            <h2>Collections</h2>
+            <ul>
+                {% for coll in collection.created_collections|sort(attribute="title") %}
+                    {% if coll != collection %}
+                        <li>
+                            {{ coll.id }}: <a href="{{ coll.info_link }}">{{ coll.title }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
         {% if not media_links %}
             <p>
                 <a href="{{ collection.info_link }}/episodes">List episodes</a>
