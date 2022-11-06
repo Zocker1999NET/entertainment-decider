@@ -385,12 +385,13 @@ PreferenceScoreCompatible = Union[
 
 
 def generate_preference_list(
-    base: PreferenceScore,
     object_gen: Callable[[], List[MediaElement]],
     score_adapt: float,
+    base: Optional[PreferenceScore] = None,
     limit: Optional[int] = None,
 ) -> List[MediaElement]:
     element_list = set(object_gen())
+    preference = base if base is not None else PreferenceScore()
 
     # add tags corresponding to collections
     collections: Iterable[MediaCollection] = MediaCollection.select()
@@ -464,7 +465,7 @@ def generate_preference_list(
         return math.fsum(chain(all_nerfs, (-val for val in all_buffs)))
 
     def gen_score(element: MediaElement) -> float:
-        return gen_statis_score(element) + base.calculate_iter_score(all_tags(element))
+        return gen_statis_score(element) + preference.calculate_iter_score(all_tags(element))
 
     # gen elements
     res_ids = list[int]()
@@ -476,7 +477,7 @@ def generate_preference_list(
         if limit is not None and limit <= len(res_ids):
             break
         element_list.remove(first_element)
-        base = base.adapt_score(first_element, score_adapt)
+        preference = preference.adapt_score(first_element, score_adapt)
     orm.rollback()
     db.execute(f"ALTER TABLE {Tag._table_} AUTO_INCREMENT = 1;")
     return [MediaElement[i] for i in res_ids]
