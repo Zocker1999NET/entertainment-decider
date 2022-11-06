@@ -21,6 +21,7 @@ from typing import (
     List,
     Mapping,
     Optional,
+    Sequence,
     Set,
     Type,
     TypeVar,
@@ -244,6 +245,11 @@ Pony(flask_app)
 @flask_app.template_filter()
 def encode_options(opts: Mapping[str, Any]) -> str:
     return urlencode({k: str(v) for k, v in opts.items()}, quote_via=quote_plus)
+
+
+@flask_app.template_filter()
+def first_and_only(list: Sequence[T]) -> Optional[T]:
+    return list[0] if len(list) == 1 else None
 
 
 @flask_app.template_global()

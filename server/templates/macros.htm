@@ -388,6 +388,9 @@
                 alt="Thumbnail for {{ element.title }}"
                 loading="lazy"
             />
+            {% if link == None %}
+                {% set link = element.detected_playlists | list | first_and_only %}
+            {% endif %}
             {% if link and (link.season or link.episode) %}
                 <a
                     class="episode_info"
