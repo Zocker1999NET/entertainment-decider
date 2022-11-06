@@ -121,6 +121,18 @@
             display: block;
             z-index: 10;
         }
+        .thumbnail_view > .overlay {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color:rgba(0, 0, 0, 0.7);
+            opacity: 0%;
+            transition: opacity .2s linear;
+            z-index: 20;
+        }
         .thumbnail_view > .button_list {
             display: inline-flex;
             flex-wrap: nowrap;
@@ -138,7 +150,9 @@
             transition: opacity .2s linear, visibility .2s linear;
         }
         .thumbnail_view:hover > .button_list,
-        .thumbnail_view:active > .button_list {
+        .thumbnail_view:hover > .overlay,
+        .thumbnail_view:active > .button_list,
+        .thumbnail_view:active > .overlay {
             opacity: 100%;
             visibility: visible;
         }
