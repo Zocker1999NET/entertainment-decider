@@ -546,7 +546,10 @@ class Tag(db.Entity, Tagable):
     id: int = orm.PrimaryKey(int, auto=True)
 
     title: str = orm.Required(str)
-    notes: str = orm.Optional(str)
+    notes: Optional[str] = orm.Optional(
+        str,
+        nullable=True,
+    )
 
     use_for_preferences: bool = orm.Required(bool, default=True)
 
