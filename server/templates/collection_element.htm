@@ -51,10 +51,12 @@
             <li>
                 Length:
                 {{ stats.full_seconds | timedelta }}
+                ({{ stats.full_count }} elements)
             </li>
             <li>
                 To Watch:
                 {{ stats.to_watch_seconds | timedelta }}
+                ({{ stats.to_watch_count }} elements)
             </li>
             {% if collection.all_tags %}
                 <li>
