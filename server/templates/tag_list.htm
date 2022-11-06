@@ -18,6 +18,15 @@
                 <th>Super Tags</th>
                 <th>Sub Tags</th>
             </tr>
+            {% macro format_tag(tag) %}
+                <a title="{{ tag.title }}">{{ tag.id }}</a>
+            {% endmacro %}
+            {% macro format_tag_list(tag_list) %}
+                {% for tag in tag_list|sort(attribute="id") %}
+                    {{ format_tag(tag) }}
+                    {{ " | " if not loop.last }}
+                {% endfor %}
+            {% endmacro %}
             {% for tag in tag_list %}
                 <tr>
                     <td>
@@ -30,10 +39,10 @@
                         {{ tag.use_for_preferences | tenary("Yes", "no") }}
                     </td>
                     <td>
-                        {{ tag.super_tag_list | map(attribute="id") | join(",") }}
+                        {{ format_tag_list(tag.super_tag_list) }}
                     </td>
                     <td>
-                        {{ tag.sub_tag_list | map(attribute="id") | join(",") }}
+                        {{ format_tag_list(tag.sub_tag_list) }}
                     </td>
                 </tr>
             {% endfor %}
