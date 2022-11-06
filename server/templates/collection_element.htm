@@ -81,6 +81,9 @@
                 </li>
             {% endif %}
         </ul>
+        {% if collection.description != None %}
+            <div class="description">{{ collection.description }}</div>
+        {% endif %}
         <h2>Notes</h2>
         <pre>{{ collection.notes or "" }}</pre>
         <h2>Links</h2>
