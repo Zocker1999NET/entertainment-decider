@@ -12,16 +12,22 @@
         <h1>{{ title }}</h1>
         {% if began_videos %}
             <h2>Began Videos</h2>
-            {{ macros.media_table(began_videos) }}
+            {{ macros.media_thumbnail_list(
+                elements=began_videos,
+            ) }}
         {% endif %}
         <h2>From Pinned Collections</h2>
         {% if links_from_pinned_collections %}
-            {{ macros.link_differ_table(links_from_pinned_collections) }}
+            {{ macros.media_thumbnail_list(
+                links=links_from_pinned_collections,
+            ) }}
         {% else %}
             <i>No pinned collections with episodes to watch found. <a href="/collection/pinned">See pinned collections</a></i>
         {% endif %}
         <a href="/collection/pinned"></a>
         <h2>Latest Videos</h2>
-        {{ macros.media_table(media_list) }}
+        {{ macros.media_thumbnail_list(
+            elements=media_list,
+        ) }}
     </body>
 </html>

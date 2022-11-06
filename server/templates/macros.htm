@@ -86,6 +86,126 @@
 
             font-size: 1.2rem;
         }
+        /* thumbnail view */
+        .thumbnail_img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+        }
+        .thumbnail_list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, calc(240px * 1.2));
+            gap: 1rem;
+            justify-content: center;
+        }
+        .thumbnail_list::after {
+            content: "";
+            flex: auto;
+        }
+        .thumbnail_entry {
+            display: flex;
+            /*width: 240px;*/
+            flex-direction: column;
+            flex-wrap: nowrap;
+            align-items: stretch;
+            gap: .1rem;
+        }
+        .thumbnail_view {
+            display: block;
+            position: relative;
+            z-index: 0;
+        }
+        .thumbnail_view > * {
+            z-index: 30;
+        }
+        .thumbnail_view > .thumbnail_img {
+            display: block;
+            z-index: 10;
+        }
+        .thumbnail_view > .button_list {
+            display: inline-flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            align-content: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            gap: 1rem;
+            opacity: 0%;
+            visibility: hidden;
+            transition: opacity .2s linear, visibility .2s linear;
+        }
+        .thumbnail_view:hover > .button_list,
+        .thumbnail_view:active > .button_list {
+            opacity: 100%;
+            visibility: visible;
+        }
+        .thumbnail_view > .button_list button,
+        .thumbnail_view > .button_list .button {
+            display: inline-block;
+            color: white;
+            font-size: 1.8em;
+            width: 2.4rem;
+            height: 2.4rem;
+            text-align: center;
+            vertical-align: middle;
+            margin: 0;
+            padding: .2rem;
+            border-radius: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .thumbnail_view > .button_list .play_button {
+            font-size: 2em;
+            width: 2.8rem;
+            height: 2.8rem;
+        }
+        .thumbnail_view > .additional_info,
+        .thumbnail_view > .episode_info,
+        .thumbnail_view > .length,
+        .thumbnail_view > .release_date {
+            display: block;
+            font-size: .8em;
+            position: absolute;
+            margin: .2rem;
+            z-index: 40;
+        }
+        .thumbnail_view > .episode_info,
+        .thumbnail_view > .length,
+        .thumbnail_view > .release_date {
+            padding: .2rem;
+            border-radius: .2rem;
+            --box-color: rgba(0, 0, 0, 0.7);
+            background-color: var(--box-color);
+            box-shadow: 0 0 .4rem .16rem var(--box-color);
+        }
+        .thumbnail_view > .episode_info {
+            top: 0;
+            left: 0;
+        }
+        .thumbnail_view > .additional_info {
+            top: 0;
+            right: 0;
+        }
+        .thumbnail_view > .release_date {
+            left: 0;
+            bottom: 0;
+        }
+        .thumbnail_view > .length {
+            bottom: 0;
+            right: 0;
+        }
+        .thumbnail_title {
+            padding: .1rem;
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            max-height: calc(2em + (.24em * 2));
+            font-size: .9rem;
+            font-weight: 300;
+        }
         /* Collection Table Listing */
         .collection_table_list .thumbnail_img {
             max-width: 140px;
@@ -194,6 +314,25 @@
     {% endif %}
 {% endmacro %}
 
+{% macro media_thumbnail_buttons(
+    element,
+    show_fragment=True,
+) %}
+    {% set api_uri = "/api/media/" + element.id|string %}
+    {% set fragment = ("media_element_" + element.id|string) if show_fragment else None %}
+    {% if element.watched %}
+        {{ as_play_link(element, symbol='&#9655;') }}
+        {{ post_form(api_uri, "watched", "false", "&#9989;"|safe, fragment) }}
+    {% elif element.ignored %}
+        {{ as_play_link(element, symbol='&#9655;') }}
+        {{ post_form(api_uri, "ignored", "false", "&#10062;"|safe, fragment) }}
+    {% else %}
+        {{ post_form(api_uri, "watched", "true", "&#10003;"|safe, fragment) }}
+        {{ as_play_link(element, symbol='&#9655;') }}
+        {{ post_form(api_uri, "ignored", "true", "&#10005;"|safe, fragment) }}
+    {% endif %}
+{% endmacro %}
+
 {% macro link_position_marker(link, prefix=false) -%}
     {{- prefix and (link.season != 0 or link.episode != 0) | tenary(", ", "") -}}
     {%- if link.season != 0 -%}
@@ -203,6 +342,68 @@
     {%- if link.episode != 0 -%}
         Episode {{ link.episode }}
     {%- endif -%}
+{%- endmacro %}
+
+{% macro media_thumbnail_view(
+    element=None,
+    link=None,
+) %}
+    {% set element = link.element if link else element %}
+    <div class="thumbnail_entry" id="media_element_{{ element.id }}" title="{{ element.title }}">
+        <div class="thumbnail_view">
+            <img
+                class="thumbnail_img"
+                src="{{ element.info_link }}/thumbnail"
+                alt="Thumbnail for {{ element.title }}"
+                loading="lazy"
+            />
+            {% if link and (link.season or link.episode) %}
+                <a
+                    class="episode_info"
+                >
+                    {%- if link.season != 0 -%}
+                        s{{ "%02d" % link.season }}
+                    {%- endif -%}
+                    {%- if link.episode != 0 -%}
+                        e{{ "%02d" % link.episode }}
+                    {%- endif -%}
+                </a>
+            {% endif %}
+            <div class="button_list">
+                {{ media_thumbnail_buttons(element) }}
+            </div>
+            {% if caller is defined %}
+                <div class="additional_info">
+                    {{ caller() }}
+                </div>
+            {% endif %}
+            <span class="release_date" title="{{ element.release_date.strftime('%d.%m.%Y') }}">
+                {{ element.release_date | time_since }}
+            </span>
+            <span class="length">
+                {{- element.length | timedelta -}}
+            </span>
+        </div>
+        <a class="thumbnail_title" href="{{ element.info_link }}">
+            {{ element.title }}
+        </a>
+    </div>
+{%- endmacro %}
+
+{% macro media_thumbnail_list(
+    elements=None,
+    links=None,
+) %}
+    {%- set l = elements or links -%}
+    <div class="thumbnail_list">
+        {% for o in l %}
+            {% set elem = o.element if links else o %}
+            {{ media_thumbnail_view(
+                element=o if not links else None,
+                link=o if links else None,
+            ) }}
+        {% endfor %}
+    </div>
 {%- endmacro %}
 
 {% macro media_entry_content(element, show_fragment=True) %}
