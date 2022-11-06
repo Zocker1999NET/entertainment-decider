@@ -33,7 +33,9 @@
                     </li>
                     <li>Can be considered: {{ element.can_considered | tenary("Yes", "no") }}</li>
                     <li>
-                        Date:
+                        released
+                        {{ element.release_date | time_since }}
+                        ago,
                         {{ element.release_date }}
                     </li>
                     <li>

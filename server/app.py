@@ -290,6 +290,37 @@ def _filter_timedelta(seconds: Optional[int]) -> Optional[str]:
     return ret
 
 
+YEAR_MEAN_LENGTH_DAYS = 365.2425
+TIME_SINCE_FORMAT = {
+    timedelta(hours=1): "hour",
+    timedelta(days=1): "day",
+    timedelta(days=7): "week",
+    timedelta(days=YEAR_MEAN_LENGTH_DAYS / 12): "month",
+    timedelta(days=YEAR_MEAN_LENGTH_DAYS): "year",
+}
+TIME_SINCE_ORDER = sorted(TIME_SINCE_FORMAT.keys())
+
+
+@flask_app.template_filter()
+def time_since(date: datetime) -> str:
+    if date is None:
+        return None
+    now = datetime.now()
+    missing_time = common.date_to_datetime(date.date()) == date
+    if missing_time:
+        now = common.date_to_datetime(now.date())
+    passed = now - date
+    last_thres = None
+    for threshold in TIME_SINCE_ORDER:
+        if passed < threshold:
+            break
+        last_thres = threshold
+    if last_thres is not None:
+        passed_thres = passed // last_thres
+        return f"{passed_thres} {TIME_SINCE_FORMAT[last_thres]}{'s' if passed_thres > 1 else ''}"
+    return "today" if missing_time else "now"
+
+
 ####
 # Routes
 ####
