@@ -382,6 +382,7 @@
     element=None,
     link=None,
     check_considered=True,
+    is_considered=True,
     link_collection=True,
 ) %}
     {% set element = link.element if link else element %}
@@ -415,7 +416,9 @@
                 {%- if element.watched %} watched
                 {%- elif element.ignored %} ignored
                 {%- elif (
-                    check_considered and not element.can_considered
+                        not check_considered and not is_considered
+                    ) or (
+                        check_considered and not element.can_considered
                 ) %} not_considered
                 {%- endif -%}
             "></div>
@@ -454,6 +457,7 @@
     link_collection=True,
 ) %}
     {%- set l = elements or links -%}
+    {%- set considered = (links|map(attribute="element") if links else elements)|map(attribute="id")|are_considered -%}
     <div class="thumbnail_list">
         {% for o in l %}
             {% set elem = o.element if links else o %}
@@ -461,6 +465,7 @@
                 element=o if not links else None,
                 link=o if links else None,
                 check_considered=False,
+                is_considered=considered[elem.id] if check_considered else True,
                 link_collection=link_collection,
             ) }}
         {% endfor %}

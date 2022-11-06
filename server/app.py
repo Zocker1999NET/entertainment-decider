@@ -48,6 +48,7 @@ from entertainment_decider.models import (
     PreferenceScore,
     Query,
     Tag,
+    are_multiple_considered,
     db,
     MediaCollection,
     MediaCollectionLink,
@@ -330,6 +331,11 @@ def time_since(date: datetime) -> str:
         passed_thres = passed // last_thres
         return f"{passed_thres} {TIME_SINCE_FORMAT[last_thres]}{'s' if passed_thres > 1 else ''}"
     return "today" if missing_time else "now"
+
+
+@flask_app.template_filter("are_considered")
+def _template_are_multiple_considered(elem_ids: Iterable[int]) -> Mapping[int, bool]:
+    return are_multiple_considered(elem_ids)
 
 
 ####
