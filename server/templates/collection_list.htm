@@ -15,12 +15,15 @@
                 <th>Date</th>
                 <th>Count</th>
                 <th>To Watch</th>
+                <th>Actions</th>
                 <th>Thumbnail</th>
                 <th>Title</th>
                 <th>Tags</th>
             </tr>
             {% for collection in collection_list %}
-                <tr>
+                {% set api_uri = "/api/collection/" + collection.id|string %}
+                {% set fragment = "collection_element_" + collection.id|string %}
+                <tr id="{{ fragment }}">
                     <td>
                         {% if collection.release_date %}
                             {{ collection.release_date.strftime("%d.%m.%Y") }}
@@ -30,6 +33,9 @@
                     </td>
                     <td>{{ collection.count }}</td>
                     <td>{{ collection.to_watch_count }}</td>
+                    <td class="button-list">
+                        {{ macros.post_form(api_uri, "watch_in_order", collection.watch_in_order | tenary("false", "true"), collection.watch_in_order | tenary("watch in order", "watch random"), fragment) }}
+                    </td>
                     <td>
                         {% set e = (collection.next_episode or collection.first_episode).element %}
                         <img class="thumbnail_img" src="{{ e.info_link }}/thumbnail" alt="Thumbnail for {{ e.title }}" loading="lazy" />
