@@ -17,7 +17,6 @@
                 <th>Watched</th>
                 <th>Ignored</th>
                 <th>To Watch</th>
-                <th>Id</th>
                 <th>Thumbnail</th>
                 <th>Title</th>
                 <th>Tags</th>
@@ -36,9 +35,6 @@
                     <td>{{ stats.watched_count }}</td>
                     <td>{{ stats.ignored_count }}</td>
                     <td>{{ stats.to_watch_count }}</td>
-                    <td>
-                        {{ collection.id }}
-                    </td>
                     <td>
                         {% set e = (collection.next_episode or collection.first_episode).element %}
                         <img class="thumbnail_img" src="{{ e.info_link }}/thumbnail" alt="Thumbnail for {{ e.title }}" loading="lazy" />
