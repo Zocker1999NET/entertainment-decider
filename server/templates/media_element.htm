@@ -12,6 +12,9 @@
         <h1>{{ title }}</h1>
         <div class="element_view">
             <div class="element_info">
+                {% if element.description != None %}
+                    <div class="description">{{ element.description }}</div>
+                {% endif %}
                 <h2>Notes</h2>
                 <pre>{{ element.notes or "" }}</pre>
                 <h2>Properties</h2>
