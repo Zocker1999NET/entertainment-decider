@@ -22,6 +22,7 @@ from typing import (
     Optional,
     Set,
     Tuple,
+    TypeAlias,
     TypeVar,
     Union,
 )
@@ -378,8 +379,10 @@ class PreferenceScoreAppender:
         )
 
 
-PreferenceScoreCompatibleSimple = Union[PreferenceScore, PreferenceScoreAppender]
-PreferenceScoreCompatible = Union[
+PreferenceScoreCompatibleSimple: TypeAlias = Union[
+    PreferenceScore, PreferenceScoreAppender
+]
+PreferenceScoreCompatible: TypeAlias = Union[
     PreferenceScoreCompatibleSimple, Iterable[PreferenceScoreCompatibleSimple]
 ]
 
