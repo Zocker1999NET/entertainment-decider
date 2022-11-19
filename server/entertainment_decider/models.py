@@ -474,9 +474,7 @@ def generate_preference_list(
 
     # gen elements
     res_ids = list[int]()
-    while True:
-        if len(element_list) <= 0:
-            break
+    while 0 < len(element_list):
         first_element = min(element_list, key=gen_score)
         res_ids.append(first_element.id)
         if limit is not None and limit <= len(res_ids):
