@@ -481,8 +481,12 @@ def generate_preference_list(
             break
         element_list.remove(first_element)
         preference = preference.adapt_score(first_element, score_adapt)
+
+    # revert any changes on DB
     orm.rollback()
     db.execute(f"ALTER TABLE {Tag._table_} AUTO_INCREMENT = 1;")
+
+    # return MediaElements
     return [MediaElement[i] for i in res_ids]
 
 
