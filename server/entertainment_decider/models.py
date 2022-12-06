@@ -407,33 +407,34 @@ def generate_preference_list(
 ) -> List[MediaElement]:
     element_list = set(object_gen())
     preference = base if base is not None else PreferenceScore()
+    now = datetime.now()  # reference time
 
-    # add tags corresponding to collections
-    collections: Iterable[MediaCollection] = MediaCollection.select()
-    for coll in collections:
-        coll.tag_list.add(
-            Tag(
-                title="Automatic",
+    def add_tags_for_collections():
+        collections: Iterable[MediaCollection] = MediaCollection.select()
+        for coll in collections:
+            coll.tag_list.add(
+                Tag(
+                    title="Automatic",
+                    use_for_preferences=True,
+                )
+            )
+
+    def add_tags_for_extractor_names():
+        @cache
+        def get_extractor_tag(extractor_name: str) -> Tag:
+            return Tag(
+                title=f"Automatic for extractor {extractor_name}",
                 use_for_preferences=True,
             )
-        )
 
-    # add tags corresponding to extractors
-    @cache
-    def get_extractor_tag(extractor_name: str) -> Tag:
-        return Tag(
-            title=f"Automatic for extractor {extractor_name}",
-            use_for_preferences=True,
-        )
+        for element in element_list:
+            element.tag_list.add(get_extractor_tag(element.extractor_name))
 
-    for element in element_list:
-        element.tag_list.add(get_extractor_tag(element.extractor_name))
-
-    # flush after custom tags
-    orm.flush()
+    add_tags_for_collections()
+    add_tags_for_extractor_names()
+    orm.flush()  # flush after custom tags
 
     # score calc
-    now = datetime.now()
 
     elem_tag_map = get_all_elements_tags_recursive()
 
@@ -488,8 +489,10 @@ def generate_preference_list(
     # pre filter list
     # - elements which have a too low current score may never possible appear
     # TODO add test that this does not change end result
-    elem_count = len(element_list)
-    if limit is not None and limit < elem_count:
+    def pre_filter_list_by_score(elem_list: Set[MediaElement]) -> Set[MediaElement]:
+        elem_count = len(elem_list)
+        if limit is None or elem_count <= limit:
+            return elem_list
         # cache pref score for this
         gen_pre_score = cache(gen_score)
         # biggest possible score increase by adaption
@@ -509,22 +512,23 @@ def generate_preference_list(
             best_case = with_max_adapt
             worst_case = without_max_adapt
         # (limit)ths best's score in the worst adaption for it
-        limitths_best_worst = sorted(worst_case(elem) for elem in element_list)[limit]
+        limitths_best_worst = sorted(worst_case(elem) for elem in elem_list)[limit]
         logging.debug(f"(limit)ths best's worst case score: {limitths_best_worst}")
         # extract worst's element's score in best case as well
-        worsts_best = best_case(max(element_list, key=gen_pre_score))
+        worsts_best = best_case(max(elem_list, key=gen_pre_score))
         logging.debug(f"Worsts best case score is {worsts_best}")
         # check if reducing element count is possible
         if limitths_best_worst < worsts_best:
             # throw away all elements which's best adaption is not better than the (limit)ths one
-            element_list = {
-                elem for elem in element_list if best_case(elem) < limitths_best_worst
-            }
+            ret = {elem for elem in elem_list if best_case(elem) < limitths_best_worst}
             logging.debug(
-                f"Prefilter reduced set from {elem_count} to {len(element_list)} elements"
+                f"Prefilter reduced set from {elem_count} to {len(ret)} elements"
             )
-        else:
-            logging.debug(f"Prefilter couldn't reduce the element count ({elem_count})")
+            return ret
+        logging.debug(f"Prefilter couldn't reduce the element count ({elem_count})")
+        return elem_list
+
+    element_list = pre_filter_list_by_score(element_list)
 
     # gen elements
     res_ids = list[int]()
