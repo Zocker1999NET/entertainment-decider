@@ -714,17 +714,26 @@ def recommend_on_media(media_id: int) -> ResponseReturnValue:
 @flask_app.route("/recommendations/adaptive")
 def recommend_adaptive() -> ResponseReturnValue:
     score_adapt = request.args.get("score_adapt", default=2, type=int)
-    max_length = request.args.get("max_length", default=0, type=int)
     preferences = request.cookies.get(
         key=PREFERENCES_SCORE_NAME,
         default=PreferenceScore(),
         type=PreferenceScore.from_base64,
     ) * (1 if score_adapt > 0 else -1 if score_adapt < 0 else 0)
+    if "max_length" not in request.args:
+        # ask for max length before calculating to save time
+        return render_template(
+            "recommendations_adaptive.htm",
+            max_length=0,
+            score_adapt=score_adapt,
+            preferences=preferences,
+            media_list=None,
+        )
+    max_length = request.args.get("max_length", default=0, type=int)
     preference_list = generate_preference_list(
         object_gen=lambda: get_all_considered(
             order_by="elem.release_date DESC",
             filter_by=f"(length - progress) <= {max_length * 60}"
-            if max_length
+            if max_length > 0
             else "true",
         ),
         score_adapt=score_adapt,

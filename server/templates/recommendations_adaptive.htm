@@ -34,10 +34,12 @@
                 {% endfor %}
             </ul>
         </div>
-        {{ macros.media_thumbnail_list(
-            elements=media_list,
-            check_considered=False,
-            show_rating=True,
-        ) }}
+        {% if media_list %}
+            {{ macros.media_thumbnail_list(
+                elements=media_list,
+                check_considered=False,
+                show_rating=True,
+            ) }}
+        {% endif %}
     </body>
 </html>
