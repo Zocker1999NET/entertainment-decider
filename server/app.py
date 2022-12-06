@@ -45,7 +45,6 @@ from pony import orm
 
 from entertainment_decider import common
 from entertainment_decider.models import (
-    PreferenceScore,
     Query,
     Tag,
     are_multiple_considered,
@@ -53,11 +52,11 @@ from entertainment_decider.models import (
     MediaCollection,
     MediaCollectionLink,
     MediaElement,
-    generate_preference_list,
     get_all_considered,
     setup_custom_tables,
     update_element_lookup_cache,
 )
+from entertainment_decider.preferences import PreferenceScore, generate_preference_list
 from entertainment_decider.extractors.collection import (
     collection_extract_uri,
     collection_update,
