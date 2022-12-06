@@ -8,7 +8,12 @@ from pony import orm  # TODO remove
 
 from ...models import MediaCollection
 from ..all.tt_rss import HeadlineList, TtRssConnectionParameter, TtRssUri
-from ..generic import ExtractedDataOnline, ExtractedDataOffline, SuitableLevel
+from ..generic import (
+    ChangedReport,
+    ExtractedDataOnline,
+    ExtractedDataOffline,
+    SuitableLevel,
+)
 from .base import CollectionExtractor
 
 
@@ -66,7 +71,11 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
             data=data,
         )
 
-    def _update_object_raw(self, object: MediaCollection, data: HeadlineList) -> None:
+    def _update_object_raw(
+        self,
+        object: MediaCollection,
+        data: HeadlineList,
+    ) -> ChangedReport:
         if not object.title:
             object.title = object.uri
         object.creator = None
@@ -83,3 +92,4 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
             rss_uri.set_read(self.__params, readed_headlines)
         if object.watch_in_order_auto:
             object.watch_in_order = False  # no order available
+        return ChangedReport.ChangedSome  # TODO improve

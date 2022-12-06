@@ -9,7 +9,12 @@ from pony import orm  # TODO remove
 import youtubesearchpython
 
 from ...models import MediaCollection
-from ..generic import ExtractedDataOnline, ExtractedDataOffline, SuitableLevel
+from ..generic import (
+    ChangedReport,
+    ExtractedDataOnline,
+    ExtractedDataOffline,
+    SuitableLevel,
+)
 from .base import CollectionExtractor
 
 
@@ -102,7 +107,11 @@ class YouTubeCollectionExtractor(CollectionExtractor[DataType]):
             },
         )
 
-    def _update_object_raw(self, object: MediaCollection, data: DataType) -> None:
+    def _update_object_raw(
+        self,
+        object: MediaCollection,
+        data: DataType,
+    ) -> ChangedReport:
         info = data["info"]
         is_channel = self.__is_channel_id(info["id"])
         object.title = (
@@ -140,3 +149,4 @@ class YouTubeCollectionExtractor(CollectionExtractor[DataType]):
                 f"https://www.youtube.com/channel/{info['channel']['id']}"
             )
         )
+        return ChangedReport.ChangedSome  # TODO improve

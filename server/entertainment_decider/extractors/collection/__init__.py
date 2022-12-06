@@ -5,6 +5,7 @@ from typing import Dict, Tuple
 
 from ...config import app_config
 from ...models import MediaCollection
+from ..generic import ChangedReport
 from ..helpers import expect_suitable_extractor
 from .base import CollectionExtractor
 from .aggregated import AggregatedCollectionExtractor
@@ -39,9 +40,9 @@ def collection_expect_extractor(uri: str) -> CollectionExtractor:
 def collection_update(
     collection: MediaCollection,
     check_cache_expired: bool = True,
-) -> None:
+) -> ChangedReport:
     ex = collection_expect_extractor(collection.uri)
-    ex.update_object(
+    return ex.update_object(
         object=collection,
         check_cache_expired=check_cache_expired,
     )

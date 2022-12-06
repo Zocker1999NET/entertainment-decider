@@ -14,6 +14,7 @@ from ...models import (
 )
 from ..generic import (
     AuthorExtractedData,
+    ChangedReport,
     ExtractedDataOnline,
     ExtractionError,
     SuitableLevel,
@@ -113,7 +114,11 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             data=vid_data,
         )
 
-    def _update_object_raw(self, object: MediaElement, data: YoutubeVideoData) -> None:
+    def _update_object_raw(
+        self,
+        object: MediaElement,
+        data: YoutubeVideoData,
+    ) -> ChangedReport:
         object.title = f"{data['title']} - {data['channel']['name']}"
         object.description = data.get("description")
         if data.get("thumbnails"):
@@ -133,3 +138,4 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
                 f"https://youtube.com/watch?v={data['id']}",
             )
         )
+        return ChangedReport.ChangedSome  # TODO improve

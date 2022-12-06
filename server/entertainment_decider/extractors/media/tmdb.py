@@ -9,6 +9,7 @@ from pony import orm
 from ...models import MediaElement, MediaThumbnail, Query, Tag
 from ..all.tmdb import TmdbMovieData, TMDB_REGEX_URI
 from ..generic import (
+    ChangedReport,
     ExtractedDataOnline,
     ExtractedDataOffline,
     ExtractionError,
@@ -64,7 +65,11 @@ class TmdbMovieMediaExtractor(MediaExtractor[TmdbMovieData]):
             data=data,
         )
 
-    def _update_object_raw(self, object: MediaElement, data: TmdbMovieData) -> None:
+    def _update_object_raw(
+        self,
+        object: MediaElement,
+        data: TmdbMovieData,
+    ) -> ChangedReport:
         # sanity check
         if not data.was_released:
             raise ExtractionError(
@@ -91,3 +96,4 @@ class TmdbMovieMediaExtractor(MediaExtractor[TmdbMovieData]):
             )
             if len(tag_list) == 1:
                 object.tag_list.add(tag_list[0])
+        return ChangedReport.ChangedSome  # TODO improve

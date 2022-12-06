@@ -6,7 +6,12 @@ from typing import List, Set, TypeAlias
 from pony import orm
 
 from ...models import MediaCollection, MediaCollectionLink, MediaElement
-from ..generic import ExtractedDataOnline, ExtractedDataOffline, SuitableLevel
+from ..generic import (
+    ChangedReport,
+    ExtractedDataOnline,
+    ExtractedDataOffline,
+    SuitableLevel,
+)
 from .base import CollectionExtractor
 
 
@@ -72,7 +77,11 @@ class AggregatedCollectionExtractor(CollectionExtractor[DataType]):
             ],
         )
 
-    def _update_object_raw(self, object: MediaCollection, data: DataType) -> None:
+    def _update_object_raw(
+        self,
+        object: MediaCollection,
+        data: DataType,
+    ) -> ChangedReport:
         if object.title is None or "[aggregated]" not in object.title:
             object.title = f"[aggregated] {object.uri}"
         object.creator = None
@@ -91,3 +100,4 @@ class AggregatedCollectionExtractor(CollectionExtractor[DataType]):
         orm.delete(link for link in object.media_links if link.element.id in all_links)
         for uri_link in list(object.uris):
             uri_link.delete()
+        return ChangedReport.ChangedSome  # TODO improve

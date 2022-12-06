@@ -12,7 +12,12 @@ from ..all.tmdb import (
     TMDB_REGEX_URI,
     TmdbKeywordData,
 )
-from ..generic import ExtractedDataOnline, ExtractedDataOffline, SuitableLevel
+from ..generic import (
+    ChangedReport,
+    ExtractedDataOnline,
+    ExtractedDataOffline,
+    SuitableLevel,
+)
 from .base import CollectionExtractor
 
 
@@ -84,7 +89,7 @@ class TmdbCollectionExtractor(TmdbBaseExtractor[TmdbCollectionData]):
         self,
         object: MediaCollection,
         data: TmdbCollectionData,
-    ) -> None:
+    ) -> ChangedReport:
         # extract data
         object.title = f"[tmdb] [{self.TMDB_CLASS}] {data.title}"
         object.description = data.description or ""
@@ -103,6 +108,7 @@ class TmdbCollectionExtractor(TmdbBaseExtractor[TmdbCollectionData]):
             )
             if element:
                 orm.commit()
+        return ChangedReport.ChangedSome  # TODO improve
 
 
 class TmdbKeywordExtractor(TmdbBaseExtractor[TmdbKeywordData]):
@@ -123,7 +129,7 @@ class TmdbKeywordExtractor(TmdbBaseExtractor[TmdbKeywordData]):
         self,
         object: MediaCollection,
         data: TmdbKeywordData,
-    ) -> None:
+    ) -> ChangedReport:
         # extract data
         object.title = f"[tmdb] [{self.TMDB_CLASS}] {data.title}"
         object.release_date = data.release_date
@@ -141,3 +147,4 @@ class TmdbKeywordExtractor(TmdbBaseExtractor[TmdbKeywordData]):
             )
             if element:
                 orm.commit()
+        return ChangedReport.ChangedSome  # TODO improve

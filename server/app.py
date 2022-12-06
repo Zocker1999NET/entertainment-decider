@@ -790,17 +790,17 @@ def refresh_collections() -> ResponseReturnValue:
         orm.select(c.id for c in MediaCollection if c.keep_updated)
     )
     errors = []
-    failed_colls = set[int]()
+    changed_colls = list[int]()
     for coll_id in collection_ids:
+        coll = MediaCollection[coll_id]
         try:
-            coll = MediaCollection[coll_id]
-            collection_update(coll)
+            change_state = collection_update(coll)
             orm.commit()
+            if change_state.may_has_changed:
+                changed_colls.append(coll_id)
         # TODO make Exception more specific
         except Exception as e:
             orm.rollback()
-            failed_colls.add(coll_id)
-            coll = MediaCollection[coll_id]
             errors.append(
                 {
                     "collection": {
@@ -813,9 +813,7 @@ def refresh_collections() -> ResponseReturnValue:
                     },
                 },
             )
-    # TODO detect changed collections properly to speed up cache rebuild
-    # meaning check if collection really changed
-    update_element_lookup_cache(collection_ids - failed_colls)
+    update_element_lookup_cache(changed_colls)
     if errors:
         return (
             {

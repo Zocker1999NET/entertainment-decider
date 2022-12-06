@@ -14,6 +14,7 @@ from ...models import (
 from ..all.ytdl import get_video_info, YtdlErrorException
 from ..generic import (
     AuthorExtractedData,
+    ChangedReport,
     ExtractedDataOnline,
     ExtractionError,
     SuitableLevel,
@@ -70,7 +71,7 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             data=vid_data,
         )
 
-    def _update_object_raw(self, object: MediaElement, data: Dict) -> None:
+    def _update_object_raw(self, object: MediaElement, data: Dict) -> ChangedReport:
         object.title = (
             f"{data['title']} - {data['uploader']}"
             if "uploader" in data
@@ -96,3 +97,4 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
             object.thumbnail = MediaThumbnail.from_uri(data["thumbnail"])
         object.release_date = datetime.strptime(data["upload_date"], "%Y%m%d")
         object.length = int(data["duration"])
+        return ChangedReport.ChangedSome  # TODO improve

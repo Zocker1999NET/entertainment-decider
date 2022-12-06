@@ -10,7 +10,12 @@ import requests
 
 from ...models import MediaCollection, Tag
 from ..all.tvmaze import TvmazeEpisodeEmbedded, TvmazeShowEmbedded, add_embedding
-from ..generic import ExtractedDataOnline, ExtractedDataOffline, SuitableLevel
+from ..generic import (
+    ChangedReport,
+    ExtractedDataOnline,
+    ExtractedDataOffline,
+    SuitableLevel,
+)
 from .base import CollectionExtractor
 
 
@@ -102,7 +107,7 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
         self,
         object: MediaCollection,
         data: TvmazeShowEmbedded,
-    ) -> None:
+    ) -> ChangedReport:
         object.title = f"[tvmaze] {data['name']}"
         object.description = data.get("summary", "")
         object.release_date = datetime.strptime(data["premiered"], "%Y-%m-%d")
@@ -134,3 +139,4 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
                     season=episode["season"],
                     episode=episode["number"],
                 )
+        return ChangedReport.ChangedSome  # TODO improve

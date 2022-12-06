@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
+import enum
 from enum import Enum
 import logging
 from typing import Generic, Optional, TypeVar
@@ -11,6 +12,24 @@ from ..models import MediaCollection, MediaElement
 
 
 T = TypeVar("T")
+
+
+class ChangedReport(Enum):
+    StayedSame = enum.auto()
+    """Declares that the action did not change anything.
+
+    This requires that really nothing changed. If unsure, use ChangedSome.
+    """
+    ChangedSome = enum.auto()
+    """Declares that something (might) have changed.
+
+    It is not required that something really changed,
+    this could also mean that there is currently no better way to determine if something really changed.
+    """
+
+    @property
+    def may_has_changed(self) -> bool:
+        return self != self.StayedSame
 
 
 class SuitableLevel(Enum):
@@ -158,7 +177,7 @@ class GeneralExtractor(Generic[E, T]):
     def _extract_online(self, uri: str) -> ExtractedDataOnline[T]:
         raise NotImplementedError()
 
-    def _update_object_raw(self, object: E, data: T) -> None:
+    def _update_object_raw(self, object: E, data: T) -> ChangedReport:
         raise NotImplementedError()
 
     def _update_hook(self, object: E, data: ExtractedDataOnline[T]) -> None:
@@ -180,14 +199,18 @@ class GeneralExtractor(Generic[E, T]):
             return data.online_type
         return self._extract_online(data.object_uri)
 
-    def _update_object(self, object: E, data: ExtractedDataOnline[T]) -> E:
+    def _update_object(self, object: E, data: ExtractedDataOnline[T]) -> ChangedReport:
         object.uri = data.object_uri
         self._update_object_raw(object, data.data)
         self._update_hook(object, data)
         object.last_updated = datetime.now()
-        return object
+        return ChangedReport.ChangedSome  # TODO improve
 
-    def update_object(self, object: E, check_cache_expired: bool = True) -> E:
+    def update_object(
+        self,
+        object: E,
+        check_cache_expired: bool = True,
+    ) -> ChangedReport:
         if (
             object.was_extracted
             and check_cache_expired
@@ -196,7 +219,7 @@ class GeneralExtractor(Generic[E, T]):
             logging.debug(
                 f"Skip info for element as already extracted and cache valid: {object.title!r}"
             )
-            return object
+            return ChangedReport.StayedSame
         data = self._extract_online(object.uri)
         logging.debug(f"Updating info for media: {data!r}")
         return self._update_object(object, data)
@@ -207,7 +230,8 @@ class GeneralExtractor(Generic[E, T]):
         if object is None:
             logging.debug(f"Store info for object: {data!r}")
             object = self._create_object(data)
-        return self._update_object(object, data)
+        self._update_object(object, data)
+        return object
 
     def store_object(self, data: ExtractedDataOffline[T]) -> E:
         object = self._load_object(data)
@@ -217,7 +241,8 @@ class GeneralExtractor(Generic[E, T]):
         full_data = self._extract_required(data)
         logging.debug(f"Store info for object: {full_data!r}")
         object = self._create_object(full_data)
-        return self._update_object(object, full_data)
+        self._update_object(object, full_data)
+        return object
 
     def extract_and_store(self, uri: str) -> E:
         object = self.check_uri(uri)

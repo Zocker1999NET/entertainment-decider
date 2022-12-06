@@ -9,6 +9,7 @@ import requests
 from ...models import MediaElement, MediaThumbnail
 from ..all.tvmaze import TvmazeEpisodeEmbedded, TvmazeShowEmbedded, select_best_image
 from ..generic import (
+    ChangedReport,
     ExtractedDataOnline,
     ExtractedDataOffline,
     ExtractionError,
@@ -92,7 +93,7 @@ class TvmazeMediaExtractor(MediaExtractor[TvmazeEpisodeEmbedded]):
         self,
         object: MediaElement,
         data: TvmazeEpisodeEmbedded,
-    ) -> None:
+    ) -> ChangedReport:
         # sanity check
         airstamp = data.get("airstamp")
         if airstamp is None:  # not released yet
@@ -124,3 +125,4 @@ class TvmazeMediaExtractor(MediaExtractor[TvmazeEpisodeEmbedded]):
                 self.__get_episode_custom_uri(data["id"]),
             )
         )
+        return ChangedReport.ChangedSome  # TODO improve
