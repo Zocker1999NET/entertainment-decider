@@ -175,6 +175,11 @@ class Tag(db.Entity, Tagable):
             use_for_preferences=True,
         )
 
+    @classmethod
+    def scrub_temporary_tags(cls) -> int:
+        """Scrubs all temporary tags, which where left over because of errors."""
+        count = orm.delete(tag for tag in cls if tag.notes == TEMPORARY_TAGS_IDENTIFIER)
+        return count if isinstance(count, int) else 0
 
     id: int = orm.PrimaryKey(int, auto=True)
 

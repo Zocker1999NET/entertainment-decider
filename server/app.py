@@ -752,6 +752,11 @@ def recommend_adaptive() -> ResponseReturnValue:
     return resp
 
 
+@flask_app.route("/maintenance")
+def maintenance_page() -> ResponseReturnValue:
+    return render_template("maintenance/main.htm")
+
+
 def cookies_rating(negative: bool) -> ResponseReturnValue:
     media_id = request.form.get("media_id", default=None, type=str)
     element = MediaElement.get(id=media_id) if media_id else None
@@ -1354,4 +1359,10 @@ def api_media_set_dependent() -> ResponseReturnValue:
     )
     for last, cur in common.iter_lookahead(common.fix_iter(elements)):
         last.is_blocking.add(cur)
+    return redirect_back_or_okay()
+
+
+@flask_app.route("/api/tag/delete_temporary", methods=["POST"])
+def api_tag_delete_temporary() -> ResponseReturnValue:
+    Tag.scrub_temporary_tags()
     return redirect_back_or_okay()

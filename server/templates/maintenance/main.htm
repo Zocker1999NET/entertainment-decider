@@ -1,0 +1,18 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = "Maintenance" %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }}</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        {{ macros.body_header() }}
+        <h1>{{ title }}</h1>
+        {% set api_uri = "/api" %}
+        <div class="instruction-set">
+            {{ macros.no_input_post_form(api_uri + "/tag/delete_temporary", "delete temporary tags") }}
+        </div>
+    </body>
+</html>
