@@ -156,7 +156,25 @@ class CollectionStats:
 ## Tag & Selection Score's
 
 
+TEMPORARY_TAGS_IDENTIFIER = (
+    "automatic_temporary_tag:82e4509f-e262-463f-8ee5-140ca400ea79"
+)
+"""random static UUID for identification
+
+This string shall not be parsed and only used as a whole.
+"""
+
+
 class Tag(db.Entity, Tagable):
+    @classmethod
+    def gen_temporary_tag(cls, hint: str) -> Tag:
+        """Generates a new, unique and temporary tag. Required for some algorithms."""
+        return Tag(
+            title=f"[A] {hint}",
+            notes=TEMPORARY_TAGS_IDENTIFIER,
+            use_for_preferences=True,
+        )
+
 
     id: int = orm.PrimaryKey(int, auto=True)
 

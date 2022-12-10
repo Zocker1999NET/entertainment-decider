@@ -35,19 +35,16 @@ def generate_preference_list(
     def add_tags_for_collections() -> None:
         collections: Iterable[MediaCollection] = MediaCollection.select()
         for coll in collections:
-            coll.tag_list.add(
-                Tag(
-                    title="Automatic",
-                    use_for_preferences=True,
-                )
+            tag = Tag.gen_temporary_tag(
+                hint=f"Collection: {coll.title}",
             )
+            coll.tag_list.add(tag)
 
     def add_tags_for_extractor_names() -> None:
         @cache
         def get_extractor_tag(extractor_name: str) -> Tag:
-            return Tag(
-                title=f"Automatic for extractor {extractor_name}",
-                use_for_preferences=True,
+            return Tag.gen_temporary_tag(
+                hint=f"Extractor: {extractor_name}",
             )
 
         for element in element_list:
