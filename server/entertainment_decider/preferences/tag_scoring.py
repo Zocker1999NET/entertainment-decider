@@ -114,14 +114,30 @@ class PreferenceScoreAppender(Generic[T]):
     @classmethod
     def share_score(cls, obj: TagableProto[T], score: float) -> PreferenceScoreSuper[T]:
         # influences PreferenceScore.max_score_increase
+        direct_tags = [tag for tag in obj.direct_tags if tag.use_for_preferences]
         super_tags = [tag for tag in obj.super_tags if tag.use_for_preferences]
-        super_fraction = len(super_tags)
-        direct_fraction = super_fraction + 1
-        full_fraction = super_fraction + direct_fraction
-        single_share = score / full_fraction
-        direct_share = cls.share_score_flat(obj, single_share * direct_fraction)
-        super_shares = (super_tag.share_score(single_share) for super_tag in super_tags)
-        return direct_share & super_shares
+        direct_count = len(direct_tags)
+        super_count = len(super_tags)
+        if (direct_count + super_count) <= 0:
+            return PreferenceScore()
+        direct_fraction = super_count + direct_count
+        full_dist_count = super_count + (direct_fraction * direct_count)
+        single_direct_share = (direct_fraction * score) / full_dist_count
+        single_super_share = score / full_dist_count
+        assert (
+            ((direct_count * single_direct_share) + (super_count * single_super_share))
+            - score
+        ) <= 0.0001
+        return PreferenceScoreAppender(
+            *(
+                (cls.share_score_flat if obj == tag else cls.share_score)(
+                    obj=tag,
+                    score=single_direct_share,
+                )
+                for tag in direct_tags
+            ),
+            *(cls.share_score(tag, single_super_share) for tag in super_tags),
+        )
 
     def __init__(self, *args: PreferenceScoreCompatible[T]):
         self.points_list = []
