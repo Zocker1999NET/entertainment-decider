@@ -26,6 +26,7 @@ from .custom_types import Query, SafeStr
 from .thumbnails import THUMBNAIL_ALLOWED_TYPES, THUMBNAIL_HEADERS
 from .extras import UriHolder
 from ..common import trim
+from ..preferences.tag_protocol import TagableProto, TagProto
 
 db = orm.Database()
 
@@ -38,7 +39,7 @@ T = TypeVar("T")
 ####
 
 
-class Tagable:
+class Tagable(TagableProto["Tag"]):
 
     ## abstracted
 
@@ -165,7 +166,7 @@ This string shall not be parsed and only used as a whole.
 """
 
 
-class Tag(db.Entity, Tagable):
+class Tag(db.Entity, Tagable, TagProto["Tag"]):
     @classmethod
     def gen_temporary_tag(cls, hint: str) -> Tag:
         """Generates a new, unique and temporary tag. Required for some algorithms."""

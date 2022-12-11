@@ -6,28 +6,34 @@ from dataclasses import dataclass
 import gzip
 import json
 import math
-from typing import Dict, Iterable, List, TypeAlias, Union
+from typing import Dict, Generic, Iterable, List, TypeAlias, Union
 
 from ..extras import Chain
-from ..models import Tag, Tagable
+from .tag_protocol import T, TagableProto, TagGetter
 
 
 @dataclass
-class PreferenceScore:
-    points: Dict[Tag, float] = dataclasses.field(default_factory=lambda: {})
+class PreferenceScore(Generic[T]):
+    points: Dict[T, float] = dataclasses.field(default_factory=lambda: {})
 
-    def __add__(self, other: PreferenceScoreCompatible) -> PreferenceScore:
+    def __add__(
+        self,
+        other: PreferenceScoreCompatible[T],
+    ) -> PreferenceScore[T]:
         return (self & other).calculate()
 
-    def __and__(self, other: PreferenceScoreCompatible) -> PreferenceScoreAppender:
-        return PreferenceScoreAppender(self, other)
+    def __and__(
+        self,
+        other: PreferenceScoreCompatible[T],
+    ) -> PreferenceScoreAppender[T]:
+        return PreferenceScoreAppender[T](self, other)
 
-    def __mul__(self, scalar: float) -> PreferenceScore:
-        return PreferenceScore(
+    def __mul__(self, scalar: float) -> PreferenceScore[T]:
+        return PreferenceScore[T](
             {tag: score * scalar for tag, score in self.points.items()}
         )
 
-    def __neg__(self) -> PreferenceScore:
+    def __neg__(self) -> PreferenceScore[T]:
         return self * -1
 
     @staticmethod
@@ -37,10 +43,10 @@ class PreferenceScore:
 
     def adapt_score(
         self,
-        tagable: Tagable,
+        tagable: TagableProto[T],
         score: float,
         on_hierachy: bool = True,
-    ) -> PreferenceScore:
+    ) -> PreferenceScore[T]:
         addition = (
             PreferenceScoreAppender.share_score
             if on_hierachy
@@ -48,26 +54,31 @@ class PreferenceScore:
         )(tagable, score)
         return (self & addition).calculate()
 
-    def calculate_score(self, object: Tagable) -> float:
+    def calculate_score(self, object: TagableProto[T]) -> float:
         return self.calculate_iter_score(object.all_tags)
 
-    def calculate_iter_score(self, tag_iter: Iterable[Tag]) -> float:
+    def calculate_iter_score(self, tag_iter: Iterable[T]) -> float:
         return math.fsum(self.points.get(tag, 0) for tag in tag_iter)
 
     @classmethod
-    def from_json(cls, data: str) -> PreferenceScore:
-        dicts: Dict = json.loads(data)
-        return cls({Tag[id]: score for id, score in dicts.items()})
+    def from_json(cls, data: str, get_tag: TagGetter[T]) -> PreferenceScore[T]:
+        dicts: Dict[int, float] = json.loads(data)
+        return cls({get_tag(id): score for id, score in dicts.items()})
 
     @classmethod
-    def from_base64(cls, in_data: str, encoding: str = "utf-8") -> PreferenceScore:
+    def from_base64(
+        cls,
+        in_data: str,
+        get_tag: TagGetter[T],
+        encoding: str = "utf-8",
+    ) -> PreferenceScore[T]:
         return (
             Chain(in_data)
             | (lambda d: d.encode(encoding=encoding))
             | base64.decodebytes
             | gzip.decompress
             | (lambda d: d.decode(encoding=encoding))
-            | PreferenceScore.from_json
+            | (lambda d: PreferenceScore.from_json(d, get_tag))
         ).get()
 
     def to_json(self) -> str:
@@ -89,11 +100,11 @@ class PreferenceScore:
         ).get()
 
 
-class PreferenceScoreAppender:
-    points_list: List[PreferenceScore]
+class PreferenceScoreAppender(Generic[T]):
+    points_list: List[PreferenceScore[T]]
 
     @staticmethod
-    def share_score_flat(obj: Tagable, score: float) -> PreferenceScoreSuper:
+    def share_score_flat(obj: TagableProto[T], score: float) -> PreferenceScoreSuper[T]:
         # influences PreferenceScore.max_score_increase
         direct_tags = [tag for tag in obj.direct_tags if tag.use_for_preferences]
         if len(direct_tags) <= 0:
@@ -101,7 +112,7 @@ class PreferenceScoreAppender:
         return PreferenceScore({tag: score / len(direct_tags) for tag in direct_tags})
 
     @classmethod
-    def share_score(cls, obj: Tagable, score: float) -> PreferenceScoreSuper:
+    def share_score(cls, obj: TagableProto[T], score: float) -> PreferenceScoreSuper[T]:
         # influences PreferenceScore.max_score_increase
         super_tags = [tag for tag in obj.super_tags if tag.use_for_preferences]
         super_fraction = len(super_tags)
@@ -112,12 +123,15 @@ class PreferenceScoreAppender:
         super_shares = (super_tag.share_score(single_share) for super_tag in super_tags)
         return direct_share & super_shares
 
-    def __init__(self, *args: PreferenceScoreCompatible):
+    def __init__(self, *args: PreferenceScoreCompatible[T]):
         self.points_list = []
         for preference in args:
             self.__append(preference)
 
-    def __append(self, preference: PreferenceScoreCompatible) -> None:
+    def __append(
+        self,
+        preference: PreferenceScoreCompatible[T],
+    ) -> None:
         if isinstance(preference, PreferenceScore):
             self.points_list.append(preference)
         elif isinstance(preference, PreferenceScoreAppender):
@@ -126,11 +140,14 @@ class PreferenceScoreAppender:
             for sub_pref in preference:
                 self.__append(sub_pref)
 
-    def __and__(self, other: PreferenceScoreCompatible) -> PreferenceScoreAppender:
+    def __and__(
+        self,
+        other: PreferenceScoreCompatible[T],
+    ) -> PreferenceScoreAppender[T]:
         return PreferenceScoreAppender(self, other)
 
-    def calculate(self) -> PreferenceScore:
-        combined: Dict[Tag, List[float]] = {}
+    def calculate(self) -> PreferenceScore[T]:
+        combined: Dict[T, List[float]] = {}
         for preference in self.points_list:
             for tag, score in preference.points.items():
                 if tag not in combined:
@@ -141,7 +158,11 @@ class PreferenceScoreAppender:
         )
 
 
-PreferenceScoreSuper: TypeAlias = Union[PreferenceScore, PreferenceScoreAppender]
+PreferenceScoreSuper: TypeAlias = Union[
+    PreferenceScore[T],
+    PreferenceScoreAppender[T],
+]
 PreferenceScoreCompatible: TypeAlias = Union[
-    PreferenceScoreSuper, Iterable[PreferenceScoreSuper]
+    PreferenceScoreSuper[T],
+    Iterable[PreferenceScoreSuper[T]],
 ]
