@@ -223,6 +223,7 @@ CONFIG_TRANSLATE_TABLE: Dict[
     "PONY_PASSWORD": pony_config_same,
     "PONY_PASSWD": pony_config_same,
     "PONY_DSN": pony_config_same,
+    "PONY_CHARSET": pony_config_same,
 }
 
 for key, val in os.environ.items():
