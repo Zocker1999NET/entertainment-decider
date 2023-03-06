@@ -22,9 +22,21 @@ DataType: TypeAlias = Dict
 
 
 class YouTubeCollectionExtractor(CollectionExtractor[DataType]):
-
     __uri_regex = re.compile(
-        r"^https?://(www\.)?youtube\.com/(channel/|playlist\?list=)(?P<id>[^/&?]+)"
+        r"""^
+        https?://
+            ((
+                www
+                |
+                m
+            )\.)?youtube\.com/(
+                channel/
+                |
+                playlist\?list=
+            )
+            (?P<id>[^/&?]+)
+        """,
+        re.VERBOSE,
     )
 
     @classmethod

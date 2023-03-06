@@ -65,7 +65,11 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
     __uri_regex = re.compile(
         r"""^
         https?://(
-            (www\.)?youtube(-nocookie)?\.com/(
+            ((
+                www
+                |
+                m
+            )\.)?youtube(-nocookie)?\.com/(
                 watch\?v=
                 |
                 embed/
