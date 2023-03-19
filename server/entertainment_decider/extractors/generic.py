@@ -16,6 +16,9 @@ from ..models import (
 )
 
 
+EXTRACTOR_SUPER_TAG_KEY = ".extractor"
+
+
 T = TypeVar("T")
 
 
@@ -268,8 +271,16 @@ class GeneralExtractor(Generic[E, T]):
         return self.store_object(self._extract_offline(uri))
 
     def _get_extractor_tag(self) -> Tag:
+        TagKey.get_or_create_tag(
+            tag_key=EXTRACTOR_SUPER_TAG_KEY,
+            title="Extractor",
+            use_for_preferences=False,
+        )
         return TagKey.get_or_create_tag(
             tag_key=self.key,
             title=f"[Extractor] {self.long_name}",
             use_for_preferences=True,
+            super_tags=[
+                EXTRACTOR_SUPER_TAG_KEY,
+            ],
         )
