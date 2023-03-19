@@ -9,7 +9,6 @@ import requests
 from ...models import MediaElement, MediaThumbnail
 from ..all.tvmaze import (
     TvmazeEpisodeEmbedded,
-    TvmazeShowEmbedded,
     select_best_image,
 )
 from ..generic import (

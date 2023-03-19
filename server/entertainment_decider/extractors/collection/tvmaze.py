@@ -1,21 +1,21 @@
 from __future__ import annotations
 
 from datetime import datetime
-import itertools
 import re
-from typing import List, Optional
+from typing import Optional
 
 from pony import orm  # TODO remove
 import requests
 
 from ...models import (
     MediaCollection,
-    Tag,
+    MediaElement,
 )
 from ..all.tvmaze import (
     TvmazeEpisodeEmbedded,
     TvmazeShowEmbedded,
     add_embedding,
+    get_show_tags,
 )
 from ..generic import (
     ChangedReport,
@@ -125,12 +125,9 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
                 self.__get_show_custom_uri(data["id"]),
             )
         )
-        for genre in itertools.chain(["Video", data["type"]], data["genres"]):
-            tag_list: List[Tag] = list(
-                orm.select(tag for tag in Tag if tag.title == genre)
-            )
-            if len(tag_list) == 1:
-                object.tag_list.add(tag_list[0])
+        for tag in get_show_tags(data):
+            object.tag_list.add(tag)
+        elem_set = set[MediaElement]()
         for episode in data["_embedded"]["episodes"]:
             if episode["airstamp"] is not None:
                 add_embedding(episode, "show", data)
