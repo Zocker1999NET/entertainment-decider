@@ -14,6 +14,7 @@ from ...models import (
 )
 from ..all.youtube import (
     YoutubeVideoData,
+    get_video_tags,
 )
 from ..generic import (
     AuthorExtractedData,
@@ -99,6 +100,8 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             data.get("uploadDate") or data["publishDate"], "%Y-%m-%d"
         )
         object.length = int(data["duration"]["secondsText"])
+        for tag in get_video_tags(data):
+            object.tag_list.add(tag)
         object.uri = f"https://www.youtube.com/watch?v={data['id']}"
         object.add_uris(
             (
