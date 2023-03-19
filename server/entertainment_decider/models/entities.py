@@ -192,6 +192,8 @@ class Tag(db.Entity, Tagable, TagProto["Tag"]):
 
     use_for_preferences: bool = orm.Required(bool, default=True)
 
+    tag_keys: Iterable[TagKey] = orm.Set(lambda: TagKey)
+
     super_tag_list: Iterable[Tag] = orm.Set(lambda: Tag, reverse="sub_tag_list")
     sub_tag_list: Iterable[Tag] = orm.Set(lambda: Tag, reverse="super_tag_list")
 
@@ -205,6 +207,78 @@ class Tag(db.Entity, Tagable, TagProto["Tag"]):
     @property
     def orm_super_tags(self) -> Query[Tag]:
         return self.super_tag_list
+
+
+class TagKey(db.Entity):
+
+    num_id: int = orm.PrimaryKey(int, auto=True)
+    tag_key: str = orm.Required(str, unique=True)
+    """Format: <domain>[/<kind>][/<id>]
+
+    These IDs are distinctive of URLs.
+    Multiple sub-kinds can be used if required.
+    They should not contain unnecceray information
+    like names, titles, descriptions, dates
+    (or only when part of the one unique ID).
+
+    Domains must be used in reverse domain name notation
+    to allow for efficient prefix searches.
+    Domains must not start or end with a ".",
+    all domains are meant to be absolute.
+
+    Internal identifiers should use "." as domain and should omit the first "/"
+    to avoid collisions with TLDs,
+    e.g. ".automatic/collection/<id>".
+
+    Identifiers from extractors which want to avoid collisions
+    because of multiple ones supporting the same site
+    should choose a domain for their own product
+    and use the format: <extractor-domain>/<source-domain>[/<kind>][/<id>]
+    """
+    tag: Tag = orm.Required(Tag)
+
+    @classmethod
+    def get_by_prefix(cls, tag_key_prefix: str) -> Set[Tag]:
+        key_set = orm.select(
+            key for key in cls if key.tag_key.startswith(tag_key_prefix)
+        )
+        return {key.tag for key in key_set}
+
+    @classmethod
+    def get_or_create_tag(
+        cls,
+        tag_key: str,
+        title: Optional[str] = None,
+        notes: Optional[str] = None,
+        use_for_preferences: bool = False,
+        super_tags: Iterable[str] = [],
+    ) -> Tag:
+        tag = cls.get_tag(tag_key)
+        if tag is not None:
+            if title is not None and not tag.title:
+                tag.title = title
+            if notes is not None and not tag.notes:
+                tag.notes = notes
+        if tag is None:
+            tag = Tag(
+                title=title,
+                notes=notes,
+                use_for_preferences=use_for_preferences,
+            )
+            cls(
+                tag_key=tag_key,
+                tag=tag,
+            )
+        for super_tag_key in super_tags:
+            super_tag = cls.get_tag(tag_key=super_tag_key)
+            if super_tag is not None:
+                tag.super_tag_list.add(super_tag)
+        return tag
+
+    @classmethod
+    def get_tag(cls, tag_key: str) -> Optional[Tag]:
+        tag: Tag = orm.select(key.tag for key in cls if key.tag_key == tag_key).first()
+        return tag if tag is not None else None
 
 
 ## Element <-> Collection Linking

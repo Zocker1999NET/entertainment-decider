@@ -13,6 +13,7 @@ from .entities import (
     MediaUriMapping,
     Tag,
     Tagable,
+    TagKey,
     are_multiple_considered,
     db,
     get_all_considered,
