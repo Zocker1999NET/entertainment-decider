@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 import logging
 import re
-from typing import List, Optional, TypedDict
+from typing import List, NewType, Optional, TypedDict
 
 from youtubesearchpython import ResultMode, Video
 
@@ -20,6 +20,9 @@ from ..generic import (
     SuitableLevel,
 )
 from .base import MediaExtractor
+
+
+Keyword = NewType("Keyword", str)
 
 
 class YoutubeDuration(TypedDict):
@@ -52,7 +55,7 @@ class YoutubeVideoData(TypedDict):
     channel: YoutubeChannelData
     allowRatings: bool
     averageRating: float
-    keywords: List[str]
+    keywords: List[Keyword]
     isLiveContent: bool
     publishDate: str
     uploadDate: str
