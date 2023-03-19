@@ -11,6 +11,8 @@ from typing import Generic, Optional, TypeVar
 from ..models import (
     MediaCollection,
     MediaElement,
+    Tag,
+    TagKey,
 )
 
 
@@ -215,6 +217,7 @@ class GeneralExtractor(Generic[E, T]):
 
     def _update_object(self, object: E, data: ExtractedDataOnline[T]) -> ChangedReport:
         object.uri = data.object_uri
+        object.tag_list.add(self._get_extractor_tag())
         self._update_object_raw(object, data.data)
         self._update_hook(object, data)
         object.last_updated = datetime.now()
@@ -263,3 +266,10 @@ class GeneralExtractor(Generic[E, T]):
         if object is not None:
             return object
         return self.store_object(self._extract_offline(uri))
+
+    def _get_extractor_tag(self) -> Tag:
+        return TagKey.get_or_create_tag(
+            tag_key=self.key,
+            title=f"[Extractor] {self.long_name}",
+            use_for_preferences=True,
+        )
