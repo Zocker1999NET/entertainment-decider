@@ -18,7 +18,6 @@ from .base import CollectionExtractor
 
 
 class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
-
     __params: TtRssConnectionParameter
     __label_filter: Optional[int]
     __mark_as_read: bool

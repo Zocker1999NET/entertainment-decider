@@ -45,13 +45,13 @@ from pony import orm
 
 from entertainment_decider import common
 from entertainment_decider.models import (
+    MediaCollection,
+    MediaCollectionLink,
+    MediaElement,
     Query,
     Tag,
     are_multiple_considered,
     db,
-    MediaCollection,
-    MediaCollectionLink,
-    MediaElement,
     get_all_considered,
     setup_custom_tables,
     update_element_lookup_cache,

@@ -19,7 +19,6 @@ DataType: TypeAlias = List[List[MediaElement]]
 
 
 class AggregatedCollectionExtractor(CollectionExtractor[DataType]):
-
     __uri_regex = re.compile(r"^aggregated:///(?P<id>\d+(,\d+)*)")
 
     @classmethod

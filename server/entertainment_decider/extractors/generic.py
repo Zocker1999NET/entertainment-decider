@@ -8,7 +8,10 @@ from enum import Enum
 import logging
 from typing import Generic, Optional, TypeVar
 
-from ..models import MediaCollection, MediaElement
+from ..models import (
+    MediaCollection,
+    MediaElement,
+)
 
 
 T = TypeVar("T")
@@ -33,7 +36,6 @@ class ChangedReport(Enum):
 
 
 class SuitableLevel(Enum):
-
     NO = (False, False)
     FALLBACK = (True, False)
     ALWAYS = (True, True)
@@ -142,10 +144,14 @@ E = TypeVar("E", MediaElement, MediaCollection)
 
 
 class GeneralExtractor(Generic[E, T]):
-
     name: str
 
-    def __init__(self, name: str):
+    def __init__(
+        self,
+        name: str,
+    ):
+        self.key = key
+        self.long_name = long_name
         self.name = name
 
     # abstract (for media & collection base classes)

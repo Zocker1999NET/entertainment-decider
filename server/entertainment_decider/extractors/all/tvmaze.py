@@ -1,6 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional, TypeVar, TypedDict, Union
+from typing import (
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    TypeVar,
+    TypedDict,
+    Union,
+)
 
 
 Weekdays = Union[
@@ -19,10 +28,12 @@ class TvmazeCountry(TypedDict):
     code: str
     timezone: str
 
+
 class TvmazeEmbeddings(TypedDict, total=False):
     show: TvmazeShow
     seasons: List[TvmazeSeason]
     episodes: List[TvmazeEpisode]
+
 
 class TvmazeEpisode(TypedDict):
     id: int
@@ -39,17 +50,21 @@ class TvmazeEpisode(TypedDict):
     image: TvmazeImage
     summary: str
 
+
 class TvmazeEpisodeEmbedded(TvmazeEpisode):
     _embedded: TvmazeEmbeddings
+
 
 class TvmazeExternalIds(TypedDict):
     tvrage: Optional[int]
     thetvdb: Optional[int]
     imdb: Optional[str]
 
+
 class TvmazeImage(TypedDict):
     medium: Optional[str]
     original: str
+
 
 def select_best_image(*image_list: TvmazeImage) -> Optional[str]:
     for image in image_list:
@@ -59,6 +74,7 @@ def select_best_image(*image_list: TvmazeImage) -> Optional[str]:
                 return found
     return None
 
+
 class TvmazeNetwork(TypedDict):
     id: int
     name: str
@@ -66,12 +82,15 @@ class TvmazeNetwork(TypedDict):
     webChannel: Optional[Any]
     dvdCountry: Optional[TvmazeCountry]
 
+
 class TvmazeRating(TypedDict):
     average: int
+
 
 class TvmazeSchedule(TypedDict):
     time: str
     days: List[Weekdays]
+
 
 class TvmazeSeason(TypedDict):
     id: int
@@ -85,6 +104,7 @@ class TvmazeSeason(TypedDict):
     webChannel: Optional[Any]
     image: TvmazeImage
     summary: str
+
 
 class TvmazeShow(TypedDict):
     id: int
@@ -107,11 +127,14 @@ class TvmazeShow(TypedDict):
     summary: str
     updated: int
 
+
 class TvmazeShowEmbedded(TvmazeShow):
     _embedded: TvmazeEmbeddings
 
 
 T = TypeVar("T", bound=Dict)
+
+
 def add_embedding(object: T, key: str, value: Any, parent_key: str = "_embedded") -> T:
     if parent_key not in object:
         object[parent_key] = {}

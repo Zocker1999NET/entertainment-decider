@@ -7,7 +7,11 @@ from typing import Optional
 import requests
 
 from ...models import MediaElement, MediaThumbnail
-from ..all.tvmaze import TvmazeEpisodeEmbedded, TvmazeShowEmbedded, select_best_image
+from ..all.tvmaze import (
+    TvmazeEpisodeEmbedded,
+    TvmazeShowEmbedded,
+    select_best_image,
+)
 from ..generic import (
     ChangedReport,
     ExtractedDataOnline,
@@ -19,7 +23,6 @@ from .base import MediaExtractor
 
 
 class TvmazeMediaExtractor(MediaExtractor[TvmazeEpisodeEmbedded]):
-
     SUPPORTED_PATTERN = re.compile(
         r"""^
             (

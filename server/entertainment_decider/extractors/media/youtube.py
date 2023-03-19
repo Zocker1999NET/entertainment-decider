@@ -5,7 +5,10 @@ import logging
 import re
 from typing import Optional
 
-from youtubesearchpython import ResultMode, Video
+from youtubesearchpython import (
+    ResultMode,
+    Video,
+)
 
 from ...models import (
     MediaElement,

@@ -23,7 +23,6 @@ from .base import MediaExtractor
 
 
 class YtdlMediaExtractor(MediaExtractor[Dict]):
-
     SUPPORTED_PATTERN = re.compile(
         r"""^
         https?://

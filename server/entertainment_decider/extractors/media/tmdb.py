@@ -6,8 +6,16 @@ from typing import List, Optional
 
 from pony import orm
 
-from ...models import MediaElement, MediaThumbnail, Query, Tag
-from ..all.tmdb import TmdbMovieData, TMDB_REGEX_URI
+from ...models import (
+    MediaElement,
+    MediaThumbnail,
+    Query,
+    Tag,
+)
+from ..all.tmdb import (
+    TMDB_REGEX_URI,
+    TmdbMovieData,
+)
 from ..generic import (
     ChangedReport,
     ExtractedDataOnline,
@@ -19,7 +27,6 @@ from .base import MediaExtractor
 
 
 class TmdbMovieMediaExtractor(MediaExtractor[TmdbMovieData]):
-
     SUPPORTED_PATTERN = re.compile(
         rf"""^
             {TMDB_REGEX_URI}

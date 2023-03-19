@@ -25,7 +25,6 @@ T = TypeVar("T")
 
 
 class TmdbBaseExtractor(CollectionExtractor[T]):
-
     TMDB_CLASS: ClassVar[str]
 
     SUPPORTED_PATTERN = re.compile(
@@ -72,7 +71,6 @@ class TmdbBaseExtractor(CollectionExtractor[T]):
 
 
 class TmdbCollectionExtractor(TmdbBaseExtractor[TmdbCollectionData]):
-
     TMDB_CLASS = "collection"
 
     def _extract_online(self, uri: str) -> ExtractedDataOnline[TmdbCollectionData]:
@@ -112,7 +110,6 @@ class TmdbCollectionExtractor(TmdbBaseExtractor[TmdbCollectionData]):
 
 
 class TmdbKeywordExtractor(TmdbBaseExtractor[TmdbKeywordData]):
-
     TMDB_CLASS = "keyword"
 
     def _extract_online(self, uri: str) -> ExtractedDataOnline[TmdbKeywordData]:

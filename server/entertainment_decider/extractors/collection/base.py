@@ -3,7 +3,13 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 import logging
 import math
-from typing import Any, Callable, Mapping, Optional, TypeVar
+from typing import (
+    Any,
+    Callable,
+    Mapping,
+    Optional,
+    TypeVar,
+)
 
 from pony import orm
 

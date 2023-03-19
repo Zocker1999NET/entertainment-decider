@@ -8,8 +8,15 @@ from typing import List, Optional
 from pony import orm  # TODO remove
 import requests
 
-from ...models import MediaCollection, Tag
-from ..all.tvmaze import TvmazeEpisodeEmbedded, TvmazeShowEmbedded, add_embedding
+from ...models import (
+    MediaCollection,
+    Tag,
+)
+from ..all.tvmaze import (
+    TvmazeEpisodeEmbedded,
+    TvmazeShowEmbedded,
+    add_embedding,
+)
 from ..generic import (
     ChangedReport,
     ExtractedDataOnline,
@@ -20,7 +27,6 @@ from .base import CollectionExtractor
 
 
 class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
-
     SUPPORTED_PATTERN = re.compile(
         r"""^
             (
