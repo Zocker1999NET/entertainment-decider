@@ -43,6 +43,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             )|
             youtu\.be/
         )(?P<id>[^/&?]+)
+        /?(\#.*)?
     $""",
         re.VERBOSE,
     )
