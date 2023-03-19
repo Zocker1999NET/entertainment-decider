@@ -22,6 +22,10 @@ from ..generic import (
 from .base import MediaExtractor
 
 
+EXTRACTOR_KEY = ".extractor/.yt-dl"
+EXTRACTOR_NAME = "YT-DL"
+
+
 class YtdlMediaExtractor(MediaExtractor[Dict]):
     SUPPORTED_PATTERN = re.compile(
         r"""^
@@ -31,7 +35,11 @@ class YtdlMediaExtractor(MediaExtractor[Dict]):
     )
 
     def __init__(self) -> None:
-        super().__init__("ytdl")
+        super().__init__(
+            key=EXTRACTOR_KEY,
+            long_name=EXTRACTOR_NAME,
+            name="ytdl",
+        )
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
         return SuitableLevel.fallback_or_no(bool(self.SUPPORTED_PATTERN.search(uri)))

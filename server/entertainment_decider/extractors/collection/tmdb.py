@@ -8,6 +8,8 @@ from pony import orm
 
 from ...models import MediaCollection
 from ..all.tmdb import (
+    EXTRACTOR_KEY,
+    EXTRACTOR_NAME,
     TmdbCollectionData,
     TMDB_REGEX_URI,
     TmdbKeywordData,
@@ -46,7 +48,11 @@ class TmdbBaseExtractor(CollectionExtractor[T]):
         return int(m.group("id")) if m and m.group("class") == cls.TMDB_CLASS else None
 
     def __init__(self) -> None:
-        super().__init__("tmdb")
+        super().__init__(
+            key=EXTRACTOR_KEY,
+            long_name=EXTRACTOR_NAME,
+            name="tmdb",
+        )
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
         id = self._get_id(uri)

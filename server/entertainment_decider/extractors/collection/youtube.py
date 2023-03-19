@@ -9,6 +9,10 @@ from pony import orm  # TODO remove
 import youtubesearchpython
 
 from ...models import MediaCollection
+from ..all.youtube import (
+    EXTRACTOR_KEY,
+    EXTRACTOR_NAME,
+)
 from ..generic import (
     ChangedReport,
     ExtractedDataOnline,
@@ -65,7 +69,11 @@ class YouTubeCollectionExtractor(CollectionExtractor[DataType]):
         return collection_id
 
     def __init__(self) -> None:
-        super().__init__("youtube")
+        super().__init__(
+            key=EXTRACTOR_KEY,
+            long_name=EXTRACTOR_NAME,
+            name="youtube",
+        )
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
         return SuitableLevel.always_or_no(self.__uri_regex.match(uri) is not None)

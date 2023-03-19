@@ -13,6 +13,8 @@ from ...models import (
     Tag,
 )
 from ..all.tmdb import (
+    EXTRACTOR_KEY,
+    EXTRACTOR_NAME,
     TMDB_REGEX_URI,
     TmdbMovieData,
 )
@@ -45,7 +47,11 @@ class TmdbMovieMediaExtractor(MediaExtractor[TmdbMovieData]):
         return int(m.group("movie_id")) if m else None
 
     def __init__(self) -> None:
-        super().__init__("tmdb")
+        super().__init__(
+            key=EXTRACTOR_KEY,
+            long_name=EXTRACTOR_NAME,
+            name="tmdb",
+        )
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
         movie_id = self.__get_movie_id(uri)

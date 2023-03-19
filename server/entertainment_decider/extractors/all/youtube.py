@@ -11,6 +11,7 @@ from ...models import Tag, TagKey
 
 
 EXTRACTOR_KEY = ".extractor/com.youtube"
+EXTRACTOR_NAME = "YouTube"
 
 KEYWORD_PREFIX = f"{EXTRACTOR_KEY}/keyword"
 

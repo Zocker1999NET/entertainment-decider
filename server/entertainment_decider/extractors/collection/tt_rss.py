@@ -28,7 +28,11 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
         mark_as_read: bool = False,
         label_filter: Optional[int] = None,
     ):
-        super().__init__("tt-rss")
+        super().__init__(
+            key=".extractor/org.tt-rss",
+            long_name="TT-RSS",
+            name="tt-rss",
+        )
         self.__params = params
         self.__label_filter = label_filter
         self.__mark_as_read = mark_as_read

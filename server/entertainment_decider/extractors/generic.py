@@ -145,9 +145,17 @@ E = TypeVar("E", MediaElement, MediaCollection)
 
 class GeneralExtractor(Generic[E, T]):
     name: str
+    """legacy name for database entries"""
+    long_name: str
+    """(long) name for human readable titles / descriptions"""
+    key: str
+    """key for tag key (prefixes) and further database usage, replaces name"""
 
     def __init__(
         self,
+        *,
+        key: str,
+        long_name: str,
         name: str,
     ):
         self.key = key

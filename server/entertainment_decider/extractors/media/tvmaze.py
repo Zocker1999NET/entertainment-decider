@@ -8,6 +8,8 @@ import requests
 
 from ...models import MediaElement, MediaThumbnail
 from ..all.tvmaze import (
+    EXTRACTOR_KEY,
+    EXTRACTOR_NAME,
     TvmazeEpisodeEmbedded,
     select_best_image,
 )
@@ -53,7 +55,11 @@ class TvmazeMediaExtractor(MediaExtractor[TvmazeEpisodeEmbedded]):
         return f"tvmaze:///episodes/{episode_id}"
 
     def __init__(self) -> None:
-        super().__init__("tvmaze")
+        super().__init__(
+            key=EXTRACTOR_KEY,
+            long_name=EXTRACTOR_NAME,
+            name="tvmaze",
+        )
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
         episode_id = self.__get_episode_id(uri)

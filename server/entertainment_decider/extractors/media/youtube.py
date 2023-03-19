@@ -16,6 +16,8 @@ from ...models import (
     thumbnail_sort_key,
 )
 from ..all.youtube import (
+    EXTRACTOR_KEY,
+    EXTRACTOR_NAME,
     YoutubeVideoData,
     get_video_tags,
 )
@@ -52,7 +54,11 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
     )
 
     def __init__(self) -> None:
-        super().__init__("youtube")
+        super().__init__(
+            name="youtube",
+            key=EXTRACTOR_KEY,
+            long_name=EXTRACTOR_NAME,
+        )
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
         return SuitableLevel.always_or_no(self.__uri_regex.match(uri) is not None)

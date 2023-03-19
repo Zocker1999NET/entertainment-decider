@@ -12,6 +12,8 @@ from ...models import (
     MediaElement,
 )
 from ..all.tvmaze import (
+    EXTRACTOR_KEY,
+    EXTRACTOR_NAME,
     TvmazeEpisodeEmbedded,
     TvmazeShowEmbedded,
     add_embedding,
@@ -67,7 +69,11 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
         return f"tvmaze:///shows/{show_id}"
 
     def __init__(self) -> None:
-        super().__init__("tvmaze")
+        super().__init__(
+            key=EXTRACTOR_KEY,
+            long_name=EXTRACTOR_NAME,
+            name="tvmaze",
+        )
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
         show_id = self.__get_show_id(uri)

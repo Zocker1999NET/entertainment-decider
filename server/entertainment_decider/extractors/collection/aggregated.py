@@ -35,7 +35,11 @@ class AggregatedCollectionExtractor(CollectionExtractor[DataType]):
         return colls
 
     def __init__(self) -> None:
-        super().__init__("aggregated")
+        super().__init__(
+            key=".extractor/.aggregated",
+            long_name="Aggregated Lists",
+            name="aggregated",
+        )
 
     def uri_suitable(self, uri: str) -> SuitableLevel:
         return SuitableLevel.always_or_no(self.__uri_regex.match(uri) is not None)

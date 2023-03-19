@@ -12,6 +12,9 @@ import tmdbsimple as tmdb
 tmdb.API_KEY = "f090bb54758cabf231fb605d3e3e0468"
 
 
+EXTRACTOR_KEY = ".extractor/org.themoviedb"
+EXTRACTOR_NAME = "The Movie DB"
+
 TMDB_DATE_FORMAT = "%Y-%m-%d"
 TMDB_REGEX_URI = r"""
     (
