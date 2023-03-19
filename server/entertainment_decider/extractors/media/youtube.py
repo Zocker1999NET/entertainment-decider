@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 import logging
 import re
-from typing import List, NewType, Optional, TypedDict
+from typing import Optional
 
 from youtubesearchpython import ResultMode, Video
 
@@ -11,6 +11,9 @@ from ...models import (
     MediaElement,
     MediaThumbnail,
     thumbnail_sort_key,
+)
+from ..all.youtube import (
+    YoutubeVideoData,
 )
 from ..generic import (
     AuthorExtractedData,
@@ -22,49 +25,7 @@ from ..generic import (
 from .base import MediaExtractor
 
 
-Keyword = NewType("Keyword", str)
-
-
-class YoutubeDuration(TypedDict):
-    secondsText: str
-
-
-class YoutubeViewCount(TypedDict):
-    text: str
-
-
-class YoutubeThumbnailData(TypedDict):
-    url: str
-    width: int
-    height: int
-
-
-class YoutubeChannelData(TypedDict):
-    name: str
-    id: str
-    link: str
-
-
-class YoutubeVideoData(TypedDict):
-    id: str
-    title: str
-    duration: YoutubeDuration
-    viewCount: YoutubeViewCount
-    thumbnails: List[YoutubeThumbnailData]
-    description: str
-    channel: YoutubeChannelData
-    allowRatings: bool
-    averageRating: float
-    keywords: List[Keyword]
-    isLiveContent: bool
-    publishDate: str
-    uploadDate: str
-    isLiveNow: bool
-    link: str
-
-
 class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
-
     __uri_regex = re.compile(
         r"""^
         https?://(
