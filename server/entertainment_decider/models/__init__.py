@@ -22,6 +22,12 @@ from .entities import (
     update_element_lookup_cache,
 )
 
+from .predefined_tags import (
+    predefined_movie_tag,
+    predefined_series_tag,
+    predefined_video_tag,
+)
+
 from .thumbnails import (
     thumbnail_sort_key,
 )
