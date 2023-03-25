@@ -11,7 +11,7 @@ from typing import (
     TypedDict,
 )
 
-import tmdbsimple as tmdb
+import tmdbsimple as tmdb  # type: ignore
 
 
 tmdb.API_KEY = "f090bb54758cabf231fb605d3e3e0468"

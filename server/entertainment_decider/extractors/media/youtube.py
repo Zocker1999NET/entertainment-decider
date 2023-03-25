@@ -5,7 +5,7 @@ import logging
 import re
 from typing import Optional
 
-from youtubesearchpython import (
+from youtubesearchpython import (  # type: ignore
     ResultMode,
     Video,
 )
