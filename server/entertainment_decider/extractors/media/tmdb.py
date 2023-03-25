@@ -9,7 +9,6 @@ from pony import orm
 from ...models import (
     MediaElement,
     MediaThumbnail,
-    Query,
     Tag,
 )
 from ..all.tmdb import (
