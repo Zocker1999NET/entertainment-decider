@@ -16,6 +16,7 @@ from typing import (
 from ...models import (
     Tag,
     TagKey,
+    predefined_series_tag,
 )
 from ...models.localization import (
     get_country_tag as get_country_tag_by_code,
@@ -186,9 +187,7 @@ WEB_CHANNEL_PREFIX = f"{EXTRACTOR_KEY}/web_channel"
 
 
 def get_show_tags(show: TvmazeShow) -> Iterable[Tag]:
-    general_video_tag = TagKey.get_tag(".kind/video")
-    if general_video_tag is not None:
-        yield general_video_tag
+    yield predefined_series_tag()
     yield get_show_type_tag(show["type"])
     yield get_language_tag(show["language"])
     for genre in show["genres"]:
