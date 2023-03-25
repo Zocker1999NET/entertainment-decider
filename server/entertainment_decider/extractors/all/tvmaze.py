@@ -13,7 +13,10 @@ from typing import (
     Union,
 )
 
-from ...models import Tag, TagKey
+from ...models import (
+    Tag,
+    TagKey,
+)
 from ...models.localization import (
     get_country_tag as get_country_tag_by_code,
     get_language_tag,

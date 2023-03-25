@@ -4,7 +4,12 @@ from datetime import datetime
 from functools import cached_property
 import itertools
 import math
-from typing import Literal, Optional, Sequence, TypedDict
+from typing import (
+    Literal,
+    Optional,
+    Sequence,
+    TypedDict,
+)
 
 import tmdbsimple as tmdb
 
@@ -96,7 +101,12 @@ class TmdbMovieInfoDict(TypedDict):
     release_date: Optional[str]
     runtime: Optional[int]
     status: Literal[
-        "Rumored", "Planned", "In Production", "Post Production", "Released", "Canceled"
+        "Rumored",
+        "Planned",
+        "In Production",
+        "Post Production",
+        "Released",
+        "Canceled",
     ]
     title: str
 
