@@ -8,6 +8,7 @@ from typing import (
     Callable,
     Mapping,
     Optional,
+    Set,
     TypeVar,
 )
 
@@ -129,6 +130,17 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
                 f"Add to collection {collection.title!r} media {data.object_uri!r} (Season {season}, Episode {episode})"
             )
         return element
+
+    def _remove_older_episodes(
+        self,
+        collection: MediaCollection,
+        current_set: Set[MediaElement],
+    ) -> None:
+        all_set = {link.element for link in collection.media_links}
+        missing_set = all_set - current_set
+        for elem in missing_set:
+            if not elem.skip_over:
+                elem.delete()
 
     def _sort_episodes(self, coll: MediaCollection) -> None:
         sorting_methods: Mapping[int, Callable[[MediaCollectionLink], Any]] = {

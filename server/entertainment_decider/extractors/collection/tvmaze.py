@@ -137,7 +137,7 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
         for episode in data["_embedded"]["episodes"]:
             if episode["airstamp"] is not None:
                 add_embedding(episode, "show", data)
-                self._inject_episode(
+                elem = self._inject_episode(
                     collection=object,
                     data=ExtractedDataOnline[TvmazeEpisodeEmbedded](
                         extractor_name="tvmaze",
@@ -148,4 +148,10 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
                     season=episode["season"],
                     episode=episode["number"],
                 )
+                if elem is not None:
+                    elem_set.add(elem)
+        self._remove_older_episodes(
+            collection=object,
+            current_set=elem_set,
+        )
         return ChangedReport.ChangedSome  # TODO improve
