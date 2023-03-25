@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import re
-from typing import ClassVar, Iterable, List, Optional, TypeVar
+from typing import ClassVar, Optional, TypeVar
 
 from pony import orm
 
