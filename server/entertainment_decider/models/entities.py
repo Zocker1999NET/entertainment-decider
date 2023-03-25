@@ -202,11 +202,11 @@ class Tag(db.Entity, Tagable, TagProto["Tag"]):
 
     @property
     def orm_assigned_tags(self) -> Query[Tag]:
-        return [self]
+        return [self] if self.use_for_preferences else self.super_tag_list
 
     @property
     def orm_super_tags(self) -> Query[Tag]:
-        return self.super_tag_list
+        return self.super_tag_list if self.use_for_preferences else []
 
 
 class TagKey(db.Entity):
