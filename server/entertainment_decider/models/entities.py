@@ -251,7 +251,7 @@ class TagKey(db.Entity):
         title: Optional[str] = None,
         notes: Optional[str] = None,
         use_for_preferences: bool = False,
-        super_tags: Iterable[str] = [],
+        super_tags: Iterable[Tag|str] = [],
     ) -> Tag:
         tag = cls.get_tag(tag_key)
         if tag is not None:
@@ -276,7 +276,9 @@ class TagKey(db.Entity):
         return tag
 
     @classmethod
-    def get_tag(cls, tag_key: str) -> Optional[Tag]:
+    def get_tag(cls, tag_key: Tag|str) -> Optional[Tag]:
+        if isinstance(tag_key, Tag):
+            return tag_key
         tag: Tag = orm.select(key.tag for key in cls if key.tag_key == tag_key).first()
         return tag if tag is not None else None
 
