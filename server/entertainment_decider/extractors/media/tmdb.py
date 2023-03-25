@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-import itertools
 import re
-from typing import List, Optional
-
-from pony import orm
+from typing import Optional
 
 from ...models import (
     MediaElement,
     MediaThumbnail,
-    Tag,
 )
 from ..all.tmdb import (
     EXTRACTOR_KEY,
@@ -102,10 +98,6 @@ class TmdbMovieMediaExtractor(MediaExtractor[TmdbMovieData]):
                 data.tmdb_short_uri,
             )
         )
-        for genre in itertools.chain(["Movie"], data.genres):
-            tag_list: List[Tag] = list(
-                orm.select(tag for tag in Tag if tag.title == genre)
-            )
-            if len(tag_list) == 1:
-                object.tag_list.add(tag_list[0])
+        for tag in data.get_tags(data):
+            object.tag_list.add(tag)
         return ChangedReport.ChangedSome  # TODO improve

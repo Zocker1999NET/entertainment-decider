@@ -5,11 +5,18 @@ from functools import cached_property
 import itertools
 import math
 from typing import (
+    Iterable,
     Literal,
     NewType,
     Optional,
     Sequence,
     TypedDict,
+)
+
+from ...models import (
+    Tag,
+    TagKey,
+    predefined_movie_tag,
 )
 
 import tmdbsimple as tmdb  # type: ignore
@@ -23,6 +30,8 @@ tmdb.API_KEY = "f090bb54758cabf231fb605d3e3e0468"
 
 EXTRACTOR_KEY = ".extractor/org.themoviedb"
 EXTRACTOR_NAME = "The Movie DB"
+
+GENRE_PREFIX = f"{EXTRACTOR_KEY}/genre"
 
 TMDB_DATE_FORMAT = "%Y-%m-%d"
 TMDB_REGEX_URI = r"""
@@ -266,6 +275,11 @@ class TmdbMovieData:
     def _info(self) -> TmdbMovieInfoDict:
         return self.obj.info(append_to_response="external_ids,images,keywords")  # type: ignore
 
+    def get_tags(self) -> Iterable[Tag]:
+        yield predefined_movie_tag()
+        for genre in self.genres:
+            yield get_genre_tag(genre)
+
     @cached_property
     def description(self) -> Optional[str]:
         return self._info.get("overview")
@@ -335,3 +349,34 @@ class TmdbMovieData:
     @cached_property
     def tmdb_id(self) -> int:
         return self._info["id"]
+
+
+def get_genre_tag(genre: GenreTitle) -> Tag:
+    return get_any_tag(
+        category_key=GENRE_PREFIX,
+        category_name="Genre",
+        element_key=genre.lower(),
+        element_name=genre,
+    )
+
+
+def get_any_tag(
+    *,
+    category_key: str,
+    category_name: str,
+    element_key: str,
+    element_name: str,
+) -> Tag:
+    TagKey.get_or_create_tag(
+        tag_key=category_key,
+        title=f"[{EXTRACTOR_NAME}] {category_name}",
+        use_for_preferences=False,
+    )
+    return TagKey.get_or_create_tag(
+        tag_key=f"{category_key}/{element_key}",
+        title=f"[{EXTRACTOR_NAME}] [{category_name}] {element_name}",
+        use_for_preferences=True,
+        super_tags=[
+            category_key,
+        ],
+    )
