@@ -6,12 +6,16 @@ import itertools
 import math
 from typing import (
     Literal,
+    NewType,
     Optional,
     Sequence,
     TypedDict,
 )
 
 import tmdbsimple as tmdb  # type: ignore
+
+
+GenreTitle = NewType("GenreTitle", str)
 
 
 tmdb.API_KEY = "f090bb54758cabf231fb605d3e3e0468"
@@ -32,7 +36,7 @@ TMDB_REGEX_URI = r"""
 
 class TmdbGenreDict(TypedDict):
     id: int
-    name: str
+    name: GenreTitle
 
 
 class TmdbImageDict(TypedDict):
@@ -267,7 +271,7 @@ class TmdbMovieData:
         return self._info.get("overview")
 
     @cached_property
-    def genres(self) -> Sequence[str]:
+    def genres(self) -> Sequence[GenreTitle]:
         return [genre["name"] for genre in self._info["genres"]]
 
     @cached_property
