@@ -893,7 +893,7 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         if link is None:
             change = True
             link = MediaCollectionLink(collection=self, element=media)
-        if (link.season, link.episode) != (season, episode):
+        if (link.season, link.episode) != (season, episode) and (season, episode) != (0, 0):
             change = True
             link.season, link.episode = season, episode
         if self.ignored and not media.skip_over:
