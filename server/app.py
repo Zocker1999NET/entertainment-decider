@@ -48,6 +48,7 @@ from entertainment_decider.models import (
     MediaCollection,
     MediaCollectionLink,
     MediaElement,
+    MediaThumbnail,
     Query,
     Tag,
     are_multiple_considered,
@@ -633,14 +634,27 @@ def show_media_thumb(media_id: int) -> ResponseReturnValue:
     if element.thumbnail is None:
         # TODO send 404 along default thumbnail
         return redirect("/static/thumbnail_missing.webp")
-    thumb = element.thumbnail
+    return redirect(
+        url_for(
+            endpoint=show_thumb.__name__,
+            thumbnail_id=element.thumbnail.id,
+        )
+    )
+
+
+@flask_app.route("/thumbnail/<int:thumbnail_id>")
+def show_thumb(thumbnail_id: int) -> ResponseReturnValue:
+    thumbnail: MediaThumbnail = MediaThumbnail.get(id=thumbnail_id)
+    if thumbnail is None:
+        # do send only 404 (not default thumbnail) as invalid id was requested
+        return make_response(f"Not found", 404)
     # TODO do not load data from database until send_file requires that
     return send_file(
-        io.BytesIO(thumb.receive_data()),
-        mimetype=thumb.mime_type,
+        io.BytesIO(thumbnail.receive_data()),
+        mimetype=thumbnail.mime_type,
         etag=True,
         as_attachment=False,
-        last_modified=thumb.last_downloaded,
+        last_modified=thumbnail.last_downloaded,
         max_age=24 * 60 * 60,
     )
 
