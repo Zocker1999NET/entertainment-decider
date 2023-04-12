@@ -40,7 +40,6 @@ T = TypeVar("T")
 
 
 class Tagable(TagableProto["Tag"]):
-
     ## abstracted
 
     @abstractproperty
@@ -101,7 +100,6 @@ class Tagable(TagableProto["Tag"]):
 
 @dataclass
 class CollectionStats:
-
     to_watch_count: int
     ignored_count: int  # but not watched
     watched_count: int
@@ -251,7 +249,7 @@ class TagKey(db.Entity):
         title: Optional[str] = None,
         notes: Optional[str] = None,
         use_for_preferences: bool = False,
-        super_tags: Iterable[Tag|str] = [],
+        super_tags: Iterable[Tag | str] = [],
     ) -> Tag:
         tag = cls.get_tag(tag_key)
         if tag is not None:
@@ -276,7 +274,7 @@ class TagKey(db.Entity):
         return tag
 
     @classmethod
-    def get_tag(cls, tag_key: Tag|str) -> Optional[Tag]:
+    def get_tag(cls, tag_key: Tag | str) -> Optional[Tag]:
         if isinstance(tag_key, Tag):
             return tag_key
         tag: Tag = orm.select(key.tag for key in cls if key.tag_key == tag_key).first()
@@ -287,7 +285,6 @@ class TagKey(db.Entity):
 
 
 class MediaCollectionLink(db.Entity):
-
     collection: MediaCollection = orm.Required(lambda: MediaCollection)
     element: MediaElement = orm.Required(lambda: MediaElement)
     orm.PrimaryKey(collection, element)
@@ -333,7 +330,6 @@ class MediaCollectionLink(db.Entity):
 
 
 class MediaElement(db.Entity, UriHolder, Tagable):
-
     ### columns
 
     id: int = orm.PrimaryKey(
@@ -568,7 +564,6 @@ class MediaElement(db.Entity, UriHolder, Tagable):
 
 
 class MediaThumbnail(db.Entity):
-
     id: int = orm.PrimaryKey(
         int,
         auto=True,
@@ -632,7 +627,6 @@ class MediaThumbnail(db.Entity):
 
 
 class MediaUriMapping(db.Entity):
-
     id: int = orm.PrimaryKey(int, auto=True)
     uri: str = orm.Required(str, unique=True)
     element: MediaElement = orm.Required(MediaElement)
@@ -642,7 +636,6 @@ class MediaUriMapping(db.Entity):
 
 
 class MediaCollection(db.Entity, UriHolder, Tagable):
-
     ### columns
 
     id: int = orm.PrimaryKey(
@@ -893,7 +886,10 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         if link is None:
             change = True
             link = MediaCollectionLink(collection=self, element=media)
-        if (link.season, link.episode) != (season, episode) and (season, episode) != (0, 0):
+        if (link.season, link.episode) != (season, episode) and (season, episode) != (
+            0,
+            0,
+        ):
             change = True
             link.season, link.episode = season, episode
         if self.ignored and not media.skip_over:
@@ -927,7 +923,6 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
 
 
 class CollectionUriMapping(db.Entity):
-
     id: int = orm.PrimaryKey(int, auto=True)
     uri: str = orm.Required(str, unique=True)
     element: MediaCollection = orm.Required(MediaCollection)
