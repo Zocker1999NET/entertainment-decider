@@ -572,58 +572,59 @@ class MediaThumbnail(db.Entity):
         str,
         unique=True,
     )
-    last_downloaded: datetime = orm.Optional(
-        datetime,
-        default=None,
-        nullable=True,
-    )
-    last_accessed: datetime = orm.Optional(
-        datetime,
-        default=None,
-        nullable=True,
-    )
-    mime_type: str = orm.Optional(
-        str,
-        default="",
-    )
-    data: bytes = orm.Optional(
-        bytes,
-        default=None,
-        nullable=True,
-        lazy=True,  # do not always preload huge image data
-    )
 
+    __cache_obj: MediaThumbnailCache = orm.Optional(
+        lambda: MediaThumbnailCache,
+        nullable=True,
+    )
     elements: Set[MediaElement] = orm.Set(lambda: MediaElement)
 
     @classmethod
     def from_uri(cls, uri: str) -> MediaThumbnail:
         return cls.get(uri=uri) or MediaThumbnail(uri=uri)
 
-    def access(self) -> None:
-        self.last_accessed = datetime.now()
+    def receive(self) -> MediaThumbnailCache:
+        return self.__cache_obj or MediaThumbnailCache.download(self)
 
-    def download(self) -> bool:
-        res = requests.get(url=self.uri, headers=THUMBNAIL_HEADERS)
+
+class MediaThumbnailCache(db.Entity):
+    thumbnail: MediaThumbnail = orm.PrimaryKey(
+        lambda: MediaThumbnail,
+        auto=False,
+    )
+    last_downloaded: datetime = orm.Required(
+        datetime,
+    )
+    last_accessed: datetime = orm.Optional(
+        datetime,
+        nullable=True,
+    )
+    mime_type: str = orm.Required(
+        str,
+    )
+    _data: bytes = orm.Required(
+        bytes,
+        column="data",
+        lazy=True,  # do not always preload huge image data
+    )
+
+    @classmethod
+    def download(cls, thumbnail: MediaThumbnail) -> MediaThumbnailCache:
+        res = requests.get(url=thumbnail.uri, headers=THUMBNAIL_HEADERS)
         mime = magic.from_buffer(res.content, mime=True)
         if mime not in THUMBNAIL_ALLOWED_TYPES:
             raise Exception(f"Couldn't download thumbnail: {thumbnail.uri}")
-        self.mime_type = mime
-        self.data = res.content
-        self.last_downloaded = datetime.now()
-        return True
+        now = datetime.now()
+        return cls(
+            thumbnail=thumbnail,
+            last_downloaded=now,
+            mime_type=mime,
+            _data=res.content,
+        )
 
-    def prepare(self) -> bool:
-        if self.last_downloaded is not None:
-            return True
-        return self.download()
-
-    def access_data(self) -> None:
-        self.prepare()
-        self.access()
-
-    def receive_data(self) -> bytes:
-        self.access_data()
-        return self.data
+    def access_data(self) -> bytes:
+        self.last_accessed = datetime.now()
+        return self._data
 
 
 class MediaUriMapping(db.Entity):

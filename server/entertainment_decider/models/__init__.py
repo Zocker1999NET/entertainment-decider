@@ -10,6 +10,7 @@ from .entities import (
     MediaCollectionLink,
     MediaElement,
     MediaThumbnail,
+    MediaThumbnailCache,
     MediaUriMapping,
     Tag,
     Tagable,

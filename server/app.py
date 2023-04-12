@@ -648,13 +648,14 @@ def show_thumb(thumbnail_id: int) -> ResponseReturnValue:
     if thumbnail is None:
         # do send only 404 (not default thumbnail) as invalid id was requested
         return make_response(f"Not found", 404)
+    thumb_cache = thumbnail.receive()
     # TODO do not load data from database until send_file requires that
     return send_file(
-        io.BytesIO(thumbnail.receive_data()),
-        mimetype=thumbnail.mime_type,
+        io.BytesIO(thumb_cache.access_data()),
+        mimetype=thumb_cache.mime_type,
         etag=True,
         as_attachment=False,
-        last_modified=thumbnail.last_downloaded,
+        last_modified=thumb_cache.last_downloaded,
         max_age=24 * 60 * 60,
     )
 
