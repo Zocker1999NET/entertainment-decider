@@ -611,7 +611,7 @@ class MediaThumbnail(db.Entity):
         res = requests.get(url=self.uri, headers=THUMBNAIL_HEADERS)
         mime = magic.from_buffer(res.content, mime=True)
         if mime not in THUMBNAIL_ALLOWED_TYPES:
-            return False
+            raise Exception(f"Couldn't download thumbnail: {thumbnail.uri}")
         self.mime_type = mime
         self.data = res.content
         self.last_downloaded = datetime.now()
