@@ -26,6 +26,7 @@ from .custom_types import Query, SafeStr
 from .thumbnails import THUMBNAIL_ALLOWED_TYPES, THUMBNAIL_HEADERS
 from .extras import UriHolder
 from ..common import trim
+from ..extras import LazyValue
 from ..preferences.tag_protocol import TagableProto, TagProto
 
 db = orm.Database()
@@ -1127,10 +1128,10 @@ def update_element_lookup_cache(collection_ids: List[int] = []):
 ####
 
 
-CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, str] = {
-    SafeStr(table_name): trim(table_sql)
+CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, LazyValue[str]] = {
+    SafeStr(table_name): lambda: trim(table_sql())
     for table_name, table_sql in {
-        MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE: f"""
+        MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE: lambda: f"""
             CREATE TABLE {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}(
                 collection INT(11) NOT NULL,
                 element1 INT(11) NOT NULL,
@@ -1189,4 +1190,4 @@ def setup_custom_tables() -> None:
     """
     for table_name, table_sql in CUSTOM_TABLE_DEFINITIONS.items():
         if not table_exists(table_name):
-            db.execute(table_sql)
+            db.execute(table_sql())
