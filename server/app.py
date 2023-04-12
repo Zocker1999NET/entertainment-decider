@@ -628,7 +628,7 @@ def show_media(media_id: int) -> ResponseReturnValue:
 def show_media_thumb(media_id: int) -> ResponseReturnValue:
     element: MediaElement = MediaElement.get(id=media_id)
     if element is None:
-        # TODO add default thumbnail if not found
+        # do send only 404 (not default thumbnail) as element does not exist (so cannot even have default)
         return make_response(f"Not found", 404)
     if element.thumbnail is None:
         return redirect("/static/thumbnail_missing.webp")
