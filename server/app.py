@@ -328,7 +328,6 @@ TIME_SINCE_FORMAT = {
     timedelta(days=1): "day",
     timedelta(days=7): "week",
     timedelta(days=YEAR_MEAN_LENGTH_DAYS / 12): "month",
-    timedelta(days=YEAR_MEAN_LENGTH_DAYS): "year",
 }
 TIME_SINCE_ORDER = sorted(TIME_SINCE_FORMAT.keys())
 
