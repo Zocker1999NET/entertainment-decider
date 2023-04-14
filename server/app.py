@@ -330,6 +330,7 @@ TIME_SINCE_FORMAT = {
     timedelta(days=YEAR_MEAN_LENGTH_DAYS / 12): "month",
 }
 TIME_SINCE_ORDER = sorted(TIME_SINCE_FORMAT.keys())
+TIME_SINCE_MAX_REL = timedelta(days=YEAR_MEAN_LENGTH_DAYS)
 
 
 @flask_app.template_filter()
@@ -341,6 +342,9 @@ def time_since(date: datetime) -> str:
     if missing_time:
         now = common.date_to_datetime(now.date())
     passed = now - date
+    if not (timedelta() <= passed < TIME_SINCE_MAX_REL):
+        # return short format
+        return date.strftime("%Y-%m")
     last_thres = None
     for threshold in TIME_SINCE_ORDER:
         if passed < threshold:
