@@ -42,7 +42,9 @@ from markupsafe import Markup
 from pony.flask import Pony
 from pony import orm
 
-from entertainment_decider import common
+from entertainment_decider import (
+    common,
+)
 from entertainment_decider.models import (
     MediaCollection,
     MediaCollectionLink,
