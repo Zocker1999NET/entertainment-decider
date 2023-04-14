@@ -5,12 +5,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from functools import partial
 import io
 import itertools
 import logging
-import os
-from pathlib import Path
 import re
 from urllib.parse import urlencode, quote_plus
 from typing import (
@@ -28,7 +25,6 @@ from typing import (
 )
 
 from flask import (
-    Flask,
     make_response,
     redirect,
     request,
@@ -44,6 +40,7 @@ from pony import orm
 
 from entertainment_decider import (
     common,
+    create_app,
 )
 from entertainment_decider.models import (
     MediaCollection,
@@ -96,25 +93,7 @@ logging.basicConfig(format="%(asctime)s === %(message)s", level=logging.DEBUG)
 ####
 
 
-DEBUG_DATABASE = False
-
-flask_app = Flask(
-    __name__,
-    static_folder=str(Path(__file__).parent / "static"),
-)
-flask_app.config.update(
-    dict(
-        CELERY=dict(),
-        DEBUG=True,
-        PONY=dict(
-            provider="sqlite",
-            filename="./db.sqlite",
-            create_db=True,
-        )
-        if DEBUG_DATABASE
-        else dict(),
-    )
-)
+flask_app = create_app()
 
 
 def environ_bool(value: Union[str, bool]) -> bool:
@@ -158,93 +137,12 @@ def environ_timedelta_seconds(value: Union[int, str, timedelta]) -> int:
     return environ_timedelta(value) // timedelta(seconds=1)
 
 
-ConfigKeySetter = Callable[[str, Any], None]
-ConfigSingleTranslator = Callable[[Any], Any]
-ConfigTranslatorIterable = Iterable[ConfigSingleTranslator]
-ConfigTranslatorCreator = Callable[[str], ConfigTranslatorIterable]
-
-
-def config_suffixer(
-    setter: ConfigKeySetter,
-    prefix: str,
-    lower: bool = True,
-) -> ConfigTranslatorCreator:
-    def creator(key: str) -> ConfigTranslatorIterable:
-        if not key.startswith(prefix):
-            raise Exception(f"Environment key {key!r} is missing suffix {prefix!r}")
-        new_key = key[len(prefix) :]
-        new_key = new_key.lower() if lower else new_key
-        return (partial(setter, new_key),)
-
-    return creator
-
-
-def celery_config_setter(key: str, val: Any) -> None:
-    flask_app.config["CELERY"][key] = val
-
-
-celery_config_same = config_suffixer(celery_config_setter, "CELERY_")
-
-
-def flask_config_setter(key: str, val: Any) -> None:
-    flask_app.config[key] = val
-
-
-flask_config_same = config_suffixer(flask_config_setter, "FLASK_", lower=False)
-
-
-def pony_config_setter(key: str, val: Any) -> None:
-    flask_app.config["PONY"][key] = val
-
-
-pony_config_same = config_suffixer(pony_config_setter, "PONY_")
-
-CONFIG_TRANSLATE_TABLE: Dict[
-    str, Union[ConfigTranslatorIterable, ConfigTranslatorCreator]
-] = {
-    "CELERY_BROKER_URL": celery_config_same,
-    "CELERY_RESULT_BACKEND": celery_config_same,
-    "FLASK_DEBUG": (
-        environ_bool,
-        partial(flask_config_setter, "DEBUG"),
-    ),
-    "PONY_PROVIDER": pony_config_same,
-    "PONY_FILENAME": pony_config_same,
-    "PONY_CREATE_DB": (
-        environ_bool,
-        partial(pony_config_setter, "create_db"),
-    ),
-    "PONY_HOST": pony_config_same,
-    "PONY_PORT": (
-        environ_int,
-        partial(pony_config_setter, "port"),
-    ),
-    "PONY_DATABASE": pony_config_same,
-    "PONY_DB": pony_config_same,
-    "PONY_USER": pony_config_same,
-    "PONY_PASSWORD": pony_config_same,
-    "PONY_PASSWD": pony_config_same,
-    "PONY_DSN": pony_config_same,
-    "PONY_CHARSET": pony_config_same,
-}
-
-for key, val in os.environ.items():
-    trans = CONFIG_TRANSLATE_TABLE.get(key)
-    if trans is not None:
-        trans = trans(key) if callable(trans) else trans
-        res: Any = val
-        for caller in trans:
-            new_res = caller(res)
-            if new_res is not None:
-                res = new_res
-
-
 ####
 # Pony init
 ####
 
 
-db.bind(**flask_app.config["PONY"])
+db.bind(**flask_app.config.get_namespace("PONY_"))
 db.generate_mapping(create_tables=True)
 setup_custom_tables()
 
