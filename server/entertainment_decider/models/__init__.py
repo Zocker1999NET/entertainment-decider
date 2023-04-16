@@ -1,3 +1,8 @@
+from .cache_tables import (
+    setup_custom_tables,
+    update_element_lookup_cache,
+)
+
 from .custom_types import (
     Query,
     SafeStr,
@@ -15,18 +20,19 @@ from .entities import (
     Tag,
     Tagable,
     TagKey,
-    are_multiple_considered,
     db,
-    get_all_considered,
-    get_all_elements_tags_recursive,
-    setup_custom_tables,
-    update_element_lookup_cache,
 )
 
 from .predefined_tags import (
     predefined_movie_tag,
     predefined_series_tag,
     predefined_video_tag,
+)
+
+from .sql_speedups import (
+    are_multiple_considered,
+    get_all_considered,
+    get_all_elements_tags_recursive,
 )
 
 from .thumbnails import (

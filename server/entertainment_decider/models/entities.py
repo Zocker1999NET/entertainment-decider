@@ -3,16 +3,11 @@ from __future__ import annotations
 from abc import abstractproperty
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from functools import cache
-import itertools
 import logging
-import re
 from typing import (
     Iterable,
     List,
-    Mapping,
     Optional,
-    Sequence,
     Set,
     Tuple,
     TypeVar,
@@ -22,11 +17,9 @@ import magic
 import requests
 from pony import orm
 
-from .custom_types import Query, SafeStr
+from .custom_types import Query
 from .thumbnails import THUMBNAIL_ALLOWED_TYPES, THUMBNAIL_HEADERS
 from .extras import UriHolder
-from ..common import trim
-from ..extras import LazyValue
 from ..preferences.tag_protocol import TagableProto, TagProto
 
 db = orm.Database()
@@ -493,6 +486,9 @@ class MediaElement(db.Entity, UriHolder, Tagable):
     def can_considered(self) -> bool:
         DIRECT_SQL = True
         if DIRECT_SQL:
+            # import here because of circular dependency
+            from .sql_speedups import is_considered
+
             return is_considered(self.id)
         if self.skip_over:
             return False
@@ -928,266 +924,3 @@ class CollectionUriMapping(db.Entity):
     id: int = orm.PrimaryKey(int, auto=True)
     uri: str = orm.Required(str, unique=True)
     element: MediaCollection = orm.Required(MediaCollection)
-
-
-MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE = "element_lookup_cache"
-
-
-SQL_WHITESPACE_PATTERN = re.compile(r"(\s|\n)+")
-
-
-def sql_cleanup(sql: str) -> str:
-    return SQL_WHITESPACE_PATTERN.sub(" ", sql).strip()
-
-
-def sql_where_in(id: str, id_list: Iterable[str | int]) -> str:
-    return f"{id} IN ({','.join(str(i) for i in id_list)})"
-
-
-# TODO reducing cache table to only contain videos not watched/ignored (not huge speedup)
-# TODO add bool for (not)? blocking to direct dependencies (similar to above) (not huge speedup)
-def sql_is_considered(elem_id: str, use_cache: bool = True) -> str:
-    # NOT EXISTS seems worlds better then making a OUTER JOIN
-    return sql_cleanup(
-        f"""
-            NOT EXISTS (
-        """
-        + (
-            f"""
-                SELECT c.element2
-                FROM {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE} c
-                        INNER JOIN {MediaElement._table_} m2 ON c.element1 = m2.id
-                WHERE c.element2 = {elem_id} AND NOT (m2.watched OR m2.ignored)
-            """
-            if use_cache
-            else f"""
-                SELECT *
-                FROM {MediaElement._table_} look_elem
-                        INNER JOIN {MediaCollectionLink._table_} link ON link.element = look_elem.id
-                        INNER JOIN {MediaCollection._table_} coll ON coll.id = link.collection
-                        INNER JOIN {MediaCollectionLink._table_} coll_link ON coll_link.collection = coll.id
-                        INNER JOIN {MediaElement._table_} coll_elem ON coll_elem.id = coll_link.element
-                WHERE look_elem.id = {elem_id}
-                    AND coll.watch_in_order
-                    AND NOT (coll_elem.watched OR coll_elem.ignored)
-                    AND (coll_link.season, coll_link.episode, coll_elem.release_date, coll_elem.id) < (link.season, link.episode, look_elem.release_date, look_elem.id)
-            """
-        )
-        + f"""
-            ) AND NOT EXISTS (
-                SELECT *
-                FROM mediaelement_mediaelement m_m
-                        INNER JOIN {MediaElement._table_} m ON m_m.mediaelement = m.id
-                WHERE m_m.mediaelement_2 = {elem_id} AND NOT (m.watched OR m.ignored)
-            )
-        """
-    )
-
-
-def is_considered(elem_id: int) -> bool:
-    return db.exists(
-        sql_cleanup(
-            f"""
-        SELECT elem.id
-        FROM {MediaElement._table_} elem
-        WHERE elem.id = {elem_id}
-            AND NOT (elem.watched OR elem.ignored)
-            AND elem.release_date <= NOW()
-            AND ({sql_is_considered('elem.id')})
-    """
-        )
-    )
-
-
-def are_multiple_considered(elem_ids: Iterable[int]) -> Mapping[int, bool]:
-    res = {
-        r[0]
-        for r in db.execute(
-            sql_cleanup(
-                f"""
-        SELECT elem.id
-        FROM {MediaElement._table_} elem
-        WHERE NOT (elem.watched OR elem.ignored)
-            AND elem.release_date <= NOW()
-            AND ({sql_is_considered("elem.id")})
-    """
-            )
-        )
-    }
-    return {elem_id: elem_id in res for elem_id in elem_ids}
-
-
-def get_all_considered(
-    order_by: str = "NULL", filter_by: str = "true"
-) -> List[MediaElement]:
-    return MediaElement.select_by_sql(
-        sql_cleanup(
-            f"""
-        SELECT elem.*
-        FROM {MediaElement._table_} elem
-        WHERE NOT (elem.watched OR elem.ignored)
-            AND elem.release_date <= NOW()
-            AND {filter_by}
-            AND ({sql_is_considered("elem.id")})
-        ORDER BY {order_by}
-    """
-        )
-    )
-
-
-def get_all_elements_tags_recursive() -> Mapping[int, Sequence[Tag]]:
-    elem_tag_query: Iterable[Tuple[int, int]] = db.execute(
-        """
-        WITH RECURSIVE found_tag (mediaelement_id, tag_id) AS
-        (
-                SELECT mediaelement_tag.mediaelement, mediaelement_tag.tag
-                FROM mediaelement_tag
-            UNION
-                SELECT mediacollectionlink.element, mediacollection_tag.tag
-                FROM mediacollectionlink
-                JOIN mediacollection_tag ON mediacollectionlink.collection = mediacollection_tag.mediacollection
-            UNION
-                SELECT found_tag.mediaelement_id, tag_tag.tag_2
-                FROM found_tag
-                JOIN tag_tag ON found_tag.tag_id = tag_tag.tag
-        )
-        SELECT found_tag.mediaelement_id, found_tag.tag_id
-        FROM found_tag
-        JOIN tag ON found_tag.tag_id = tag.id
-        WHERE tag.use_for_preferences
-        ORDER BY mediaelement_id, tag_id;
-    """
-    )
-
-    @cache
-    def get_tag(tag_id: int) -> Tag:
-        return Tag[tag_id]
-
-    return {
-        elem_id: [get_tag(tag_id) for _, tag_id in group_iter]
-        for elem_id, group_iter in itertools.groupby(
-            elem_tag_query, key=lambda row: row[0]
-        )
-    }
-
-
-def update_element_lookup_cache(collection_ids: List[int] = []):
-    logging.info(
-        f"Rebuild {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE} for {len(collection_ids) if collection_ids else 'all'} collections …"
-    )
-
-    def filter_clause(c_id: str):
-        return sql_where_in(c_id, collection_ids) if collection_ids else "true"
-
-    orm.flush()
-    sql = [
-        f"""
-            DELETE QUICK FROM {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}
-            WHERE {filter_clause("collection")};
-        """,
-        f"""
-            INSERT INTO {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE} (collection, element1, element2) SELECT
-                c.id AS collection,
-                l1.element AS element1,
-                l2.element AS element2
-            FROM
-                {MediaCollection._table_} c
-            INNER JOIN {MediaCollectionLink._table_} l1 ON
-                c.id = l1.collection
-            INNER JOIN {MediaCollectionLink._table_} l2 ON
-                c.id = l2.collection
-            INNER JOIN {MediaElement._table_} e1 ON
-                l1.element = e1.id
-            INNER JOIN {MediaElement._table_} e2 ON
-                l2.element = e2.id
-            WHERE
-                (
-                    l1.season,
-                    l1.episode,
-                    e1.release_date,
-                    e1.id
-                ) <(
-                    l2.season,
-                    l2.episode,
-                    e2.release_date,
-                    e2.id
-                ) AND c.watch_in_order
-                AND {filter_clause("c.id")}
-            GROUP BY
-                collection,
-                element1,
-                element2
-        """,
-    ]
-    for q in sql:
-        db.execute(sql_cleanup(q))
-
-
-####
-## Custom Table Framework
-####
-
-
-CUSTOM_TABLE_DEFINITIONS: Mapping[SafeStr, LazyValue[str]] = {
-    SafeStr(table_name): lambda: trim(table_sql())
-    for table_name, table_sql in {
-        MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE: lambda: f"""
-            CREATE TABLE {MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}(
-                collection INT(11) NOT NULL,
-                element1 INT(11) NOT NULL,
-                element2 INT(11) NOT NULL
-            ) SELECT
-                c.id AS collection,
-                l1.element AS element1,
-                l2.element AS element2
-            FROM
-                {MediaCollection._table_} c
-            INNER JOIN {MediaCollectionLink._table_} l1 ON
-                c.id = l1.collection
-            INNER JOIN {MediaCollectionLink._table_} l2 ON
-                c.id = l2.collection
-            INNER JOIN {MediaElement._table_} e1 ON
-                l1.element = e1.id
-            INNER JOIN {MediaElement._table_} e2 ON
-                l2.element = e2.id
-            WHERE
-                (
-                    l1.season,
-                    l1.episode,
-                    e1.release_date,
-                    e1.id
-                ) <(
-                    l2.season,
-                    l2.episode,
-                    e2.release_date,
-                    e2.id
-                ) AND c.watch_in_order
-            GROUP BY
-                collection,
-                element1,
-                element2;
-            ALTER TABLE
-                `{MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}` ADD PRIMARY KEY(`element1`, `element2`, `collection`);
-            ALTER TABLE
-                `{MEDIAELEMENT_BLOCKING_LOOKUP_CACHE_TABLE}` ADD INDEX(`collection`);
-        """,
-    }.items()
-}
-
-
-def table_exists(table_name: SafeStr) -> bool:
-    return db.provider.table_exists(
-        connection=db.get_connection(),
-        table_name=table_name,
-    )
-
-
-@orm.db_session
-def setup_custom_tables() -> None:
-    """
-    Creates & fills custom tables (especially cache tables) if they do not exist.
-    This should not destroy already existing data and should behave indempotent.
-    """
-    for table_name, table_sql in CUSTOM_TABLE_DEFINITIONS.items():
-        if not table_exists(table_name):
-            db.execute(table_sql())
