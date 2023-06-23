@@ -120,7 +120,7 @@ class TvmazeCollectionExtractor(CollectionExtractor[TvmazeShowEmbedded]):
         object: MediaCollection,
         data: TvmazeShowEmbedded,
     ) -> ChangedReport:
-        object.title = f"[tvmaze] {data['name']}"
+        object.title = f"[{self.name}] {data['name']}"
         object.description = data.get("summary", "")
         object.release_date = datetime.strptime(data["premiered"], "%Y-%m-%d")
         object.set_watch_in_order_auto(True)
