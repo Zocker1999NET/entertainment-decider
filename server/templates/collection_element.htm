@@ -88,8 +88,8 @@
         <pre>{{ collection.notes or "" }}</pre>
         <h2>Links</h2>
         <ul>
-            {% for link in collection.uris|sort(attribute="uri") %}
-                <li>{{ link.uri | as_link }} {% if collection.uri == link.uri %}*{% endif %}</li>
+            {% for link in collection.uri_set|sort %}
+                <li>{{ link | as_link }} {% if collection.is_primary_uri(link) %}*{% endif %}</li>
             {% endfor %}
         </ul>
         {% if collection.created_collections %}

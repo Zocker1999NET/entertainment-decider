@@ -112,7 +112,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
         object.length = int(data["duration"]["secondsText"])
         for tag in get_video_tags(data):
             object.tag_list.add(tag)
-        object.uri = f"https://www.youtube.com/watch?v={data['id']}"
+        object.primary_uri = f"https://www.youtube.com/watch?v={data['id']}"
         object.add_uris(
             (
                 f"https://youtu.be/{data['id']}",

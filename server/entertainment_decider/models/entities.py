@@ -330,8 +330,9 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         int,
         auto=True,
     )
-    uri: str = orm.Required(
+    __uri: str = orm.Required(
         str,
+        column="uri",
         unique=True,
     )
 
@@ -377,7 +378,7 @@ class MediaElement(db.Entity, UriHolder, Tagable):
     tag_list: Iterable[Tag] = orm.Set(
         lambda: Tag,
     )
-    uris: Iterable[MediaUriMapping] = orm.Set(
+    __uri_list: Iterable[MediaUriMapping] = orm.Set(
         lambda: MediaUriMapping,
     )
     collection_links: Iterable[MediaCollectionLink] = orm.Set(
@@ -393,21 +394,35 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         reverse="blocked_by",
     )
 
+    @classmethod
+    def new(
+        cls,
+        *,
+        extractor_name: str,
+        extractor_key: str,
+        uri: str,
+    ) -> MediaElement:
+        return cls(
+            extractor_name=extractor_name,
+            extractor_key=extractor_key,
+            _MediaElement__uri=uri,  # manual mangling for MediaElement
+        )
+
     ### for UriHolder
 
     @property
     def _primary_uri(self) -> str:
-        return self.uri
+        return self.__uri
 
     def _set_primary_uri(self, uri: str) -> None:
-        self.uri = uri
+        self.__uri = uri
 
     @property
-    def _get_uri_set(self) -> Set[str]:
-        return {m.uri for m in self.uris}
+    def _uri_set(self) -> Set[str]:
+        return {m.uri for m in self.__uri_list}
 
     def _set_uri_set(self, uri_set: Set[str]) -> None:
-        self.uris = set()
+        self.__uri_list = set()
         self.add_uris(uri_set)
 
     ### for Tagable
@@ -530,7 +545,7 @@ class MediaElement(db.Entity, UriHolder, Tagable):
             other.ignored = True
         if self.progress >= 0 and other.progress <= 0:
             other.progress = self.progress
-        for uri_map in self.uris:
+        for uri_map in self.__uri_list:
             uri_map.element = other
         for link in self.collection_links:
             if not MediaCollectionLink.get(collection=link.collection, element=other):
@@ -557,7 +572,7 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         self.before_update()
 
     def before_update(self) -> None:
-        self.add_single_uri(self.uri)
+        self.add_single_uri(self.__uri)
 
 
 class MediaThumbnail(db.Entity):
@@ -640,8 +655,9 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         int,
         auto=True,
     )
-    uri: str = orm.Required(
+    __uri: str = orm.Required(
         str,
+        column="uri",
         unique=True,
     )
 
@@ -697,7 +713,7 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     tag_list: Iterable[Tag] = orm.Set(
         lambda: Tag,
     )
-    uris: Iterable[CollectionUriMapping] = orm.Set(
+    __uri_set: Iterable[CollectionUriMapping] = orm.Set(
         lambda: CollectionUriMapping,
     )
     media_links: Iterable[MediaCollectionLink] = orm.Set(
@@ -707,21 +723,35 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         lambda: MediaCollection,
     )
 
+    @classmethod
+    def new(
+        cls,
+        *,
+        extractor_name: str,
+        extractor_key: str,
+        uri: str,
+    ) -> MediaCollection:
+        return cls(
+            extractor_name=extractor_name,
+            extractor_key=extractor_key,
+            _MediaCollection__uri=uri,  # manual mangling for MediaCollection
+        )
+
     ### for UriHolder
 
     @property
     def _primary_uri(self) -> str:
-        return self.uri
+        return self.__uri
 
     def _set_primary_uri(self, uri: str) -> None:
-        self.uri = uri
+        self.__uri = uri
 
     @property
-    def _get_uri_set(self) -> Set[str]:
-        return {m.uri for m in self.uris}
+    def _uri_set(self) -> Set[str]:
+        return {m.uri for m in self.__uri_set}
 
     def _set_uri_set(self, uri_set: Set[str]) -> None:
-        self.uris = set()
+        self.__uri_set = set()
         self.add_uris(uri_set)
 
     ### for Tagable
@@ -917,7 +947,7 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         self.before_update()
 
     def before_update(self) -> None:
-        self.add_single_uri(self.uri)
+        self.add_single_uri(self.__uri)
 
 
 class CollectionUriMapping(db.Entity):

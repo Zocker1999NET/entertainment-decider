@@ -106,7 +106,7 @@ class TvmazeMediaExtractor(MediaExtractor[TvmazeEpisodeEmbedded]):
         airstamp = data.get("airstamp")
         if airstamp is None:  # not released yet
             raise ExtractionError(
-                f"Could not extract {object.uri!r} because of missing data probably due to not being released yet"
+                f"Could not extract {object.primary_uri!r} because of missing data probably due to not being released yet"
             )
         # extract data
         show = data["_embedded"]["show"]

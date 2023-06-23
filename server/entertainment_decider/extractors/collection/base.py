@@ -37,14 +37,6 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
         mapping: CollectionUriMapping = CollectionUriMapping.get(uri=uri)
         if mapping:
             return mapping.element
-        elem: MediaCollection = MediaCollection.get(uri=uri)
-        if elem:
-            logging.warning(
-                f"Add missing URI mapping entry for uri {uri!r}, "
-                + "this should not happen at this point and is considered a bug"
-            )
-            elem.add_single_uri(uri)
-            return elem
         return None
 
     @staticmethod
@@ -116,7 +108,7 @@ class CollectionExtractor(GeneralExtractor[MediaCollection, T]):
             element = extractor.inject_object(data)
         except ExtractionError:
             logging.warning(
-                f"Failed while extracting media {data.object_uri!r} while injecting from {collection.uri!r}",
+                f"Failed while extracting media {data.object_uri!r} while injecting from {collection.primary_uri!r}",
                 exc_info=True,
             )
             return None

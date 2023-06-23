@@ -77,8 +77,8 @@
                 </ul>
                 <h2>Links</h2>
                 <ul>
-                    {% for link in element.uris|sort(attribute="uri") %}
-                        <li>{{ link.uri | as_link }} {% if element.uri == link.uri %}*{% endif %}</li>
+                    {% for link in element.uri_set|sort %}
+                        <li>{{ link | as_link }} {% if element.is_primary_uri(link) %}*{% endif %}</li>
                     {% endfor %}
                 </ul>
                 <h2>Blocked By</h2>

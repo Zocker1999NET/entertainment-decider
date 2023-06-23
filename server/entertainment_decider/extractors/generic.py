@@ -77,14 +77,14 @@ class ExtractedDataLight:
     object_key: str
 
     def create_media(self) -> MediaElement:
-        return MediaElement(
+        return MediaElement.new(
             uri=self.object_uri,
             extractor_name=self.extractor_name,
             extractor_key=self.object_key,
         )
 
     def create_collection(self) -> MediaCollection:
-        return MediaCollection(
+        return MediaCollection.new(
             uri=self.object_uri,
             extractor_name=self.extractor_name,
             extractor_key=self.object_key,
@@ -219,7 +219,7 @@ class GeneralExtractor(Generic[E, T]):
         return self._extract_online(data.object_uri)
 
     def _update_object(self, object: E, data: ExtractedDataOnline[T]) -> ChangedReport:
-        object.uri = data.object_uri
+        object.primary_uri = data.object_uri
         object.tag_list.add(self._get_extractor_tag())
         self._update_object_raw(object, data.data)
         self._update_hook(object, data)
@@ -240,7 +240,7 @@ class GeneralExtractor(Generic[E, T]):
                 f"Skip info for element as already extracted and cache valid: {object.title!r}"
             )
             return ChangedReport.StayedSame
-        data = self._extract_online(object.uri)
+        data = self._extract_online(object.primary_uri)
         logging.debug(f"Updating info for media: {data!r}")
         return self._update_object(object, data)
 

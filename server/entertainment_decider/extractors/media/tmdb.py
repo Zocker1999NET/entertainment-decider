@@ -81,7 +81,7 @@ class TmdbMovieMediaExtractor(MediaExtractor[TmdbMovieData]):
         # sanity check
         if not data.was_released:
             raise ExtractionError(
-                f"Could not extract {object.uri!r} because of missing data probably due to not being released yet"
+                f"Could not extract {object.primary_uri!r} because of missing data probably due to not being released yet"
             )
         # extract data
         object.title = data.title

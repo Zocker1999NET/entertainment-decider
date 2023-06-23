@@ -30,14 +30,6 @@ class MediaExtractor(GeneralExtractor[MediaElement, T]):
         mapping: MediaUriMapping = MediaUriMapping.get(uri=uri)
         if mapping:
             return mapping.element
-        elem: MediaElement = MediaElement.get(uri=uri)
-        if elem:
-            logging.warning(
-                f"Add missing URI mapping entry for uri {uri!r}, "
-                + "this should not happen at this point and is considered a bug"
-            )
-            elem.add_single_uri(uri)
-            return elem
         return None
 
     def _create_object(self, data: ExtractedDataOffline[T]) -> MediaElement:

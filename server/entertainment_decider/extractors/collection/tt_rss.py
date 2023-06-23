@@ -80,11 +80,11 @@ class TtRssCollectionExtractor(CollectionExtractor[HeadlineList]):
         data: HeadlineList,
     ) -> ChangedReport:
         if not object.title:
-            object.title = object.uri
+            object.title = object.primary_uri
         object.creator = None
         object.set_watch_in_order_auto(True)
         logging.debug(f"Got {len(data)} headlines")
-        rss_uri = self.__decode_uri(object.uri)
+        rss_uri = self.__decode_uri(object.primary_uri)
         readed_headlines = list[int]()
         for headline in data:
             elem = self._add_episode(collection=object, uri=headline.url)

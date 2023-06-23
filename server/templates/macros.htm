@@ -358,7 +358,7 @@
     {# TODO do not hardcode certain extractors here #}
     {% if element.extractor_name in ["ytdl", "youtube"] %}
         {%- set opts = {
-            "video_uri": element.uri,
+            "video_uri": element.primary_uri,
             "start": element.progress,
         } -%}
         <a class="button play_button" href="entertainment-decider:///player/play?{{ opts | encode_options }}">{{ symbol | safe }}</a>

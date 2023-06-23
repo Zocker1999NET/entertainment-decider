@@ -43,7 +43,7 @@ def collection_update(
     collection: MediaCollection,
     check_cache_expired: bool = True,
 ) -> ChangedReport:
-    ex = collection_expect_extractor(collection.uri)
+    ex = collection_expect_extractor(collection.primary_uri)
     return ex.update_object(
         object=collection,
         check_cache_expired=check_cache_expired,

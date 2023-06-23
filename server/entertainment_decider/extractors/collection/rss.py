@@ -76,7 +76,7 @@ class RssCollectionExtractor(CollectionExtractor[RSSFeed]):
         object.description = data.description
         object.set_watch_in_order_auto(True)
         object.add_single_uri(
-            self.__get_uri(object.uri)
+            self.__get_uri(object.primary_uri)
         )  # add url without prefix if required
         for item in data.feed:
             element = self._add_episode(

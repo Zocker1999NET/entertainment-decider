@@ -48,7 +48,7 @@ class AggregatedCollectionExtractor(CollectionExtractor[DataType]):
         return True
 
     def _cache_expired(self, object: MediaCollection) -> bool:
-        colls = self.__get_collections(object.uri)
+        colls = self.__get_collections(object.primary_uri)
         for c in colls:
             if c.last_updated is None or object.last_updated <= c.last_updated:
                 return True
@@ -86,7 +86,7 @@ class AggregatedCollectionExtractor(CollectionExtractor[DataType]):
         data: DataType,
     ) -> ChangedReport:
         if object.title is None or "[aggregated]" not in object.title:
-            object.title = f"[aggregated] {object.uri}"
+            object.title = f"[aggregated] {object.primary_uri}"
         object.creator = None
         object.set_watch_in_order_auto(True)
         all_links: Set[int] = set(
@@ -101,6 +101,5 @@ class AggregatedCollectionExtractor(CollectionExtractor[DataType]):
                     episode=episode + 1,
                 )
         orm.delete(link for link in object.media_links if link.element.id in all_links)
-        for uri_link in list(object.uris):
-            uri_link.delete()
+        object.set_as_only_uri(object.primary_uri)
         return ChangedReport.ChangedSome  # TODO improve

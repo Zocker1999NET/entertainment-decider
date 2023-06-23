@@ -1,3 +1,7 @@
+# TODO check that some queries check DB integrity like:
+# SELECT e.uri FROM mediaelment e LEFT JOIN mediaurimapping m ON e.uri = m.uri WHERE m.uri IS NULL;
+# SELECT e.uri FROM mediacollection e LEFT JOIN collectionurimapping m ON e.uri = m.uri WHERE m.uri IS NULL;
+
 ####
 # Imports
 ####
@@ -730,7 +734,7 @@ def refresh_collections() -> ResponseReturnValue:
                     "collection": {
                         "id": coll.id,
                         "title": coll.title,
-                        "uri": coll.uri,
+                        "uri": coll.primary_uri,
                     },
                     "error": {
                         "args": repr(e.args),
