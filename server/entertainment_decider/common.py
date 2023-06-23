@@ -17,6 +17,12 @@ from typing import (
 )
 
 
+def all_same(iterable: Iterable) -> bool:
+    it = iter(iterable)
+    first = next(it)
+    return all(first == elem for elem in it)
+
+
 def call(
     args: Sequence[str],
     check: bool = True,
