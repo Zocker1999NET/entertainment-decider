@@ -69,6 +69,7 @@ from entertainment_decider.extractors.media import (
     media_update,
 )
 from entertainment_decider.extras import (
+    gen_api_error,
     remove_common_trails,
 )
 
@@ -755,9 +756,7 @@ def refresh_collections() -> ResponseReturnValue:
                         "title": coll.title,
                         "uri": coll.primary_uri,
                     },
-                    "error": {
-                        "args": repr(e.args),
-                    },
+                    "error": gen_api_error(e),
                 },
             )
     update_element_lookup_cache(changed_colls)
@@ -937,10 +936,7 @@ def api_collection_extract_mass() -> ResponseReturnValue:
             errors.append(
                 {
                     "uri": u,
-                    "error": {
-                        "type": repr(type(e)),
-                        "args": repr(e.args),
-                    },
+                    "error": gen_api_error(e),
                 }
             )
     if errors:
@@ -1121,10 +1117,7 @@ def api_media_extract_mass() -> ResponseReturnValue:
             errors.append(
                 {
                     "uri": u,
-                    "error": {
-                        "type": repr(type(e)),
-                        "args": repr(e.args),
-                    },
+                    "error": gen_api_error(e),
                 }
             )
     if errors:
