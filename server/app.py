@@ -86,6 +86,13 @@ def adapt_score_list(
     return o
 
 
+def preference_from_base64(in_data: str) -> PreferenceScore[Tag]:
+    return PreferenceScore.from_base64(
+        in_data=in_data,
+        get_tag=lambda i: Tag[i],
+    )
+
+
 ####
 # Logging Config
 ####
@@ -652,7 +659,7 @@ def recommend_adaptive() -> ResponseReturnValue:
     preferences = request.cookies.get(
         key=PREFERENCES_SCORE_NAME,
         default=PreferenceScore(),
-        type=PreferenceScore.from_base64,
+        type=preference_from_base64,
     ) * (1 if score_adapt > 0 else -1 if score_adapt < 0 else 0)
     if "max_length" not in request.args:
         # ask for max length before calculating to save time
@@ -700,7 +707,7 @@ def cookies_rating(negative: bool) -> ResponseReturnValue:
     preferences = request.cookies.get(
         key=PREFERENCES_SCORE_NAME,
         default=PreferenceScore(),
-        type=PreferenceScore.from_base64,
+        type=preference_from_base64,
     ).adapt_score(element, score=3 if negative else -3)
     resp = redirect_back_or_okay()
     resp.set_cookie(PREFERENCES_SCORE_NAME, preferences.to_base64())
