@@ -939,6 +939,8 @@ def api_collection_extract_mass() -> ResponseReturnValue:
                     "error": gen_api_error(e),
                 }
             )
+    if coll_ids:
+        update_element_lookup_cache(coll_ids)
     if errors:
         return {
             "status": False,
@@ -948,8 +950,6 @@ def api_collection_extract_mass() -> ResponseReturnValue:
                 "data": errors,
             },
         }, 501
-    if coll_ids:
-        update_element_lookup_cache(coll_ids)
     if coll_ids and environ_bool(data.get("redirect_to_overview", False)):
         return redirect(
             "/collection/overview?ids=" + ",".join(str(i) for i in coll_ids)
