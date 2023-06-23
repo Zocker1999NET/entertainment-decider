@@ -95,6 +95,13 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s === %(levelname)s: %(message)s",
     level=logging.DEBUG,
 )
+_LOG_LEVELS = {
+    "httpcore": logging.WARNING,  # >INFO to hide outgoing requests
+    "httpx": logging.WARNING,  # >DEBUG to hide outgoing SSL infos
+    "werkzeug": logging.INFO,  # INFO so incoming requests show up
+}
+for module_name, log_level in  _LOG_LEVELS.items():
+    logging.getLogger(module_name).setLevel(log_level)
 
 
 ####
