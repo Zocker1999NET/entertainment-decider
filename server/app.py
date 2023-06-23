@@ -92,7 +92,7 @@ def adapt_score_list(
 
 
 logging.basicConfig(
-    format="%(asctime)s === %(message)s",
+    format="%(asctime)s - %(name)s === %(levelname)s: %(message)s",
     level=logging.DEBUG,
 )
 
