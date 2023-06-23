@@ -202,7 +202,6 @@ class Tag(db.Entity, Tagable, TagProto["Tag"]):
 
 
 class TagKey(db.Entity):
-
     num_id: int = orm.PrimaryKey(int, auto=True)
     tag_key: str = orm.Required(str, unique=True)
     """Format: <domain>[/<kind>][/<id>]
