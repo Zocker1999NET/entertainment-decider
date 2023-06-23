@@ -68,7 +68,9 @@ from entertainment_decider.extractors.media import (
     media_extract_uri,
     media_update,
 )
-from entertainment_decider.extras import remove_common_trails
+from entertainment_decider.extras import (
+    remove_common_trails,
+)
 
 
 T = TypeVar("T")
@@ -89,7 +91,10 @@ def adapt_score_list(
 ####
 
 
-logging.basicConfig(format="%(asctime)s === %(message)s", level=logging.DEBUG)
+logging.basicConfig(
+    format="%(asctime)s === %(message)s",
+    level=logging.DEBUG,
+)
 
 
 ####

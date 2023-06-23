@@ -5,7 +5,6 @@ from typing import Iterable, Optional, Set
 
 
 class UriHolder:
-
     ### abstracted
 
     @abstractproperty
