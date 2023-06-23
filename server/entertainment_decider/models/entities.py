@@ -189,8 +189,8 @@ class Tag(db.Entity, Tagable, TagProto["Tag"]):
     super_tag_list: Iterable[Tag] = orm.Set(lambda: Tag, reverse="sub_tag_list")
     sub_tag_list: Iterable[Tag] = orm.Set(lambda: Tag, reverse="super_tag_list")
 
-    _collection_list: Iterable[MediaCollection] = orm.Set(lambda: MediaCollection)
-    _media_list: Iterable[MediaElement] = orm.Set(lambda: MediaElement)
+    collection_list: Iterable[MediaCollection] = orm.Set(lambda: MediaCollection)
+    media_list: Iterable[MediaElement] = orm.Set(lambda: MediaElement)
 
     @property
     def orm_assigned_tags(self) -> Query[Tag]:
