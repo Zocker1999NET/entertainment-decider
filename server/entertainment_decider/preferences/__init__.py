@@ -8,3 +8,12 @@ from .tag_scoring import (
     PreferenceScoreCompatible,
     PreferenceScoreSuper,
 )
+
+
+__all__ = [
+    "PreferenceScore",
+    "PreferenceScoreAppender",
+    "PreferenceScoreCompatible",
+    "PreferenceScoreSuper",
+    "generate_preference_list",
+]
