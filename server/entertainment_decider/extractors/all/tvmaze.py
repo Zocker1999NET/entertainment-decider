@@ -189,7 +189,9 @@ WEB_CHANNEL_PREFIX = f"{EXTRACTOR_KEY}/web_channel"
 def get_show_tags(show: TvmazeShow) -> Iterable[Tag]:
     yield predefined_series_tag()
     yield get_show_type_tag(show["type"])
-    yield get_language_tag(show["language"])
+    language = show["language"]
+    if language is not None:
+        yield get_language_tag(language)
     for genre in show["genres"]:
         yield get_genre_tag(genre)
     network = show["network"]
