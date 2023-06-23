@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from typing import Optional, TypeVar
 
 from ...models import MediaCollection, MediaElement, MediaUriMapping
