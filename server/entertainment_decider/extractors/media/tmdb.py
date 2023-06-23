@@ -98,6 +98,6 @@ class TmdbMovieMediaExtractor(MediaExtractor[TmdbMovieData]):
                 data.tmdb_short_uri,
             )
         )
-        for tag in data.get_tags(data):
+        for tag in data.get_tags():
             object.tag_list.add(tag)
         return ChangedReport.ChangedSome  # TODO improve
