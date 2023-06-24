@@ -423,6 +423,31 @@ class MediaElement(db.Entity, UriHolder, Tagable):
     def _clear_uri_set(self) -> None:
         self.__uri_list = set()
 
+    def _add_uri_to_set(self, uri: str) -> bool:
+        mapping: Optional[MediaUriMapping] = MediaUriMapping.get(uri=uri)
+        if not mapping:
+            logging.debug(f"Add URI mapping {uri!r} to media {self.id!r}")
+            MediaUriMapping(
+                uri=uri,
+                element=self,
+            )
+            return True
+        if mapping.element != self:
+            raise Exception(
+                f"URI duplicated for two different media's: {uri}"
+            )  # TODO may replace with merge call
+        return False
+
+    def _remove_uri_from_set(self, uri: str) -> bool:
+        mapping: Optional[MediaUriMapping] = MediaUriMapping.get(
+            uri=uri,
+            element=self,
+        )
+        if not mapping:
+            return False
+        mapping.delete()
+        return True
+
     ### for Tagable
 
     @property
@@ -550,21 +575,6 @@ class MediaElement(db.Entity, UriHolder, Tagable):
                 link.element = other
         self.delete()  # will also delete still existing uri mappings and collection links
         orm.flush()
-
-    def add_single_uri(self, uri: str) -> bool:
-        mapping: MediaUriMapping = MediaUriMapping.get(uri=uri)
-        if not mapping:
-            logging.debug(f"Add URI mapping {uri!r} to media {self.id!r}")
-            MediaUriMapping(
-                uri=uri,
-                element=self,
-            )
-            return True
-        if mapping.element != self:
-            raise Exception(
-                f"URI duplicated for two different media's: {uri}"
-            )  # TODO may replace with merge call
-        return False
 
     def before_insert(self) -> None:
         self.before_update()
@@ -751,6 +761,31 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     def _clear_uri_set(self) -> None:
         self.__uri_set = set()
 
+    def _add_single_uri(self, uri: str) -> bool:
+        mapping: CollectionUriMapping = CollectionUriMapping.get(uri=uri)
+        if not mapping:
+            logging.debug(f"Add URI mapping {uri!r} to collection {self.id!r}")
+            CollectionUriMapping(
+                uri=uri,
+                element=self,
+            )
+            return True
+        if mapping.element != self:
+            raise Exception(
+                f"URI duplicated for two different collections's: {uri}"
+            )  # TODO may replace with merge call
+        return False
+
+    def _remove_uri_from_set(self, uri: str) -> bool:
+        mapping: Optional[CollectionUriMapping] = CollectionUriMapping.get(
+            uri=uri,
+            element=self,
+        )
+        if not mapping:
+            return False
+        mapping.delete()
+        return True
+
     ### for Tagable
 
     @property
@@ -924,21 +959,6 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
             orm.flush()
             return link
         return None
-
-    def add_single_uri(self, uri: str) -> bool:
-        mapping: CollectionUriMapping = CollectionUriMapping.get(uri=uri)
-        if not mapping:
-            logging.debug(f"Add URI mapping {uri!r} to collection {self.id!r}")
-            CollectionUriMapping(
-                uri=uri,
-                element=self,
-            )
-            return True
-        if mapping.element != self:
-            raise Exception(
-                f"URI duplicated for two different collections's: {uri}"
-            )  # TODO may replace with merge call
-        return False
 
     def before_insert(self) -> None:
         self.before_update()
