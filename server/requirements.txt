@@ -14,3 +14,8 @@ git+https://github.com/Zocker1999NET/youtube-search-python@my-version#egg=youtub
 git+https://github.com/Zocker1999NET/tinytinypy#egg=tinytinypy
 # replacement for jinja until https://github.com/pallets/jinja/pull/1712 is merged
 git+https://github.com/Zocker1999NET/jinja@trailing-comma-3.1.2#egg=Jinja2
+
+
+# types for development
+types-requests
+types-PyYAML
