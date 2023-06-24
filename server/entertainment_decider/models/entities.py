@@ -200,6 +200,10 @@ class Tag(db.Entity, Tagable, TagProto["Tag"]):
     def orm_super_tags(self) -> Query[Tag]:
         return self.super_tag_list if self.use_for_preferences else []
 
+    @property
+    def info_link(self) -> str:
+        return f"/tag/{self.id}"
+
 
 class TagKey(db.Entity):
     num_id: int = orm.PrimaryKey(int, auto=True)

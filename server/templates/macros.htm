@@ -657,3 +657,47 @@
         {% endfor %}
     </table>
 {%- endmacro %}
+
+{% macro tag_list(tags) -%}
+    {%- for t in tags | sort(attribute="title") -%}
+        {%- if loop.index > 1 -%}
+            {{ " | " }}
+        {%- endif -%}
+        <a class="tag_item" href="{{ t.info_link }}"{% if t.notes %} title="{{ t.notes }}"{% endif %}>{{ t.title }}</a>
+    {%- endfor -%}
+{%- endmacro %}
+
+{% macro tag_table(tag_list) %}
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Use for Pref.</th>
+            <th>Notes</th>
+        </tr>
+        {% for tag in tag_list %}
+            {{ tag_table_entry(tag) }}
+        {% endfor %}
+    </table>
+{%- endmacro %}
+
+{% macro tag_table_entry(tag) %}
+    {%- set api_uri = "/api/tag/" + tag.id|string -%}
+    {%- set fragment = "tag_" + tag.id|string -%}
+    <tr id="{{ fragment }}">
+        <td>
+            {{- tag.id -}}
+        </td>
+        <td>
+            <a href="{{ tag.info_link }}">
+                {{- tag.title -}}
+            </a>
+        </td>
+        <td>
+            {{ post_form(api_uri, "use_for_preferences", tag.use_for_preferences | tenary("false", "true"), tag.use_for_preferences | tenary("Yes", "no"), fragment) }}
+        </td>
+        <td>
+            {{- tag.notes or "" -}}
+        </td>
+    </tr>
+{%- endmacro %}

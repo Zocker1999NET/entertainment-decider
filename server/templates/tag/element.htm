@@ -1,0 +1,57 @@
+{% import "macros.htm" as macros %}
+<!DOCTYPE html>
+<html>
+    {% set title = tag.title %}
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ title }} - Tag</title>
+        {{ macros.shared_style() }}
+    </head>
+    <body>
+        {{ macros.body_header() }}
+        <h1>{{ title }}</h1>
+        <h2>Notes</h2>
+        <pre>{{ tag.notes or "" }}</pre>
+        <h2>Properties</h2>
+        <ul>
+            {% set api_uri = "/api/tag/" + tag.id|string %}
+            <li>
+                Use for preferences:
+                {{ tag.use_for_preferences | tenary("Yes", "no") }}
+                {{ macros.post_form(api_uri, "use_for_preferences", tag.use_for_preferences | tenary("false", "true"), "toggle") }}
+            </li>
+            <li>
+                Direct Counts:
+                {{ tag.collection_list | length }} Collections,
+                {{ tag.media_list | length }} Elements
+            </li>
+        </ul>
+        {% if tag.super_tag_list | length > 0 %}
+            <h2>Super Tags</h2>
+            {{ macros.tag_table(tag.super_tag_list | sort(attribute="title")) }}
+        {% endif %}
+        {% if tag.sub_tag_list | length > 0 %}
+            <h2>Sub Tags</h2>
+            {{ macros.tag_table(tag.sub_tag_list | sort(attribute="title")) }}
+        {% endif %}
+        {% if tag.collection_list | length > 0 %}
+            <h2>Collections</h2>
+            <ul>
+                {% for collection in tag.collection_list|sort(attribute="title") %}
+                    <li>
+                        <a href="{{ collection.info_link }}">{{ collection.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if tag.media_list | length > 0 %}
+            <h2>Elements</h2>
+            {{ macros.media_thumbnail_list(
+                elements=tag_media_list,
+                check_considered=True,
+                link_collection=True,
+            ) }}
+        {% endif %}
+    </body>
+</html>
+

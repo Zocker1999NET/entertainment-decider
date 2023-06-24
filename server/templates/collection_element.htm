@@ -66,7 +66,7 @@
             {% endif %}
             {% if collection.all_tags %}
                 <li>
-                    Tags: {{ collection.all_tags | map(attribute="title") | sort | join(" | ") }}
+                    Tags: {{ macros.tag_list(collection.all_tags | filter_preference_tags) }}
                 </li>
             {% endif %}
             {% if collection.watch_in_order %}

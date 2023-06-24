@@ -284,6 +284,13 @@ def _template_are_multiple_considered(elem_ids: Iterable[int]) -> Mapping[int, b
     return are_multiple_considered(elem_ids)
 
 
+@flask_app.template_filter()
+def filter_preference_tags(tags: Iterable[Tag]) -> Iterable[Tag]:
+    for t in tags:
+        if t.use_for_preferences:
+            yield t
+
+
 ####
 # Routes
 ####
@@ -838,11 +845,25 @@ def show_stats_queries() -> ResponseReturnValue:
 
 
 @flask_app.route("/tag")
-def show_tag() -> ResponseReturnValue:
-    tag_list: List[Tag] = Tag.select()
+def show_root_tags() -> ResponseReturnValue:
+    tag_list: List[Tag] = orm.select(
+        t for t in Tag if len(t.super_tag_list) <= 0
+    ).order_by(Tag.title, Tag.id)
     return render_template(
-        "tag_list.htm",
+        "tag/list.htm",
         tag_list=tag_list,
+    )
+
+
+@flask_app.route("/tag/<int:tag_id>")
+def show_tag_element(tag_id: int) -> ResponseReturnValue:
+    tag: Optional[Tag] = Tag.get(id=tag_id)
+    if tag is None:
+        return make_response(f"Not found", 404)
+    return render_template(
+        "tag/element.htm",
+        tag=tag,
+        tag_media_list=tag.media_list.order_by(MediaElement.sort_key),
     )
 
 
@@ -1301,3 +1322,42 @@ def api_media_set_dependent() -> ResponseReturnValue:
 def api_tag_delete_temporary() -> ResponseReturnValue:
     Tag.scrub_temporary_tags()
     return redirect_back_or_okay()
+
+
+@flask_app.route("/api/tag/<int:tag_id>", methods=["GET", "POST"])
+def api_tag(tag_id: int) -> ResponseReturnValue:
+    tag: Tag = Tag.get(id=tag_id)
+    if tag is None:
+        return {
+            "status": False,
+            "error": f"Object not found",
+        }, 404
+    if request.method == "GET":
+        return {
+            "status": True,
+            "data": {
+                "id": tag.id,
+                "title": tag.title,
+                "notes": tag.notes,
+                "use_for_preferences": tag.use_for_preferences,
+                "super_tags": [t.id for t in tag.super_tag_list],
+                "sub_tags": [t.id for t in tag.sub_tag_list],
+            },
+        }, 200
+    elif request.method == "POST":
+        data = request.form.to_dict()
+        if "redirect" in data:
+            del data["redirect"]
+        KEY_CONVETER: Mapping[str, Callable[[str], Any]] = {
+            "title": str,
+            "notes": str,
+            "use_for_preferences": environ_bool,
+        }
+        for key in data:
+            if key not in KEY_CONVETER:
+                return {
+                    "status": False,
+                    "error": f"Cannot set key {key!r} on Tag",
+                }, 400
+        tag.set(**{key: KEY_CONVETER[key](val) for key, val in data.items()})
+        return redirect_back_or_okay()

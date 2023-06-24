@@ -42,7 +42,7 @@
                     </td>
                     <td><a href="{{ collection.info_link }}">{{ collection.title }}</a></td>
                     <td>
-                        {{ collection.assigned_tags | map(attribute="title") | sort | join(" | ") }}
+                        {{ macros.tag_list(collection.assigned_tags) }}
                     </td>
                 </tr>
             {% endfor %}

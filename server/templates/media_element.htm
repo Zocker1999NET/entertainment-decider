@@ -57,7 +57,7 @@
                     {% endif %}
                     {% if element.all_tags %}
                         <li>
-                            Tags: {{ element.all_tags | map(attribute="title") | join(" | ") }}
+                            Tags: {{ macros.tag_list(element.all_tags | filter_preference_tags) }}
                         </li>
                     {% endif %}
                 </ul>
