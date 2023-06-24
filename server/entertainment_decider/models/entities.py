@@ -582,6 +582,15 @@ class MediaElement(db.Entity, UriHolder, Tagable):
     def before_update(self) -> None:
         self.add_single_uri(self.__uri)
 
+    ### static
+
+    @staticmethod
+    def sort_key(element: MediaElement) -> Tuple:
+        return (
+            element.release_date,
+            element.id,
+        )
+
 
 class MediaThumbnail(db.Entity):
     id: int = orm.PrimaryKey(
