@@ -52,6 +52,11 @@ class UriHolder:
     def uri_set(self) -> Set[str]:
         return self._uri_set
 
+    @uri_set.setter
+    def uri_set(self, uri_list: Iterable[Optional[str]]):
+        self._clear_uri_set()
+        self.add_uris(uri_list)
+
     # uri_set has no setter due to the problem which uri then becomes primary
     # instead, set_as_only_uri & add_uris should be used so the primary becomes obvious
 
