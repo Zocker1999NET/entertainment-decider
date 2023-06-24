@@ -420,9 +420,8 @@ class MediaElement(db.Entity, UriHolder, Tagable):
     def _uri_set(self) -> Set[str]:
         return {m.uri for m in self.__uri_list}
 
-    def _set_uri_set(self, uri_set: Set[str]) -> None:
+    def _clear_uri_set(self) -> None:
         self.__uri_list = set()
-        self.add_uris(uri_set)
 
     ### for Tagable
 
@@ -749,9 +748,8 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     def _uri_set(self) -> Set[str]:
         return {m.uri for m in self.__uri_set}
 
-    def _set_uri_set(self, uri_set: Set[str]) -> None:
+    def _clear_uri_set(self) -> None:
         self.__uri_set = set()
-        self.add_uris(uri_set)
 
     ### for Tagable
 

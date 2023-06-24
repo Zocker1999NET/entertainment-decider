@@ -20,7 +20,7 @@ class UriHolder:
         """Returns the uri set of this object in a naive way."""
 
     @abstractmethod
-    def _set_uri_set(self, uri_set: Set[str]) -> None:
+    def _clear_uri_set(self) -> None:
         """Sets the uri set of this object in a naive way."""
 
     @abstractmethod
@@ -72,8 +72,8 @@ class UriHolder:
         return ret
 
     def set_as_only_uri(self, uri: str) -> None:
-        self._set_uri_set({uri})  # might fail, so try first
-        self._set_primary_uri(uri)
+        self._clear_uri_set()
+        self.set_primary_uri(uri)
 
     def add_single_uri(self, uri: str) -> bool:
         return self._add_uri_to_set(uri)
