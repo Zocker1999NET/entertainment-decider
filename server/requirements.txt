@@ -4,8 +4,8 @@ pony>=0.7.14
 pyyaml>=5.4.1
 rss-parser>=0.2.3
 yt-dlp>=2022.6.29
+git+https://git.banananet.work/zocker/python-jsoncache#egg=jsoncache
 git+https://github.com/Zocker1999NET/youtube-search-python@my-version#egg=youtube-search-python
 
 # custom, local requirements; TODO remove or change to persistent dependency
-/home/zocker/Repositories/python-jsoncache
 /home/zocker/Repositories/tinytinypy
