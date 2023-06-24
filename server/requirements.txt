@@ -2,8 +2,12 @@
 git+https://github.com/Zocker1999NET/flask@config-prefixed-env#egg=Flask
 mysqlclient>=2.1
 pony>=0.7.14
+pycountry>=20
+python-magic>=0.4.25
 pyyaml>=5.4.1
+requests>=2.26
 rss-parser>=0.2.3
+tmdbsimple>=2.9.1
 yt-dlp>=2022.6.29
 git+https://git.banananet.work/zocker/python-jsoncache#egg=jsoncache
 git+https://github.com/Zocker1999NET/youtube-search-python@my-version#egg=youtube-search-python
