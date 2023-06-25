@@ -77,6 +77,11 @@ from entertainment_decider.extras import (
 T = TypeVar("T")
 
 
+INFOTAINMENT_POINTS_MAPPING = {
+    102: -100,  # Infotainment
+}
+
+
 def adapt_score_list(
     base: Optional[PreferenceScore] = None,
     tag_points_mapping: Dict[int, int] = {},
@@ -604,6 +609,22 @@ def recommend_short_filler() -> ResponseReturnValue:
                 order_by="elem.release_date DESC",
             ),
             score_adapt=1,
+            limit=24,
+        ),
+    )
+
+
+@flask_app.route("/recommendations/infotainment")
+def recommend_infotainment() -> ResponseReturnValue:
+    return render_template(
+        "recommendations_simple.htm",
+        mode_name="Infotainment",
+        media_list=generate_preference_list(
+            object_gen=lambda: get_all_considered(
+                order_by="elem.release_date DESC",
+            ),
+            score_adapt=1,
+            base=adapt_score_list(tag_points_mapping=INFOTAINMENT_POINTS_MAPPING),
             limit=24,
         ),
     )
