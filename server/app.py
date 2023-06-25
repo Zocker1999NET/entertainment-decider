@@ -113,7 +113,7 @@ _LOG_LEVELS = {
     "httpx": logging.WARNING,  # >DEBUG to hide outgoing SSL infos
     "werkzeug": logging.INFO,  # INFO so incoming requests show up
 }
-for module_name, log_level in  _LOG_LEVELS.items():
+for module_name, log_level in _LOG_LEVELS.items():
     logging.getLogger(module_name).setLevel(log_level)
 
 
