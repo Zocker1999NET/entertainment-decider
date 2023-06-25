@@ -4,6 +4,9 @@ from ._itertools import (
     iter_lookahead,
     limit_iter,
 )
+from ._setting_handler import (
+    update_bool_value,
+)
 from ._subprocess import (
     call,
 )
@@ -15,4 +18,5 @@ __all__ = [
     "fix_iter",
     "iter_lookahead",
     "limit_iter",
+    "update_bool_value",
 ]
