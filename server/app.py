@@ -1382,3 +1382,4 @@ def api_tag(tag_id: int) -> ResponseReturnValue:
                 }, 400
         tag.set(**{key: KEY_CONVETER[key](val) for key, val in data.items()})
         return redirect_back_or_okay()
+    assert False, f"{request.method} unsupported"
