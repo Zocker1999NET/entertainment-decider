@@ -184,13 +184,13 @@ class Tag(db.Entity, Tagable, TagProto["Tag"]):
 
     use_for_preferences: bool = orm.Required(bool, default=True)
 
-    tag_keys: Iterable[TagKey] = orm.Set(lambda: TagKey)
+    tag_keys: Set[TagKey] = orm.Set(lambda: TagKey)
 
-    super_tag_list: Iterable[Tag] = orm.Set(lambda: Tag, reverse="sub_tag_list")
-    sub_tag_list: Iterable[Tag] = orm.Set(lambda: Tag, reverse="super_tag_list")
+    super_tag_list: Set[Tag] = orm.Set(lambda: Tag, reverse="sub_tag_list")
+    sub_tag_list: Set[Tag] = orm.Set(lambda: Tag, reverse="super_tag_list")
 
-    collection_list: Iterable[MediaCollection] = orm.Set(lambda: MediaCollection)
-    media_list: Iterable[MediaElement] = orm.Set(lambda: MediaElement)
+    collection_list: Set[MediaCollection] = orm.Set(lambda: MediaCollection)
+    media_list: Set[MediaElement] = orm.Set(lambda: MediaElement)
 
     @property
     def orm_assigned_tags(self) -> Query[Tag]:
@@ -378,13 +378,13 @@ class MediaElement(db.Entity, UriHolder, Tagable):
     )
     length: int = orm.Optional(int)
 
-    tag_list: Iterable[Tag] = orm.Set(
+    tag_list: Set[Tag] = orm.Set(
         lambda: Tag,
     )
-    __uri_list: Iterable[MediaUriMapping] = orm.Set(
+    __uri_list: Set[MediaUriMapping] = orm.Set(
         lambda: MediaUriMapping,
     )
-    collection_links: Iterable[MediaCollectionLink] = orm.Set(
+    collection_links: Set[MediaCollectionLink] = orm.Set(
         lambda: MediaCollectionLink,
     )
 
@@ -731,13 +731,13 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         index=True,
     )
 
-    tag_list: Iterable[Tag] = orm.Set(
+    tag_list: Set[Tag] = orm.Set(
         lambda: Tag,
     )
-    __uri_set: Iterable[CollectionUriMapping] = orm.Set(
+    __uri_set: Set[CollectionUriMapping] = orm.Set(
         lambda: CollectionUriMapping,
     )
-    media_links: Iterable[MediaCollectionLink] = orm.Set(
+    media_links: Set[MediaCollectionLink] = orm.Set(
         MediaCollectionLink,
     )
     created_collections: Set[MediaCollection] = orm.Set(
