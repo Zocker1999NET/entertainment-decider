@@ -13,6 +13,15 @@ from typing import (
 T = TypeVar("T")
 
 
+# check Iterable for same values
+
+
+def all_same(iterable: Iterable) -> bool:
+    it = iter(iterable)
+    first = next(it)
+    return all(first == elem for elem in it)
+
+
 # fix Iterables
 
 

@@ -1,4 +1,5 @@
 from ._itertools import (
+    all_same,
     fix_iter,
     iter_lookahead,
     limit_iter,
@@ -6,6 +7,7 @@ from ._itertools import (
 
 
 __all__ = [
+    "all_same",
     "fix_iter",
     "iter_lookahead",
     "limit_iter",

@@ -3,19 +3,12 @@ import subprocess
 import sys
 from typing import (
     IO,
-    Iterable,
     Literal,
     Optional,
     Sequence,
     TypeVar,
     Union,
 )
-
-
-def all_same(iterable: Iterable) -> bool:
-    it = iter(iterable)
-    first = next(it)
-    return all(first == elem for elem in it)
 
 
 def call(
