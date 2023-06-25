@@ -449,8 +449,8 @@
         {{ post_form(api_uri, "ignored", "true", "&#10005;"|safe, fragment) }}
     {% endif %}
     {% if show_rating %}
-        {{ post_form("/cookies/rating/positive", "media_id", element.id|string, "+", fragment) }}
-        {{ post_form("/cookies/rating/negative", "media_id", element.id|string, "-", fragment) }}
+        {{ post_form("/cookies/rating/positive", "media_id", element.id|string, "+") }}
+        {{ post_form("/cookies/rating/negative", "media_id", element.id|string, "-") }}
     {% endif %}
 {% endmacro %}
 
