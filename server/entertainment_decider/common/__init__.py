@@ -11,6 +11,9 @@ from ._itertools import (
 from ._setting_handler import (
     update_bool_value,
 )
+from ._string import (
+    trim,
+)
 from ._subprocess import (
     call,
 )
@@ -24,5 +27,6 @@ __all__ = [
     "iter_lookahead",
     "limit_iter",
     "to_just_number",
+    "trim",
     "update_bool_value",
 ]
