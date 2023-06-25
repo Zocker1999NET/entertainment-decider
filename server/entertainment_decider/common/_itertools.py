@@ -17,6 +17,9 @@ T = TypeVar("T")
 
 
 def all_same(iterable: Iterable) -> bool:
+    """
+    Returns True if all items of Iterable are equal, False otherwise.
+    """
     it = iter(iterable)
     first = next(it)
     return all(first == elem for elem in it)
