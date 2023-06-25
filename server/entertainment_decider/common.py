@@ -1,29 +1,12 @@
 from datetime import date, datetime
-import subprocess
 import sys
 from typing import (
-    IO,
     Literal,
     Optional,
     Sequence,
     TypeVar,
     Union,
 )
-
-
-def call(
-    args: Sequence[str],
-    check: bool = True,
-    stdin: Optional[IO] = None,
-) -> subprocess.CompletedProcess:
-    proc = subprocess.run(
-        args,
-        capture_output=True,
-        check=check,
-        text=True,
-        stdin=stdin,
-    )
-    return proc
 
 
 # source: https://peps.python.org/pep-0257/#handling-docstring-indentation
