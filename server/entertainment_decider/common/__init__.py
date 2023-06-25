@@ -1,3 +1,7 @@
+from ._converter import (
+    date_to_datetime,
+    to_just_number,
+)
 from ._itertools import (
     all_same,
     fix_iter,
@@ -15,8 +19,10 @@ from ._subprocess import (
 __all__ = [
     "all_same",
     "call",
+    "date_to_datetime",
     "fix_iter",
     "iter_lookahead",
     "limit_iter",
+    "to_just_number",
     "update_bool_value",
 ]
