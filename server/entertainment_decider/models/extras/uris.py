@@ -19,8 +19,22 @@ class UriHolder:
         """Returns the primary uri of this object in a naive way."""
 
     @abstractmethod
-    def _set_primary_uri(self, uri: str) -> None:
-        """Sets the primary uri of this object in a naive way."""
+    def _set_primary_uri(self, uri: str) -> bool:
+        """Sets the primary uri of this object in a naive way.
+
+        Returns True if an action was applied, False otherwise.
+        If the uri was already primary,
+        both True or False might be returned.
+
+        When overriding this method,
+        if you call the super() and its call returns True,
+        you should avoid making changes yourself.
+
+        A final non-abstract version of this method must throw an error
+        if it fails to set the primary uri instead of just returning False.
+        The return value is mainly for overwriting methods to divert the change.
+        """
+        return False
 
     @abstractproperty
     def _uri_set(self) -> Set[str]:
@@ -34,15 +48,37 @@ class UriHolder:
     def _add_uri_to_set(self, uri: str) -> bool:
         """Adds a uri to the uri set of this object in a naive way.
 
-        Returns True if the uri was not in the uri set before.
+        Returns True if an action was applied, False otherwise.
+        If the uri was already part of the uri set,
+        both True or False might be returned.
+
+        When overriding this method,
+        if you call the super() and its call returns True,
+        you should avoid making changes yourself.
+
+        A final non-abstract version of this method must throw an error
+        if it fails at adding the uri instead of just returning False.
+        The return value is mainly for overwriting methods to divert the change.
         """
+        return False
 
     @abstractmethod
     def _remove_uri_from_set(self, uri: str) -> bool:
         """Removes a uri to the uri set of this object in a naive way.
 
-        Returns True if the uri was in the uri set before.
+        Returns True if a change was applied, False otherwise.
+        If the uri was already absent from the uri set,
+        both True or False might be returned.
+
+        When overriding this method,
+        if you call the super() and its call returns True,
+        you should avoid making changes yourself.
+
+        A final non-abstract version of this method must throw an error
+        if it fails at removing the uri instead of just returning False.
+        The return value is mainly for overwriting methods to divert the change.
         """
+        return False
 
     ### implemented
 
