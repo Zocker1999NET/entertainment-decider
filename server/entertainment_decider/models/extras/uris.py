@@ -60,7 +60,7 @@ class UriHolder:
         return self._uri_set
 
     @uri_set.setter
-    def uri_set(self, uri_list: Iterable[Optional[str]]):
+    def uri_set(self, uri_list: Iterable[Optional[str]]) -> None:
         self._clear_uri_set()
         self.add_uris(uri_list)
 
