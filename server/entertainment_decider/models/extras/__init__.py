@@ -1,1 +1,3 @@
-from .uris import UriHolder
+from .uris import (
+    UriHolder,
+)
