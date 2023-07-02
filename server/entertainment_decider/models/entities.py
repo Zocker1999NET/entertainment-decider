@@ -420,6 +420,10 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         return self.__uri
 
     def _set_primary_uri(self, uri: str) -> bool:
+        action = super()._set_primary_uri(uri)
+        if action:
+            # do nothing if action already applied
+            return True
         self.__uri = uri
         return True
 
@@ -431,6 +435,10 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         self.__uri_list = set()
 
     def _add_uri_to_set(self, uri: str) -> bool:
+        action = super()._add_uri_to_set(uri)
+        if action:
+            # do nothing if action already applied
+            return True
         mapping: Optional[MediaUriMapping] = MediaUriMapping.get(uri=uri)
         if not mapping:
             logging.debug(f"Add URI mapping {uri!r} to media {self.id!r}")
@@ -446,6 +454,10 @@ class MediaElement(db.Entity, UriHolder, Tagable):
         return False
 
     def _remove_uri_from_set(self, uri: str) -> bool:
+        action = super()._remove_uri_from_set(uri)
+        if action:
+            # do nothing if action already applied
+            return True
         mapping: Optional[MediaUriMapping] = MediaUriMapping.get(
             uri=uri,
             element=self,
@@ -768,6 +780,10 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         return self.__uri
 
     def _set_primary_uri(self, uri: str) -> bool:
+        action = super()._set_primary_uri(uri)
+        if action:
+            # do nothing if action already applied
+            return True
         self.__uri = uri
         return True
 
@@ -779,6 +795,10 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         self.__uri_set = set()
 
     def _add_uri_to_set(self, uri: str) -> bool:
+        action = super()._add_uri_to_set(uri)
+        if action:
+            # do nothing if action already applied
+            return True
         mapping: CollectionUriMapping = CollectionUriMapping.get(uri=uri)
         if not mapping:
             logging.debug(f"Add URI mapping {uri!r} to collection {self.id!r}")
@@ -794,6 +814,10 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
         return False
 
     def _remove_uri_from_set(self, uri: str) -> bool:
+        action = super()._remove_uri_from_set(uri)
+        if action:
+            # do nothing if action already applied
+            return True
         mapping: Optional[CollectionUriMapping] = CollectionUriMapping.get(
             uri=uri,
             element=self,
