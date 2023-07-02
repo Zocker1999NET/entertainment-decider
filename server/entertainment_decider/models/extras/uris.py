@@ -1,7 +1,14 @@
 from __future__ import annotations
 
-from abc import abstractmethod, abstractproperty
-from typing import Iterable, Optional, Set
+from abc import (
+    abstractmethod,
+    abstractproperty,
+)
+from typing import (
+    Iterable,
+    Optional,
+    Set,
+)
 
 
 class UriHolder:
