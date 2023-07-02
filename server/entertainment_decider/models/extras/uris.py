@@ -71,30 +71,32 @@ class UriHolder:
         """Returns True if the given uri is equal to the current primary uri."""
         return self.primary_uri == compare_uri
 
-    def set_primary_uri(self, uri: str) -> bool:
+    def set_primary_uri(self, uri: str) -> None:
         """Sets the current primary of this object.
 
         It will also add the uri to the uri set.
-        Returns True if the uri was not in the uri set before.
 
-        You may also just write the primary_uri property if you do not need the return value.
+        You may also just write the primary_uri property.
         """
-        ret = self._add_uri_to_set(uri)  # might fail, so try first
+        self._add_uri_to_set(uri)  # might fail, so try first
         self._set_primary_uri(uri)
-        return ret
 
     def set_as_only_uri(self, uri: str) -> None:
         self._clear_uri_set()
         self.set_primary_uri(uri)
 
-    def add_single_uri(self, uri: str) -> bool:
-        return self._add_uri_to_set(uri)
+    def add_single_uri(self, uri: str) -> None:
+        self._add_uri_to_set(uri)
 
-    def add_uris(self, uri_list: Iterable[Optional[str]]) -> bool:
-        return any([self.add_single_uri(uri) for uri in set(uri_list) if uri])
+    def add_uris(self, uri_list: Iterable[Optional[str]]) -> None:
+        for uri in set(uri_list):
+            if uri is not None:
+                self.add_single_uri(uri)
 
-    def remove_single_uri(self, uri: str) -> bool:
-        return self._remove_uri_from_set(uri)
+    def remove_single_uri(self, uri: str) -> None:
+        self._remove_uri_from_set(uri)
 
-    def remove_uris(self, uri_list: Iterable[Optional[str]]) -> bool:
-        return any([self.remove_single_uri(uri) for uri in set(uri_list) if uri])
+    def remove_uris(self, uri_list: Iterable[Optional[str]]) -> None:
+        for uri in set(uri_list):
+            if uri is not None:
+                self.remove_single_uri(uri)
