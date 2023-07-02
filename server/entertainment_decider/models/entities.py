@@ -778,7 +778,7 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     def _clear_uri_set(self) -> None:
         self.__uri_set = set()
 
-    def _add_single_uri(self, uri: str) -> bool:
+    def _add_uri_to_set(self, uri: str) -> bool:
         mapping: CollectionUriMapping = CollectionUriMapping.get(uri=uri)
         if not mapping:
             logging.debug(f"Add URI mapping {uri!r} to collection {self.id!r}")
