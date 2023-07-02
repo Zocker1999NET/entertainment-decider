@@ -97,11 +97,16 @@ class UriHolder:
 
     @uri_set.setter
     def uri_set(self, uri_list: Iterable[Optional[str]]) -> None:
-        self._clear_uri_set()
-        self.add_uris(uri_list)
+        """
+        uri_set setter cannot be implemented for now!
 
-    # uri_set has no setter due to the problem which uri then becomes primary
-    # instead, set_as_only_uri & add_uris should be used so the primary becomes obvious
+        uri_set has no setter due to the problem which uri then becomes primary.
+        Instead, set_as_only_uri & add_uris should be used so the primary becomes obvious.
+        In future, when no primary uri is required, it will be implemented.
+        """
+        raise NotImplementedError(
+            "UriHolder.uri_set setter cannot be implemented (for now)",
+        )
 
     def is_primary_uri(self, compare_uri: str) -> bool:
         """Returns True if the given uri is equal to the current primary uri."""
