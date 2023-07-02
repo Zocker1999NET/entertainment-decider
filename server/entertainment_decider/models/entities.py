@@ -419,8 +419,9 @@ class MediaElement(db.Entity, UriHolder, Tagable):
     def _primary_uri(self) -> str:
         return self.__uri
 
-    def _set_primary_uri(self, uri: str) -> None:
+    def _set_primary_uri(self, uri: str) -> bool:
         self.__uri = uri
+        return True
 
     @property
     def _uri_set(self) -> Set[str]:
@@ -766,8 +767,9 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     def _primary_uri(self) -> str:
         return self.__uri
 
-    def _set_primary_uri(self, uri: str) -> None:
+    def _set_primary_uri(self, uri: str) -> bool:
         self.__uri = uri
+        return True
 
     @property
     def _uri_set(self) -> Set[str]:
