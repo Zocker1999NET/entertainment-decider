@@ -1,4 +1,4 @@
-from .exids_base import (
+from .exidkeys import (
     ExIdKey_Columns,
     ExIdKeyCompatible,
     ExIdKeyData,
