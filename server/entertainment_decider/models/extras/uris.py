@@ -42,7 +42,7 @@ class UriHolder:
 
     @abstractmethod
     def _clear_uri_set(self) -> None:
-        """Sets the uri set of this object in a naive way."""
+        """Clears the uri set of this object in a naive way."""
 
     @abstractmethod
     def _add_uri_to_set(self, uri: str) -> bool:
