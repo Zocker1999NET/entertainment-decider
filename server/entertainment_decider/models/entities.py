@@ -18,13 +18,13 @@ import requests
 from pony import orm
 
 from .custom_types import Query
+from .db import db
 from .thumbnails import THUMBNAIL_ALLOWED_TYPES, THUMBNAIL_HEADERS
 from .extras import (
     UriHolder,
 )
 from ..preferences.tag_protocol import TagableProto, TagProto
 
-db = orm.Database()
 
 
 T = TypeVar("T")

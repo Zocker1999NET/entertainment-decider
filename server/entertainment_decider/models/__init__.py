@@ -8,6 +8,10 @@ from .custom_types import (
     SafeStr,
 )
 
+from .db import (
+    db,
+)
+
 from .entities import (
     CollectionStats,
     CollectionUriMapping,
@@ -20,7 +24,6 @@ from .entities import (
     Tag,
     Tagable,
     TagKey,
-    db,
 )
 
 from .predefined_tags import (
