@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from abc import abstractproperty
+from collections.abc import (
+    Mapping,
+)
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import logging
@@ -578,6 +581,14 @@ class MediaElement(db.Entity, UriHolder, Tagable):
     def info_link(self) -> str:
         return f"/media/{self.id}"
 
+    @property
+    def json_summary(self) -> Mapping[str, str]:
+        return {
+            "id": self.id,
+            "title": self.title,
+            "uri": self.primary_uri,
+        }
+
     ### methods
 
     def merge_to(self, other: MediaElement) -> None:
@@ -967,6 +978,14 @@ class MediaCollection(db.Entity, UriHolder, Tagable):
     @property
     def info_link(self) -> str:
         return f"/collection/{self.id}"
+
+    @property
+    def json_summary(self) -> Mapping[str, str]:
+        return {
+            "id": self.id,
+            "title": self.title,
+            "uri": self.primary_uri,
+        }
 
     ### methods
 
