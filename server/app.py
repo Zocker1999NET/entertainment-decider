@@ -803,7 +803,25 @@ def force_refresh_collection(collection_id: int) -> ResponseReturnValue:
     coll: MediaCollection = MediaCollection.get(id=collection_id)
     if coll is None:
         return "404 Not Found", 404
-    state = collection_update(coll, check_cache_expired=False)
+    try:
+        state = collection_update(coll, check_cache_expired=False)
+    except Exception as e:
+        orm.rollback()
+        return (
+            {
+                "status": False,
+                "error": {
+                    "msg": "Failed to update collection successfully",
+                    "data": [
+                        {
+                            "collection": coll.json_summary,
+                            "error": gen_api_error(e),
+                        }
+                    ],
+                },
+            },
+            501,
+        )
     if state.may_has_changed:
         update_element_lookup_cache((coll.id,))
     return redirect_back_or_okay()
