@@ -20,9 +20,23 @@ from ._string import (
 from ._subprocess import (
     call,
 )
+from ._types import (
+    JsonContainer,
+    JsonLeaf,
+    JsonList,
+    JsonMapping,
+    JsonMappingKey,
+    JsonRepr,
+)
 
 
 __all__ = [
+    "JsonContainer",
+    "JsonLeaf",
+    "JsonList",
+    "JsonMapping",
+    "JsonMappingKey",
+    "JsonRepr",
     "all_same",
     "call",
     "date_to_datetime",
