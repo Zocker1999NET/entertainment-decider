@@ -779,11 +779,7 @@ def refresh_collections() -> ResponseReturnValue:
             orm.rollback()
             errors.append(
                 {
-                    "collection": {
-                        "id": coll.id,
-                        "title": coll.title,
-                        "uri": coll.primary_uri,
-                    },
+                    "collection": coll.json_summary,
                     "error": gen_api_error(e),
                 },
             )
