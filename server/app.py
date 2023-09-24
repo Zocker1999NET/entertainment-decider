@@ -483,7 +483,7 @@ def prepare_collection_episodes(
 @flask_app.route("/media")
 def list_media() -> ResponseReturnValue:
     media_list: Iterable[MediaElement] = get_all_considered(
-        "elem.release_date DESC, elem.id"
+        order_by="elem.release_date DESC, elem.id",
     )
     return render_template(
         "media_list.htm",
