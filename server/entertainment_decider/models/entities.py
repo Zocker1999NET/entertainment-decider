@@ -326,10 +326,12 @@ class MediaCollectionLink(db.Entity):
     @staticmethod
     def sorted(
         iterable: Iterable[MediaCollectionLink],
+        reverse: bool = False,
     ) -> List[MediaCollectionLink]:
         return sorted(
             iterable,
             key=MediaCollectionLink.sort_key,
+            reverse=reverse,
         )
 
 
