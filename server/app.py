@@ -59,6 +59,9 @@ from entertainment_decider.models import (
     setup_custom_tables,
     update_element_lookup_cache,
 )
+from entertainment_decider.models.sql_helpers import (
+    sql_condition_join,
+)
 from entertainment_decider.preferences import PreferenceScore, generate_preference_list
 from entertainment_decider.extractors.collection import (
     collection_extract_uri,
@@ -487,32 +490,7 @@ def list_media() -> ResponseReturnValue:
         "media_list.htm",
         media_list=common.limit_iter(media_list, 100),
         check_considered=False,
-    )
-
-
-@flask_app.route("/media/short")
-@flask_app.route("/media/short/<int:seconds>")
-def list_short_media(seconds: int = 10 * 60) -> ResponseReturnValue:
-    media_list = prepare_media_sql(
-        filter_by=f"(length - progress) <= {seconds}",
-    )
-    return render_template(
-        "media_list.htm",
-        media_list=list(itertools.islice(media_list, 100)),
-        check_considered=False,
-    )
-
-
-@flask_app.route("/media/long")
-@flask_app.route("/media/long/<int:seconds>")
-def list_long_media(seconds: int = 10 * 60) -> ResponseReturnValue:
-    media_list = prepare_media_sql(
-        filter_by=f"{seconds} <= (length - progress)",
-    )
-    return render_template(
-        "media_list.htm",
-        media_list=list(itertools.islice(media_list, 100)),
-        check_considered=False,
+        **pass_media_filter_vals(),
     )
 
 
@@ -550,12 +528,30 @@ def list_unsorted_media() -> ResponseReturnValue:
 
 
 def prepare_media_sql(
-    filter_by: str = "TRUE",
+    filter_by: str | None = None,
 ) -> Sequence[MediaElement]:
+    elem_len = "(elem.length - elem.progress)"
+    min_len = request.args.get("min_length", default=None, type=int)
+    max_len = request.args.get("max_length", default=None, type=int)
+    filter_str = sql_condition_join(
+        filter_by,
+        f"{min_len * 60} <= {elem_len}" if min_len else None,
+        f"{elem_len} <= {max_len * 60}" if max_len else None,
+    )
     return get_all_considered(
-        filter_by=filter_by,
+        filter_by=filter_str,
         order_by="elem.release_date DESC, elem.id",
     )
+
+
+def pass_media_filter_vals() -> Mapping[str, Any]:
+    KEYS = [
+        "min_length",
+        "max_length",
+    ]
+    return {
+        "show_filters": True,
+    } | {key: request.args.get(key) for key in KEYS}
 
 
 @flask_app.route("/media/extract")

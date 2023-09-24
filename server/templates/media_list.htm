@@ -10,6 +10,21 @@
     <body>
         {{ macros.body_header() }}
         <h1>{{ title }}</h1>
+        {% if show_filters | default(False) %}
+            <form class="form-single-button" method="get" action="{{ this_url() }}">
+                <label>
+                    <span>Min Length:</span>
+                    <input type="number" name="min_length" min="0" size="4" value="{{ min_length or '' }}"/>
+                    <span>min</span>
+                </label>
+                <label>
+                    <span>Max Length:</span>
+                    <input type="number" name="max_length" min="0" size="4" value="{{ max_length or '' }}"/>
+                    <span>min</span>
+                </label>
+                <button type="submit">Filter</button>
+            </form>
+        {% endif %}
         {{ macros.media_thumbnail_list(
             elements=media_list,
             check_considered=check_considered|default(True),
