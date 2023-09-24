@@ -324,8 +324,13 @@ class MediaCollectionLink(db.Entity):
         )
 
     @staticmethod
-    def sorted(iterable: Iterable[MediaCollectionLink]) -> List[MediaCollectionLink]:
-        return sorted(iterable, key=MediaCollectionLink.sort_key)
+    def sorted(
+        iterable: Iterable[MediaCollectionLink],
+    ) -> List[MediaCollectionLink]:
+        return sorted(
+            iterable,
+            key=MediaCollectionLink.sort_key,
+        )
 
 
 ## Media Elements
