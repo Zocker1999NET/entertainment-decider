@@ -443,9 +443,9 @@ def show_collection(collection_id: int) -> ResponseReturnValue:
     media_links = None
     media_titles = None
     if orm.count(collection.media_links) <= SMALL_COLLECTION_MAX_COUNT:
-        media_links = MediaCollectionLink.sorted(
-            MediaCollectionLink.select(lambda l: l.collection == collection)
-        )
+        media_links = MediaCollectionLink.select(
+            lambda l: l.collection == collection
+        ).order_by(MediaCollectionLink.sort_key)
         media_titles = remove_common_trails(
             [link.element.title for link in media_links]
         )
@@ -462,9 +462,9 @@ def show_collection_episodes(collection_id: int) -> ResponseReturnValue:
     collection: MediaCollection = MediaCollection.get(id=collection_id)
     if collection is None:
         return make_response(f"Not found", 404)
-    media_links = MediaCollectionLink.sorted(
-        MediaCollectionLink.select(lambda l: l.collection == collection)
-    )
+    media_links = MediaCollectionLink.select(
+        lambda l: l.collection == collection
+    ).order_by(MediaCollectionLink.sort_key)
     media_titles = remove_common_trails([link.element.title for link in media_links])
     return render_template(
         "collection_episodes.htm",
