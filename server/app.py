@@ -482,9 +482,7 @@ def prepare_collection_episodes(
 
 @flask_app.route("/media")
 def list_media() -> ResponseReturnValue:
-    media_list: Iterable[MediaElement] = get_all_considered(
-        order_by="elem.release_date DESC, elem.id",
-    )
+    media_list = prepare_media_sql()
     return render_template(
         "media_list.htm",
         media_list=common.limit_iter(media_list, 100),
@@ -495,9 +493,8 @@ def list_media() -> ResponseReturnValue:
 @flask_app.route("/media/short")
 @flask_app.route("/media/short/<int:seconds>")
 def list_short_media(seconds: int = 10 * 60) -> ResponseReturnValue:
-    media_list: Iterable[MediaElement] = get_all_considered(
+    media_list = prepare_media_sql(
         filter_by=f"(length - progress) <= {seconds}",
-        order_by="elem.release_date DESC, elem.id",
     )
     return render_template(
         "media_list.htm",
@@ -509,9 +506,8 @@ def list_short_media(seconds: int = 10 * 60) -> ResponseReturnValue:
 @flask_app.route("/media/long")
 @flask_app.route("/media/long/<int:seconds>")
 def list_long_media(seconds: int = 10 * 60) -> ResponseReturnValue:
-    media_list: Iterable[MediaElement] = get_all_considered(
+    media_list = prepare_media_sql(
         filter_by=f"{seconds} <= (length - progress)",
-        order_by="elem.release_date DESC, elem.id",
     )
     return render_template(
         "media_list.htm",
@@ -550,6 +546,15 @@ def list_unsorted_media() -> ResponseReturnValue:
         "media_list.htm",
         media_list=media_list,
         check_considered=True,
+    )
+
+
+def prepare_media_sql(
+    filter_by: str = "TRUE",
+) -> Sequence[MediaElement]:
+    return get_all_considered(
+        filter_by=filter_by,
+        order_by="elem.release_date DESC, elem.id",
     )
 
 
