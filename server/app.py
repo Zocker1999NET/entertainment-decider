@@ -471,7 +471,11 @@ def prepare_collection_episodes(
 ) -> tuple[Iterable[MediaCollectionLink], Iterable[str]]:
     media_links = MediaCollectionLink.select(
         lambda l: l.collection == collection
-    ).order_by(MediaCollectionLink.sort_key)
+    ).order_by(
+        MediaCollectionLink.desc_sort_key
+        if collection.is_creator
+        else MediaCollectionLink.sort_key
+    )
     media_titles = remove_common_trails([link.element.title for link in media_links])
     return media_links, media_titles
 
