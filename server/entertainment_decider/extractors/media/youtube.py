@@ -10,6 +10,9 @@ from youtubesearchpython import (  # type: ignore
     Video,
 )
 
+from ...extras import (
+    multi_strptime,
+)
 from ...models import (
     MediaElement,
     MediaThumbnail,
@@ -106,8 +109,11 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
                 key=lambda thumb: thumbnail_sort_key(thumb["width"], thumb["height"]),
             )
             object.thumbnail = MediaThumbnail.from_uri(best_thumb["url"])
-        object.release_date = datetime.strptime(
-            data.get("uploadDate") or data["publishDate"], "%Y-%m-%d"
+        object.release_date = multi_strptime(
+            data.get("uploadDate") or data["publishDate"],
+            "%Y-%m-%dT%H:%M:%S%:z",
+            "%Y-%m-%dT%H:%M:%S%z",
+            "%Y-%m-%d",
         )
         object.length = int(data["duration"]["secondsText"])
         for tag in get_video_tags(data):
