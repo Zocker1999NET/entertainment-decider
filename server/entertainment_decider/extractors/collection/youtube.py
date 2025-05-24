@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from collections.abc import (
+    Collection,
+)
 from datetime import datetime
 import logging
 import re
-from typing import Dict, TypeAlias
+from typing import (
+    TypedDict,
+)
 
 from pony import orm  # TODO remove
 import youtubesearchpython
@@ -22,10 +27,28 @@ from ..generic import (
 from .base import CollectionExtractor
 
 
-DataType: TypeAlias = Dict
+class PlaylistChannel(TypedDict):
+    name: str
+    id: str
 
 
-class YouTubeCollectionExtractor(CollectionExtractor[DataType]):
+class PlaylistMetadata(TypedDict):
+    id: str
+    title: str
+    channel: PlaylistChannel
+    link: str
+
+
+class PlaylistVideo(TypedDict):
+    id: str
+
+
+class PlaylistData(TypedDict):
+    info: PlaylistMetadata
+    videos: Collection[PlaylistVideo]
+
+
+class YouTubeCollectionExtractor(CollectionExtractor[PlaylistData]):
     __uri_regex = re.compile(
         r"""^
         https?://
@@ -87,15 +110,15 @@ class YouTubeCollectionExtractor(CollectionExtractor[DataType]):
             last_release_date
         )
 
-    def _extract_offline(self, uri: str) -> ExtractedDataOffline[DataType]:
+    def _extract_offline(self, uri: str) -> ExtractedDataOffline[PlaylistData]:
         playlist_id = self.__convert_if_required(self.__get_id(uri))
-        return ExtractedDataOffline[DataType](
+        return ExtractedDataOffline[PlaylistData](
             extractor_name=self.name,
             object_key=playlist_id,
             object_uri=uri,
         )
 
-    def _extract_online(self, uri: str) -> ExtractedDataOnline[DataType]:
+    def _extract_online(self, uri: str) -> ExtractedDataOnline[PlaylistData]:
         orig_id = self.__get_id(uri)
         playlist_id = self.__convert_if_required(orig_id)
         playlist_link = f"https://www.youtube.com/playlist?list={playlist_id}"
@@ -117,7 +140,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[DataType]):
         logging.debug(
             f"Retrieved {len(playlist.videos)} videos from playlist {playlist_link!r}"
         )
-        return ExtractedDataOnline[DataType](
+        return ExtractedDataOnline[PlaylistData](
             extractor_name=self.name,
             object_key=playlist_id,
             object_uri=uri,
@@ -130,7 +153,7 @@ class YouTubeCollectionExtractor(CollectionExtractor[DataType]):
     def _update_object_raw(
         self,
         object: MediaCollection,
-        data: DataType,
+        data: PlaylistData,
     ) -> ChangedReport:
         info = data["info"]
         is_channel = self.__is_channel_id(info["id"])
