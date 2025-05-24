@@ -5,10 +5,7 @@ import logging
 import re
 from typing import Optional
 
-from youtubesearchpython import (  # type: ignore
-    ResultMode,
-    Video,
-)
+from yt_dlp import YoutubeDL  # type: ignore
 
 from ...extras import (
     multi_strptime,
@@ -81,10 +78,12 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             raise Exception(f"URI not suitable: {uri!r}")
         id = uri_match.group("id")
         try:
-            vid_data: YoutubeVideoData = Video.getInfo(
-                videoLink=f"https://www.youtube.com/watch?v={id}",
-                mode=ResultMode.dict,
-            )
+            with YoutubeDL({}) as ydl:
+                info = ydl.extract_info(
+                    f"https://www.youtube.com/watch?v={id}",
+                    download=False,
+                )
+                vid_data = self.__adapt_ytdlp_format(ydl.sanitize_info(info))
         except Exception as e:
             raise ExtractionError() from e
         if vid_data["isLiveNow"]:
@@ -114,6 +113,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             "%Y-%m-%dT%H:%M:%S%:z",
             "%Y-%m-%dT%H:%M:%S%z",
             "%Y-%m-%d",
+            "%Y%m%d",
         )
         object.length = int(data["duration"]["secondsText"])
         for tag in get_video_tags(data):
@@ -126,3 +126,34 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             )
         )
         return ChangedReport.ChangedSome  # TODO improve
+
+    @staticmethod
+    def __adapt_ytdlp_format(ytdlp_info) -> YoutubeVideoData:
+        return {
+            "id": ytdlp_info["id"],
+            "title": ytdlp_info["title"],
+            # TODO keep as int
+            "duration": {"secondsText": str(ytdlp_info["duration"])},
+            "viewCount": {"text": str(ytdlp_info["view_count"])},
+            # only supply best thumbnail available
+            "thumbnails": [
+                {
+                    "url": ytdlp_info["thumbnail"],
+                    "height": 1,
+                    "width": 1,
+                }
+            ],
+            "description": ytdlp_info["description"],
+            "channel": {
+                "name": ytdlp_info["channel"],
+                "id": ytdlp_info["channel_id"],
+                "link": ytdlp_info["channel_url"],
+            },
+            "allowRatings": False,  # faked, unknown, unimportant, TODO remove
+            "averageRating": ytdlp_info["average_rating"],
+            "keywords": ytdlp_info["tags"],
+            "isLiveContent": ytdlp_info["was_live"],
+            "uploadDate": ytdlp_info["upload_date"],
+            "isLiveNow": ytdlp_info["is_live"],
+            "link": ytdlp_info["webpage_url"],
+        }
