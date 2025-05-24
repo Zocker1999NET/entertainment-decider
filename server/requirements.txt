@@ -10,7 +10,6 @@ rss-parser>=1.1
 tmdbsimple>=2.9.1
 yt-dlp>=2022.6.29
 git+https://git.banananet.work/zocker/python-jsoncache#egg=jsoncache
-git+https://github.com/Zocker1999NET/youtube-search-python@my-version#egg=youtube-search-python
 git+https://github.com/Zocker1999NET/tinytinypy#egg=tinytinypy
 # replacement for jinja until https://github.com/pallets/jinja/pull/1712 is merged
 git+https://github.com/Zocker1999NET/jinja@trailing-comma-3.1.2#egg=Jinja2
