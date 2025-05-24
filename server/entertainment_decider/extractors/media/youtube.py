@@ -140,13 +140,14 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             # TODO keep as int
             "duration": {"secondsText": str(ytdlp_info["duration"])},
             "viewCount": {"text": str(ytdlp_info["view_count"])},
-            # only supply best thumbnail available
             "thumbnails": [
                 {
-                    "url": ytdlp_info["thumbnail"],
-                    "height": 1,
-                    "width": 1,
+                    "url": thumb["url"],
+                    "height": thumb["height"],
+                    "width": thumb["width"],
                 }
+                for thumb in ytdlp_info["thumbnails"]
+                if "width" in thumb and "height" in thumb
             ],
             "description": ytdlp_info["description"],
             "channel": {
