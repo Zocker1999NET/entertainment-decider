@@ -31,6 +31,11 @@ from ..generic import (
 from .base import MediaExtractor
 
 
+YTDLP_OPTS = {
+    "check_formats": False,
+}
+
+
 class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
     __uri_regex = re.compile(
         r"""^
@@ -78,7 +83,7 @@ class YoutubeMediaExtractor(MediaExtractor[YoutubeVideoData]):
             raise Exception(f"URI not suitable: {uri!r}")
         id = uri_match.group("id")
         try:
-            with YoutubeDL({}) as ydl:
+            with YoutubeDL(YTDLP_OPTS) as ydl:
                 info = ydl.extract_info(
                     f"https://www.youtube.com/watch?v={id}",
                     download=False,
