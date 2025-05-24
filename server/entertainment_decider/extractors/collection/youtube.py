@@ -11,7 +11,7 @@ from typing import (
 )
 
 from pony import orm  # TODO remove
-import youtubesearchpython
+from yt_dlp import YoutubeDL
 
 from ...models import MediaCollection
 from ..all.youtube import (
@@ -25,6 +25,11 @@ from ..generic import (
     SuitableLevel,
 )
 from .base import CollectionExtractor
+
+
+YTDLP_OPTS = {
+    "extract_flat": "in_playlist",
+}
 
 
 class PlaylistChannel(TypedDict):
@@ -122,32 +127,21 @@ class YouTubeCollectionExtractor(CollectionExtractor[PlaylistData]):
         orig_id = self.__get_id(uri)
         playlist_id = self.__convert_if_required(orig_id)
         playlist_link = f"https://www.youtube.com/playlist?list={playlist_id}"
-        is_channel = self.__is_channel_id(playlist_id)
         logging.info(f"Request Youtube playlist {playlist_link!r}")
-        playlist = youtubesearchpython.Playlist(playlist_link)
-        try:
-            while playlist.hasMoreVideos:
-                playlist.getNextVideos()
-        except Exception as e:
-            # TODO improve check of Exception kind if possible
-            if is_channel and "invalid status code" in str(e.args[0]).lower():
-                # Partial Update on channels can be accepted because newest videos are at the top
-                logging.warning(
-                    f"Failed to retrieve channel completely, proceed with partial update"
-                )
-            else:
-                raise e
+        with YoutubeDL(YTDLP_OPTS) as ydl:
+            info = ydl.extract_info(
+                playlist_link,
+                download=False,
+            )
+            playlist = self.__adapt_ytdlp_format(ydl.sanitize_info(info))
         logging.debug(
-            f"Retrieved {len(playlist.videos)} videos from playlist {playlist_link!r}"
+            f"Retrieved {len(playlist['videos'])} videos from playlist {playlist_link!r}"
         )
         return ExtractedDataOnline[PlaylistData](
             extractor_name=self.name,
             object_key=playlist_id,
             object_uri=uri,
-            data={
-                "info": playlist.info["info"],
-                "videos": playlist.videos,
-            },
+            data=playlist,
         )
 
     def _update_object_raw(
@@ -193,3 +187,23 @@ class YouTubeCollectionExtractor(CollectionExtractor[PlaylistData]):
             )
         )
         return ChangedReport.ChangedSome  # TODO improve
+
+    @staticmethod
+    def __adapt_ytdlp_format(ytdlp_info) -> PlaylistData:
+        return {
+            "info": {
+                "id": ytdlp_info["id"],
+                "title": ytdlp_info["title"],
+                "channel": {
+                    "id": ytdlp_info["channel_id"],
+                    "name": ytdlp_info["channel"],
+                },
+                "link": ytdlp_info["webpage_url"],
+            },
+            "videos": [
+                {
+                    "id": elem["id"],
+                }
+                for elem in ytdlp_info["entries"]
+            ],
+        }
