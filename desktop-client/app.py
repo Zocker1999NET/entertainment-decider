@@ -21,11 +21,15 @@ def cmd_player_play(
     speed: Optional[str] = None,
 ) -> None:
     print(f"Play video {video_uri}")
+    mpv_cmd = ["/usr/bin/env", "mpv"]
+    mpvadd_cmd = Path("~/bin/mpvctl").expanduser()
+    if mpvadd_cmd.exists():
+        mpv_cmd = [str(mpvadd_cmd)]
     subprocess.Popen(
         args=[
             e
             for e in [
-                str(Path("~/bin/mpvctl").expanduser()),
+                *mpv_cmd,
                 "add",
                 video_uri,
                 # f"start={start}" if start is not None else None + "," + f"speed={speed}" if speed is not None else None,
