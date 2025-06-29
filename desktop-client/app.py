@@ -4,11 +4,17 @@ import argparse
 from pathlib import Path
 from string import Template
 import subprocess
-from typing import Callable, Dict, Optional
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Optional,
+    TypeAlias,
+)
 import urllib.parse as url
 
 
-def cmd_player_play(video_uri: str, start: Optional[str] = None, speed: Optional[str] = None):
+def cmd_player_play(video_uri: str, start: Optional[str] = None, speed: Optional[str] = None) -> None:
     print(f"Play video {video_uri}")
     subprocess.Popen(
         args = [e for e in [
@@ -23,13 +29,15 @@ def cmd_player_play(video_uri: str, start: Optional[str] = None, speed: Optional
     )
 
 URI_SCHEME = "entertainment-decider"
-URI_COMMANDS = {
+CommandDict: TypeAlias = Dict[str, "CommandType"]
+CommandType: TypeAlias = CommandDict | Callable[..., None]
+URI_COMMANDS: CommandDict = {
     "player": {
         "play": cmd_player_play
     }
 }
 
-def execute_uri_command(uri: str):
+def execute_uri_command(uri: str) -> Any:
     parts = url.urlparse(uri, scheme=URI_SCHEME, allow_fragments=False)
     if parts.scheme != URI_SCHEME:
         if parts.scheme in {"http", "https"}:
@@ -37,33 +45,33 @@ def execute_uri_command(uri: str):
         raise Exception(f"Cannot parse URI's with scheme {parts.scheme!r}")
     path = parts.path.strip("/").split("/")
     options = dict(url.parse_qsl(parts.query))
-    def unknown_cmd():
+    def unknown_cmd() -> None:
         raise Exception(f"Unknown command {parts.path}")
-    current = URI_COMMANDS
+    current: Any = URI_COMMANDS
     for path_name in path:
         if callable(current) or path_name not in current:
-            unknown_cmd()
+            return unknown_cmd()
         current = current[path_name]
     if not callable(current):
-        unknown_cmd()
+        return unknown_cmd()
     return current(**options)
 
 
-def misc_generate_desktop():
+def misc_generate_desktop() -> None:
     with Path("./entry.desktop").open("r") as fh:
         temp = Template(fh.read())
     print(temp.substitute(name="Entertainment Decider", exec_path=str(Path(__file__).resolve())))
 
-MISC_COMMANDS: Dict[str, Callable] = {
+MISC_COMMANDS: Dict[str, Callable[..., None]] = {
     "generate-desktop-file": misc_generate_desktop,
 }
 
-def execute_misc_cmd(cmd: str):
+def execute_misc_cmd(cmd: str) -> None:
     if cmd not in MISC_COMMANDS:
         raise Exception(f"Unknown misc command {cmd!r}")
     return MISC_COMMANDS[cmd]()
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(prog="entertainment-decider")
     subparsers = parser.add_subparsers()
     # uri parser
