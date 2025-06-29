@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 from pathlib import Path
 from string import Template
 import subprocess
@@ -58,7 +59,8 @@ def execute_uri_command(uri: str) -> Any:
 
 
 def misc_generate_desktop() -> None:
-    with Path("./entry.desktop").open("r") as fh:
+    template_path = os.getenv("STREAMLINED_DESKTOP_TEMPLATE") or "./entry.desktop"
+    with Path(template_path).open("r") as fh:
         temp = Template(fh.read())
     print(temp.substitute(name="Entertainment Decider", exec_path=str(Path(__file__).resolve())))
 
