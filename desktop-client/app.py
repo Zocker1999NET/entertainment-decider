@@ -15,28 +15,38 @@ from typing import (
 import urllib.parse as url
 
 
-def cmd_player_play(video_uri: str, start: Optional[str] = None, speed: Optional[str] = None) -> None:
+def cmd_player_play(
+    video_uri: str,
+    start: Optional[str] = None,
+    speed: Optional[str] = None,
+) -> None:
     print(f"Play video {video_uri}")
     subprocess.Popen(
-        args = [e for e in [
-            str(Path("~/bin/mpvctl").expanduser()),
-            "add",
-            video_uri,
-            #f"start={start}" if start is not None else None + "," + f"speed={speed}" if speed is not None else None,
-        ] if e is not None],
-        stdin = subprocess.DEVNULL,
-        stdout = subprocess.DEVNULL,
-        stderr = subprocess.DEVNULL,
+        args=[
+            e
+            for e in [
+                str(Path("~/bin/mpvctl").expanduser()),
+                "add",
+                video_uri,
+                # f"start={start}" if start is not None else None + "," + f"speed={speed}" if speed is not None else None,
+            ]
+            if e is not None
+        ],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
+
 
 URI_SCHEME = "entertainment-decider"
 CommandDict: TypeAlias = Dict[str, "CommandType"]
 CommandType: TypeAlias = CommandDict | Callable[..., None]
 URI_COMMANDS: CommandDict = {
     "player": {
-        "play": cmd_player_play
-    }
+        "play": cmd_player_play,
+    },
 }
+
 
 def execute_uri_command(uri: str) -> Any:
     parts = url.urlparse(uri, scheme=URI_SCHEME, allow_fragments=False)
@@ -46,8 +56,10 @@ def execute_uri_command(uri: str) -> Any:
         raise Exception(f"Cannot parse URI's with scheme {parts.scheme!r}")
     path = parts.path.strip("/").split("/")
     options = dict(url.parse_qsl(parts.query))
+
     def unknown_cmd() -> None:
         raise Exception(f"Unknown command {parts.path}")
+
     current: Any = URI_COMMANDS
     for path_name in path:
         if callable(current) or path_name not in current:
@@ -64,14 +76,17 @@ def misc_generate_desktop() -> None:
         temp = Template(fh.read())
     print(temp.substitute(name="Entertainment Decider", exec_path=str(Path(__file__).resolve())))
 
+
 MISC_COMMANDS: Dict[str, Callable[..., None]] = {
     "generate-desktop-file": misc_generate_desktop,
 }
+
 
 def execute_misc_cmd(cmd: str) -> None:
     if cmd not in MISC_COMMANDS:
         raise Exception(f"Unknown misc command {cmd!r}")
     return MISC_COMMANDS[cmd]()
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="entertainment-decider")
@@ -90,6 +105,7 @@ def main() -> None:
     d = vars(args)
     del d["parser_cmd"]
     cmd(**d)
+
 
 if __name__ == "__main__":
     main()
