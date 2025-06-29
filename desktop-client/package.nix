@@ -41,7 +41,7 @@ python3Packages.buildPythonPackage {
 
   postInstall = ''
     mkdir --parent $out/share/applications
-    STREAMLINED_DESKTOP_TEMPLATE=${./entry.desktop} $out/bin/${name} misc generate-desktop-file > $out/share/applications/${name}_uri.desktop
+    STREAMLINED_DESKTOP_TEMPLATE=${./entry.desktop} STREAMLINED_EXEC_PATH=$out/bin/${name} $out/bin/${name} misc generate-desktop-file > $out/share/applications/${name}_uri.desktop
   '';
 
   meta = {

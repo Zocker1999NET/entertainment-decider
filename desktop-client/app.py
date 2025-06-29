@@ -74,7 +74,8 @@ def misc_generate_desktop() -> None:
     template_path = os.getenv("STREAMLINED_DESKTOP_TEMPLATE") or "./entry.desktop"
     with Path(template_path).open("r") as fh:
         temp = Template(fh.read())
-    print(temp.substitute(name="Entertainment Decider", exec_path=str(Path(__file__).resolve())))
+    exec_path = os.getenv("STREAMLINED_EXEC_PATH") or str(Path(__file__).resolve())
+    print(temp.substitute(name="Entertainment Decider", exec_path=exec_path))
 
 
 MISC_COMMANDS: Dict[str, Callable[..., None]] = {
